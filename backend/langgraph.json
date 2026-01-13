@@ -1,0 +1,8 @@
+{
+  "$schema": "https://langgra.ph/schema.json",
+  "dependencies": ["."],
+  "env": {},
+  "graphs": {
+    "lead_agent": "src.agents:lead_agent"
+  }
+}
