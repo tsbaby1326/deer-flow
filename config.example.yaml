@@ -1,0 +1,66 @@
+# Configuration for the DeerFlow application
+#
+# Guidelines:
+# - The default path of this configuration file is `config.yaml` in the CWD (Current Working Directory) or the parent directory of the CWD.
+#   How ever you can change it using the `DEER_FLOW_CONFIG_PATH` environment variable.
+# - Environment variables are available for all field values. Example: `api_key: $OPENAI_API_KEY`
+# - Provider path is a string that looks like "package_name.sub_package_name.module_name:class_name/variable_name".
+
+models:
+  - name: doubao-seed-1.8
+    display_name: Doubao 1.8
+    use: langchain_deepseek:ChatDeepSeek
+    model: doubao-seed-1-8-251228
+    api_base: https://ark.cn-beijing.volces.com/api/v3
+    api_key: $ARK_API_KEY
+    supports_thinking: true
+    when_thinking_enabled:
+      extra_body:
+        thinking:
+          type: enabled
+  - name: gpt-5
+    display_name: GPT-5
+    use: langchain_openai:ChatOpenAI
+    model: gpt-5-251228
+    api_base: https://api.openai.com/v1
+    api_key: $OPENAI_API_KEY
+    supports_thinking: true
+
+tool_groups:
+  - name: web
+  - name: file:read
+  - name: file:write
+  - name: bash
+
+tools:
+  - name: web_search
+    group: web
+    use: src.community.tavily.tools:web_search_tool
+    max_results: 5
+
+  - name: web_fetch
+    group: web
+    use: src.community.jina_ai.tools:web_fetch_tool
+    timeout: 10
+
+  - name: ls
+    group: file:read
+    use: src.sandbox.tools:ls_tool
+
+  - name: read_file
+    group: file:read
+    use: src.sandbox.tools:read_file_tool
+
+  - name: write_file
+    group: file:write
+    use: src.sandbox.tools:write_file_tool
+
+  - name: str_replace
+    group: file:write
+    use: src.sandbox.tools:str_replace_tool
+
+  - name: bash
+    group: bash
+    use: src.sandbox.tools:bash_tool
+sandbox:
+  use: src.sandbox.local:LocalSandboxProvider

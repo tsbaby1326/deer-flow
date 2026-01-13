@@ -1,0 +1,25 @@
+# OS generated files
+.DS_Store
+*.local
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Virtual environments
+.venv
+venv/
+
+# Environment variables
+.env
+
+# Configuration files
+config.yaml
+
+# IDE
+.idea/
+
+# Coverage report
+coverage.xml
+coverage/
