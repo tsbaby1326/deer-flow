@@ -7,6 +7,7 @@ wheels/
 *.egg-info
 .coverage
 .coverage.*
+.ruff_cache
 agent_history.gif
 static/browser_history/*.gif
 

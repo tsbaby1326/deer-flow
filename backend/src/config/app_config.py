@@ -13,14 +13,10 @@ from src.config.tool_config import ToolConfig, ToolGroupConfig
 class AppConfig(BaseModel):
     """Config for the DeerFlow application"""
 
-    models: list[ModelConfig] = Field(
-        default_factory=list, description="Available models"
-    )
+    models: list[ModelConfig] = Field(default_factory=list, description="Available models")
     sandbox: SandboxConfig = Field(description="Sandbox configuration")
     tools: list[ToolConfig] = Field(default_factory=list, description="Available tools")
-    tool_groups: list[ToolGroupConfig] = Field(
-        default_factory=list, description="Available tool groups"
-    )
+    tool_groups: list[ToolGroupConfig] = Field(default_factory=list, description="Available tool groups")
     model_config = ConfigDict(extra="allow", frozen=False)
 
     @classmethod
@@ -35,16 +31,12 @@ class AppConfig(BaseModel):
         if config_path:
             path = Path(config_path)
             if not Path.exists(path):
-                raise FileNotFoundError(
-                    f"Config file specified by param `config_path` not found at {path}"
-                )
+                raise FileNotFoundError(f"Config file specified by param `config_path` not found at {path}")
             return path
         elif os.getenv("DEER_FLOW_CONFIG_PATH"):
             path = Path(os.getenv("DEER_FLOW_CONFIG_PATH"))
             if not Path.exists(path):
-                raise FileNotFoundError(
-                    f"Config file specified by environment variable `DEER_FLOW_CONFIG_PATH` not found at {path}"
-                )
+                raise FileNotFoundError(f"Config file specified by environment variable `DEER_FLOW_CONFIG_PATH` not found at {path}")
             return path
         else:
             # Check if the config.yaml is in the parent directory of CWD
@@ -66,7 +58,7 @@ class AppConfig(BaseModel):
             AppConfig: The loaded config.
         """
         resolved_path = cls.resolve_config_path(config_path)
-        with open(resolved_path, "r") as f:
+        with open(resolved_path) as f:
             config_data = yaml.safe_load(f)
         cls.resolve_env_variables(config_data)
         result = cls.model_validate(config_data)

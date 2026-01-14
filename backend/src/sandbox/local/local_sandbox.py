@@ -29,7 +29,7 @@ class LocalSandbox(Sandbox):
         return list_dir(path, max_depth)
 
     def read_file(self, path: str) -> str:
-        with open(path, "r") as f:
+        with open(path) as f:
             return f.read()
 
     def write_file(self, path: str, content: str, append: bool = False) -> None:

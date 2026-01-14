@@ -1,12 +1,12 @@
 from importlib import import_module
-from typing import Type, TypeVar
+from typing import TypeVar
 
 T = TypeVar("T")
 
 
 def resolve_variable[T](
     variable_path: str,
-    expected_type: Type[T] | tuple[Type, ...] | None = None,
+    expected_type: type[T] | tuple[type, ...] | None = None,
 ) -> T:
     """Resolve a variable from a path.
 
@@ -25,9 +25,7 @@ def resolve_variable[T](
     try:
         module_path, variable_name = variable_path.rsplit(":", 1)
     except ValueError as err:
-        raise ImportError(
-            f"{variable_path} doesn't look like a variable path. Example: parent_package_name.sub_package_name.module_name:variable_name"
-        ) from err
+        raise ImportError(f"{variable_path} doesn't look like a variable path. Example: parent_package_name.sub_package_name.module_name:variable_name") from err
 
     try:
         module = import_module(module_path)
@@ -37,26 +35,18 @@ def resolve_variable[T](
     try:
         variable = getattr(module, variable_name)
     except AttributeError as err:
-        raise ImportError(
-            f"Module {module_path} does not define a {variable_name} attribute/class"
-        ) from err
+        raise ImportError(f"Module {module_path} does not define a {variable_name} attribute/class") from err
 
     # Type validation
     if expected_type is not None:
         if not isinstance(variable, expected_type):
-            type_name = (
-                expected_type.__name__
-                if isinstance(expected_type, type)
-                else " or ".join(t.__name__ for t in expected_type)
-            )
-            raise ValueError(
-                f"{variable_path} is not an instance of {type_name}, got {type(variable).__name__}"
-            )
+            type_name = expected_type.__name__ if isinstance(expected_type, type) else " or ".join(t.__name__ for t in expected_type)
+            raise ValueError(f"{variable_path} is not an instance of {type_name}, got {type(variable).__name__}")
 
     return variable
 
 
-def resolve_class(class_path: str, base_class: Type[T] | None = None) -> Type[T]:
+def resolve_class[T](class_path: str, base_class: type[T] | None = None) -> type[T]:
     """Resolve a class from a module path and class name.
 
     Args:

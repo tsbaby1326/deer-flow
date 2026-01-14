@@ -71,7 +71,4 @@ All temporary work happens in `{MOUNT_POINT}/user-data/workspace`. Final deliver
 
 
 def apply_prompt_template() -> str:
-    return (
-        SYSTEM_PROMPT
-        + f"\n<current_date>{datetime.now().strftime("%Y-%m-%d, %A")}</current_date>"
-    )
+    return SYSTEM_PROMPT + f"\n<current_date>{datetime.now().strftime('%Y-%m-%d, %A')}</current_date>"
