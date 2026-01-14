@@ -1,4 +1,5 @@
 {
+  "window.title": "${activeEditorShort}${separator}${separator}deer-flow/backend",
   "[python]": {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
