@@ -39,8 +39,3 @@ class LocalSandbox(Sandbox):
         mode = "a" if append else "w"
         with open(path, mode) as f:
             f.write(content)
-
-
-if __name__ == "__main__":
-    sandbox = LocalSandbox("test")
-    print(sandbox.list_dir("/Users/Henry/mnt"))

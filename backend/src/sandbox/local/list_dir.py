@@ -110,7 +110,3 @@ def list_dir(path: str, max_depth: int = 2) -> list[str]:
     _traverse(root_path, 1)
 
     return sorted(result)
-
-
-if __name__ == "__main__":
-    print("\n".join(list_dir("/Users/Henry/Desktop", max_depth=2)))
