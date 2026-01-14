@@ -10,7 +10,7 @@ class SandboxProvider(ABC):
 
     @abstractmethod
     def acquire(self) -> str:
-        """Acquire a sandbox environment.
+        """Acquire a sandbox environment and return its ID.
 
         Returns:
             The ID of the acquired sandbox environment.
@@ -18,7 +18,7 @@ class SandboxProvider(ABC):
         pass
 
     @abstractmethod
-    def get(self, sandbox_id: str) -> Sandbox:
+    def get(self, sandbox_id: str) -> Sandbox | None:
         """Get a sandbox environment by ID.
 
         Args:

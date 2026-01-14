@@ -13,9 +13,11 @@ class LocalSandboxProvider(SandboxProvider):
         return _singleton.id
 
     def get(self, sandbox_id: str) -> None:
-        if _singleton is None:
-            self.acquire()
-        return _singleton
+        if sandbox_id == "local":
+            if _singleton is None:
+                self.acquire()
+            return _singleton
+        return None
 
     def release(self, sandbox_id: str) -> None:
         pass
