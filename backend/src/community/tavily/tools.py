@@ -45,7 +45,7 @@ def web_fetch_tool(url: str) -> str:
     """
     res = tavily_client.extract([url])
     if "failed_results" in res and len(res["failed_results"]) > 0:
-        return f"Error: {res["failed_results"][0]["error"]}"
+        return f"Error: {res['failed_results'][0]['error']}"
     elif "results" in res and len(res["results"]) > 0:
         result = res["results"][0]
         return f"# {result['title']}\n\n{result['raw_content']}"

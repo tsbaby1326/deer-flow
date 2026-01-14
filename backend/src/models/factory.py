@@ -4,9 +4,7 @@ from src.config import get_app_config
 from src.reflection import resolve_class
 
 
-def create_chat_model(
-    name: str | None = None, thinking_enabled: bool = False, **kwargs
-) -> BaseChatModel:
+def create_chat_model(name: str | None = None, thinking_enabled: bool = False, **kwargs) -> BaseChatModel:
     """Create a chat model instance from the config.
 
     Args:
@@ -35,9 +33,7 @@ def create_chat_model(
     )
     if thinking_enabled and model_config.when_thinking_enabled is not None:
         if not model_config.supports_thinking:
-            raise ValueError(
-                f"Model {name} does not support thinking. Set `supports_thinking` to true in the `config.yaml` to enable thinking."
-            ) from None
+            raise ValueError(f"Model {name} does not support thinking. Set `supports_thinking` to true in the `config.yaml` to enable thinking.") from None
         model_settings_from_config.update(model_config.when_thinking_enabled)
     model_instance = model_class(**kwargs, **model_settings_from_config)
     return model_instance
