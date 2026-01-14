@@ -5,7 +5,11 @@ from src.sandbox.sandbox_provider import get_sandbox_provider
 
 @tool("bash", parse_docstring=True)
 def bash_tool(description: str, command: str) -> str:
-    """Execute a bash command.
+    """Execute a bash command in a Linux environment.
+
+
+    - Use `python` to run Python code.
+    - Use `pip install` to install Python packages.
 
     Args:
         description: Explain why you are running this command in short words.

@@ -54,11 +54,6 @@ All temporary work happens in `{MOUNT_POINT}/user-data/workspace`. Final deliver
 - Working on AIGC with Gemini Nano Banana
 </memory_and_context>
 
-<python>
-- Use `python` to run Python code.
-- Use `pip install` to install Python packages.
-</python>
-
 <critical_reminders>
 - Skill First: Always load the relevant skill before starting **complex** tasks.
 - Progressive Loading: Load resources incrementally as referenced in skills
