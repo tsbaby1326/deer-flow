@@ -300,7 +300,7 @@ function describeStep(step: CoTStep): {
     let label: string;
     let icon: React.ReactElement = <WrenchIcon className="size-4" />;
     if (step.name === "web_search") {
-      label = "Search on the web";
+      label = `Search &quot;${(step.args as { query: string }).query}&quot; on web`;
       icon = <SearchIcon className="size-4" />;
     } else if (step.name === "web_fetch") {
       label = "View web page";
