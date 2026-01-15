@@ -64,7 +64,7 @@ export const ChainOfThought = memo(
 
     return (
       <ChainOfThoughtContext.Provider value={chainOfThoughtContext}>
-        <div className={cn("not-prose space-y-4", className)} {...props}>
+        <div className={cn("not-prose", className)} {...props}>
           {children}
         </div>
       </ChainOfThoughtContext.Provider>

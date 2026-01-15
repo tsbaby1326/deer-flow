@@ -46,7 +46,7 @@ export function MessageGroup({
   const { label, icon } = describeStep(lastStep);
   return (
     <ChainOfThought
-      className={cn("w-full rounded-lg border px-4 pt-4", className)}
+      className={cn("w-full rounded-lg border px-3 py-2", className)}
       defaultOpen={false}
       open={open}
       onOpenChange={setOpen}
@@ -79,7 +79,7 @@ export function MessageGroup({
           </div>
         </div>
       </ChainOfThoughtHeader>
-      <ChainOfThoughtContent className="pb-4">
+      <ChainOfThoughtContent className="pb-2">
         {steps.map((step) =>
           step.type === "reasoning" ? (
             <ChainOfThoughtStep
@@ -224,7 +224,7 @@ function ToolCall({
         label={
           description ?? (
             <div>
-              Use tool <b>{name}</b>
+              Use &quot;<span className="font-bold">{name}</span>&quot; tool
             </div>
           )
         }
