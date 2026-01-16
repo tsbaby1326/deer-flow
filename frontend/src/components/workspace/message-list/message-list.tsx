@@ -3,7 +3,6 @@ import type { UseStream } from "@langchain/langgraph-sdk/react";
 import {
   Conversation,
   ConversationContent,
-  ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { groupMessages, hasContent } from "@/core/messages/utils";
 import type { AgentThreadState } from "@/core/threads";
@@ -57,7 +56,6 @@ export function MessageList({
         {thread.isLoading && <StreamingIndicator className="my-4" />}
         <div className="h-40" />
       </ConversationContent>
-      <ConversationScrollButton className="-translate-y-16 backdrop-blur-xs" />
     </Conversation>
   );
 }
