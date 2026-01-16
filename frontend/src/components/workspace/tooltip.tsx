@@ -15,9 +15,9 @@ export function Tooltip({
   content?: React.ReactNode;
 }) {
   return (
-    <TooltipPrimitive {...props}>
+    <TooltipPrimitive delayDuration={500} {...props}>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
-      <TooltipContent className="shadow">{content}</TooltipContent>
+      <TooltipContent>{content}</TooltipContent>
     </TooltipPrimitive>
   );
 }
