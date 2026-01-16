@@ -1,16 +1,30 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Overscroll } from "@/components/workspace/overscroll";
 import { WorkspaceSidebar } from "@/components/workspace/workspace-sidebar";
+import { useLocalSettings } from "@/core/settings";
 
 const queryClient = new QueryClient();
 
 export default function WorkspaceLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const [settings, setSettings] = useLocalSettings();
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    setOpen(!settings.layout.sidebar_collapsed);
+  }, [settings.layout.sidebar_collapsed]);
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      setOpen(open);
+      setSettings("layout", { sidebar_collapsed: !open });
+    },
+    [setSettings],
+  );
   return (
     <QueryClientProvider client={queryClient}>
       <SidebarProvider
@@ -19,6 +33,8 @@ export default function WorkspaceLayout({
             "--sidebar-width": "calc(var(--spacing) * 72)",
           } as React.CSSProperties
         }
+        open={open}
+        onOpenChange={handleOpenChange}
       >
         <Overscroll behavior="none" overflow="hidden" />
         <WorkspaceSidebar />

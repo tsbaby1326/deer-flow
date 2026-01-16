@@ -26,7 +26,7 @@ export default function ChatPage() {
     [threadIdFromPath],
   );
   const [threadId, setThreadId] = useState<string | null>(null);
-  const { threadContext, setThreadContext } = useLocalSettings();
+  const [settings, setSettings] = useLocalSettings();
 
   useEffect(() => {
     if (threadIdFromPath !== "new") {
@@ -43,7 +43,7 @@ export default function ChatPage() {
     isNewThread,
     threadId,
     thread,
-    threadContext,
+    threadContext: settings.context,
     afterSubmit() {
       router.push(pathOfThread(threadId!));
     },
@@ -71,8 +71,8 @@ export default function ChatPage() {
                 className="w-full max-w-(--container-width-md)"
                 autoFocus={isNewThread}
                 status={thread.isLoading ? "streaming" : "ready"}
-                context={threadContext}
-                onContextChange={setThreadContext}
+                context={settings.context}
+                onContextChange={(context) => setSettings("context", context)}
                 onSubmit={handleSubmit}
                 onStop={handleStop}
               />

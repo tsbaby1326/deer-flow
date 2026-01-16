@@ -5,12 +5,18 @@ export const DEFAULT_LOCAL_SETTINGS: LocalSettings = {
     model_name: "deepseek-v3.2",
     thinking_enabled: true,
   },
+  layout: {
+    sidebar_collapsed: false,
+  },
 };
 
 const LOCAL_SETTINGS_KEY = "deerflow.local-settings";
 
 export interface LocalSettings {
   context: Omit<AgentThreadContext, "thread_id">;
+  layout: {
+    sidebar_collapsed: boolean;
+  };
 }
 
 export function getLocalSettings(): LocalSettings {
@@ -20,7 +26,11 @@ export function getLocalSettings(): LocalSettings {
   const json = localStorage.getItem(LOCAL_SETTINGS_KEY);
   try {
     if (json) {
-      return JSON.parse(json);
+      const settings = JSON.parse(json);
+      return {
+        ...DEFAULT_LOCAL_SETTINGS,
+        ...settings,
+      };
     }
   } catch {}
   return DEFAULT_LOCAL_SETTINGS;
@@ -28,17 +38,4 @@ export function getLocalSettings(): LocalSettings {
 
 export function saveLocalSettings(settings: LocalSettings) {
   localStorage.setItem(LOCAL_SETTINGS_KEY, JSON.stringify(settings));
-}
-
-export function updateContextOfLocalSettings(
-  context: LocalSettings["context"],
-) {
-  const settings = getLocalSettings();
-  saveLocalSettings({
-    ...settings,
-    context: {
-      ...settings.context,
-      ...context,
-    },
-  });
 }

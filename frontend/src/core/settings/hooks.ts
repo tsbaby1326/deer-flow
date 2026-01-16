@@ -1,34 +1,46 @@
 import { useCallback, useState } from "react";
 import { useEffect } from "react";
 
-import type { AgentThreadContext } from "../threads";
-
 import {
   DEFAULT_LOCAL_SETTINGS,
   getLocalSettings,
-  updateContextOfLocalSettings,
+  saveLocalSettings,
+  type LocalSettings,
 } from "./local";
 
-export function useLocalSettings() {
+export function useLocalSettings(): [
+  LocalSettings,
+  (
+    key: keyof LocalSettings,
+    value: Partial<LocalSettings[keyof LocalSettings]>,
+  ) => void,
+] {
   const [mounted, setMounted] = useState(false);
-  const [threadContextState, setThreadContextState] = useState<
-    Omit<AgentThreadContext, "thread_id">
-  >(DEFAULT_LOCAL_SETTINGS.context);
+  const [state, setState] = useState<LocalSettings>(DEFAULT_LOCAL_SETTINGS);
   useEffect(() => {
     if (!mounted) {
-      setThreadContextState(getLocalSettings().context);
+      setState(getLocalSettings());
     }
     setMounted(true);
   }, [mounted]);
-  const setThreadContext = useCallback(
-    (context: Omit<AgentThreadContext, "thread_id">) => {
-      setThreadContextState(context);
-      updateContextOfLocalSettings(context);
+  const setter = useCallback(
+    (
+      key: keyof LocalSettings,
+      value: Partial<LocalSettings[keyof LocalSettings]>,
+    ) => {
+      setState((prev) => {
+        const newState = {
+          ...prev,
+          [key]: {
+            ...prev[key],
+            ...value,
+          },
+        };
+        saveLocalSettings(newState);
+        return newState;
+      });
     },
     [],
   );
-  return {
-    threadContext: threadContextState,
-    setThreadContext,
-  };
+  return [state, setter];
 }
