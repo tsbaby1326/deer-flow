@@ -4,7 +4,12 @@ import {
   Conversation,
   ConversationContent,
 } from "@/components/ai-elements/conversation";
-import { groupMessages, hasContent } from "@/core/messages/utils";
+import {
+  extractPresentFilesFromMessage,
+  groupMessages,
+  hasContent,
+  hasPresentFiles,
+} from "@/core/messages/utils";
 import type { AgentThreadState } from "@/core/threads";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +17,7 @@ import { StreamingIndicator } from "../streaming-indicator";
 
 import { MessageGroup } from "./message-group";
 import { MessageListItem } from "./message-list-item";
+import { PresentFileList } from "./present-file-list";
 import { MessageListSkeleton } from "./skeleton";
 
 export function MessageList({
@@ -41,6 +47,17 @@ export function MessageList({
                   messagesInGroup={groupedMessages}
                   isLoading={thread.isLoading}
                 />
+              );
+            }
+            if (groupedMessages[0] && hasPresentFiles(groupedMessages[0])) {
+              const files = [];
+              for (const message of groupedMessages) {
+                if (hasPresentFiles(message)) {
+                  files.push(...extractPresentFilesFromMessage(message));
+                }
+              }
+              return (
+                <PresentFileList key={groupedMessages[0].id} files={files} />
               );
             }
             return (

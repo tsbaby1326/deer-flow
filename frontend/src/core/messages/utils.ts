@@ -46,9 +46,14 @@ export function groupMessages<T>(
           messageIndex === messages.length - 1 &&
           isLoading)
       ) {
-        // Assistant messages without any content are folded into the previous group
-        // Normally, these are tool calls (with or without thinking)
-        currentGroup.push(message);
+        if (message.tool_calls?.[0]?.name === "present_files") {
+          yieldCurrentGroup();
+          currentGroup.push(message);
+        } else {
+          // Assistant messages without any content are folded into the previous group
+          // Normally, these are tool calls (with or without thinking)
+          currentGroup.push(message);
+        }
       } else {
         // Assistant messages with content (text or images) are shown as a group if they have content
         // No matter whether it has tool calls or not
@@ -142,6 +147,25 @@ export function hasToolCalls(message: Message) {
   return (
     message.type === "ai" && message.tool_calls && message.tool_calls.length > 0
   );
+}
+
+export function hasPresentFiles(message: Message) {
+  return (
+    message.type === "ai" && message.tool_calls?.[0]?.name === "present_files"
+  );
+}
+
+export function extractPresentFilesFromMessage(message: Message) {
+  if (message.type !== "ai" || !hasPresentFiles(message)) {
+    return [];
+  }
+  const files = [];
+  for (const toolCall of message.tool_calls ?? []) {
+    if (toolCall.name === "present_files") {
+      files.push(...(toolCall.args.filepaths as string[]));
+    }
+  }
+  return files;
 }
 
 export function findToolCallResult(toolCallId: string, messages: Message[]) {
