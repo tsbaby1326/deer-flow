@@ -1,11 +1,8 @@
 "use client";
 
-import { type HumanMessage } from "@langchain/core/messages";
-import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { BreadcrumbItem } from "@/components/ui/breadcrumb";
 import { InputBox } from "@/components/workspace/input-box";
 import { MessageList } from "@/components/workspace/message-list/message-list";
@@ -17,13 +14,12 @@ import {
 } from "@/components/workspace/workspace-container";
 import { useLocalSettings } from "@/core/settings";
 import { type AgentThread } from "@/core/threads";
-import { useThreadStream } from "@/core/threads/hooks";
-import { titleOfThread } from "@/core/threads/utils";
+import { useSubmitThread, useThreadStream } from "@/core/threads/hooks";
+import { pathOfThread, titleOfThread } from "@/core/threads/utils";
 import { uuid } from "@/core/utils/uuid";
 
 export default function ChatPage() {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { thread_id: threadIdFromPath } = useParams<{ thread_id: string }>();
   const isNewThread = useMemo(
     () => threadIdFromPath === "new",
@@ -43,40 +39,15 @@ export default function ChatPage() {
     isNewThread,
     threadId,
   });
-  const handleSubmit = useCallback(
-    async (message: PromptInputMessage) => {
-      const text = message.text.trim();
-      if (isNewThread) {
-        router.replace(`/workspace/chats/${threadId}`);
-      }
-      await thread.submit(
-        {
-          messages: [
-            {
-              type: "human",
-              content: [
-                {
-                  type: "text",
-                  text,
-                },
-              ],
-            },
-          ] as HumanMessage[],
-        },
-        {
-          threadId: isNewThread ? threadId! : undefined,
-          streamSubgraphs: true,
-          streamResumable: true,
-          context: {
-            ...threadContext,
-            thread_id: threadId!,
-          },
-        },
-      );
-      void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
+  const handleSubmit = useSubmitThread({
+    isNewThread,
+    threadId,
+    thread,
+    threadContext,
+    afterSubmit() {
+      router.push(pathOfThread(threadId!));
     },
-    [isNewThread, queryClient, router, thread, threadContext, threadId],
-  );
+  });
   const handleStop = useCallback(async () => {
     await thread.stop();
   }, [thread]);

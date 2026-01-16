@@ -5,6 +5,7 @@ import {
   Message as AIElementMessage,
   MessageContent as AIElementMessageContent,
   MessageResponse as AIElementMessageResponse,
+  MessageToolbar,
 } from "@/components/ai-elements/message";
 import {
   extractContentFromMessage,
@@ -15,6 +16,7 @@ import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { cn } from "@/lib/utils";
 
 import { MessageGroup } from "./message-group";
+import { CopyButton } from "../copy-button";
 
 export function MessageListItem({
   className,
@@ -38,6 +40,17 @@ export function MessageListItem({
         messagesInGroup={messagesInGroup}
         isLoading={isLoading}
       />
+      <MessageToolbar
+        className={cn(
+          message.type === "human" && "justify-end",
+          message.type === "human" ? "-bottom-9" : "-bottom-8",
+          "absolute right-0 left-0 z-20 opacity-0 transition-opacity delay-200 duration-300 group-hover/conversation-message:opacity-100",
+        )}
+      >
+        <div className="flex gap-1">
+          <CopyButton clipboardData={extractContentFromMessage(message)} />
+        </div>
+      </MessageToolbar>
     </AIElementMessage>
   );
 }

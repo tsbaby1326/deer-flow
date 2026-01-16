@@ -31,7 +31,7 @@ export function MessageList({
       <ConversationContent className="mx-auto w-full max-w-(--container-width-md)">
         {groupMessages(
           thread.messages,
-          (groupedMessages, groupIndex, isLastGroup) => {
+          (groupedMessages) => {
             if (groupedMessages[0] && hasContent(groupedMessages[0])) {
               const message = groupedMessages[0];
               return (

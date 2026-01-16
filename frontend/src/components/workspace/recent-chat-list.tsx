@@ -57,7 +57,7 @@ export function RecentChatList() {
         <SidebarMenu>
           <div className="flex w-full flex-col gap-1">
             {threads.map((thread) => {
-              const isActive = pathOfThread(thread, false) === pathname;
+              const isActive = pathOfThread(thread.thread_id) === pathname;
               return (
                 <SidebarMenuItem
                   key={thread.thread_id}
@@ -67,7 +67,7 @@ export function RecentChatList() {
                     <div>
                       <Link
                         className="text-muted-foreground block w-full whitespace-nowrap group-hover/side-menu-item:overflow-hidden"
-                        href={pathOfThread(thread)}
+                        href={pathOfThread(thread.thread_id)}
                       >
                         {titleOfThread(thread)}
                       </Link>
