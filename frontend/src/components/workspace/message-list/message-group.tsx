@@ -41,7 +41,7 @@ export function MessageGroup({
   const steps = useMemo(() => convertToSteps(messages), [messages]);
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
   const [open, setOpen] = useState(false);
-  const lastStep = steps[steps.length - 1]!;
+  const lastStep = steps[steps.length - 1];
   const { label, icon } = describeStep(lastStep);
   return (
     <ChainOfThought
@@ -289,10 +289,13 @@ function convertToSteps(messages: Message[]): CoTStep[] {
   return steps;
 }
 
-function describeStep(step: CoTStep): {
+function describeStep(step: CoTStep | undefined): {
   label: string;
   icon: React.ReactElement;
 } {
+  if (!step) {
+    return { label: "Thinking", icon: <LightbulbIcon className="size-4" /> };
+  }
   if (step.type === "reasoning") {
     return { label: "Thinking", icon: <LightbulbIcon className="size-4" /> };
   } else {
