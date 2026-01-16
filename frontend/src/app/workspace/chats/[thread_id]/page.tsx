@@ -17,11 +17,8 @@ import {
   WorkspaceFooter,
 } from "@/components/workspace/workspace-container";
 import { getLangGraphClient } from "@/core/api";
-import type {
-  AgentThread,
-  AgentThreadContext,
-  AgentThreadState,
-} from "@/core/threads";
+import { useLocalSettings } from "@/core/settings";
+import type { AgentThread, AgentThreadState } from "@/core/threads";
 import { titleOfThread } from "@/core/threads/utils";
 import { uuid } from "@/core/utils/uuid";
 
@@ -36,11 +33,8 @@ export default function ChatPage() {
     [threadIdFromPath],
   );
   const [threadId, setThreadId] = useState<string | null>(null);
-  const [threadContext, setThreadContext] = useState<AgentThreadContext>({
-    thread_id: "",
-    model: "deepseek-v3.2",
-    thinking_enabled: true,
-  });
+  const { threadContext, setThreadContext } = useLocalSettings();
+
   useEffect(() => {
     if (threadIdFromPath !== "new") {
       setThreadId(threadIdFromPath);

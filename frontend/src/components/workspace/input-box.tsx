@@ -49,8 +49,8 @@ export function InputBox({
 }: Omit<ComponentProps<typeof PromptInput>, "onSubmit"> & {
   assistantId?: string | null;
   status?: ChatStatus;
-  context: AgentThreadContext;
-  onContextChange?: (context: AgentThreadContext) => void;
+  context: Omit<AgentThreadContext, "thread_id">;
+  onContextChange?: (context: Omit<AgentThreadContext, "thread_id">) => void;
   onSubmit?: (message: PromptInputMessage) => void;
   onStop?: () => void;
 }) {
