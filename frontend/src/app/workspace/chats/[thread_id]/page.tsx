@@ -4,13 +4,13 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { BreadcrumbItem } from "@/components/ui/breadcrumb";
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { InputBox } from "@/components/workspace/input-box";
 import { MessageList } from "@/components/workspace/message-list/message-list";
 import {
   WorkspaceContainer,
   WorkspaceBody,
   WorkspaceHeader,
-  WorkspaceFooter,
 } from "@/components/workspace/workspace-container";
 import { useLocalSettings } from "@/core/settings";
 import { type AgentThread } from "@/core/threads";
@@ -61,21 +61,27 @@ export default function ChatPage() {
         </BreadcrumbItem>
       </WorkspaceHeader>
       <WorkspaceBody>
-        <div className="flex size-full justify-center">
-          <MessageList className="size-full" thread={thread} />
-        </div>
+        <ResizablePanelGroup orientation="horizontal">
+          <ResizablePanel className="relative" defaultSize={46}>
+            <div className="flex size-full justify-center">
+              <MessageList className="size-full" thread={thread} />
+            </div>
+            <div className="absolute right-0 bottom-0 left-0 flex justify-center px-4">
+              <InputBox
+                className="w-full max-w-(--container-width-md)"
+                autoFocus={isNewThread}
+                status={thread.isLoading ? "streaming" : "ready"}
+                context={threadContext}
+                onContextChange={setThreadContext}
+                onSubmit={handleSubmit}
+                onStop={handleStop}
+              />
+            </div>
+          </ResizablePanel>
+          {/* <ResizableHandle />
+          <ResizablePanel defaultSize={64}></ResizablePanel> */}
+        </ResizablePanelGroup>
       </WorkspaceBody>
-      <WorkspaceFooter>
-        <InputBox
-          className="max-w-(--container-width-md)"
-          autoFocus={isNewThread}
-          status={thread.isLoading ? "streaming" : "ready"}
-          context={threadContext}
-          onContextChange={setThreadContext}
-          onSubmit={handleSubmit}
-          onStop={handleStop}
-        />
-      </WorkspaceFooter>
     </WorkspaceContainer>
   );
 }

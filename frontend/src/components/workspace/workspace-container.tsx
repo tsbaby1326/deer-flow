@@ -122,24 +122,6 @@ export function WorkspaceBody({
   );
 }
 
-export function WorkspaceFooter({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<"footer">) {
-  return (
-    <footer
-      className={cn(
-        "absolute right-0 bottom-0 left-0 z-30 flex justify-center",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </footer>
-  );
-}
-
 function nameOfSegment(segment: string | undefined) {
   if (!segment) return "Home";
   return segment[0]?.toUpperCase() + segment.slice(1);
