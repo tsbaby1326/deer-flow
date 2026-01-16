@@ -114,6 +114,8 @@ export default function ChatPage() {
           className="max-w-(--container-width-md)"
           autoFocus={isNewThread}
           status={thread.isLoading ? "streaming" : "ready"}
+          context={threadContext}
+          onContextChange={setThreadContext}
           onSubmit={handleSubmit}
           onStop={handleStop}
         />
