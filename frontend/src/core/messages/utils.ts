@@ -159,9 +159,12 @@ export function extractPresentFilesFromMessage(message: Message) {
   if (message.type !== "ai" || !hasPresentFiles(message)) {
     return [];
   }
-  const files = [];
+  const files: string[] = [];
   for (const toolCall of message.tool_calls ?? []) {
-    if (toolCall.name === "present_files") {
+    if (
+      toolCall.name === "present_files" &&
+      Array.isArray(toolCall.args.filepaths)
+    ) {
       files.push(...(toolCall.args.filepaths as string[]));
     }
   }

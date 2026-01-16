@@ -12,7 +12,7 @@ import { getFileExtension, getFileName } from "@/core/utils/files";
 
 export function PresentFileList({ files }: { files: string[] }) {
   return (
-    <ul className="w-full">
+    <ul className="flex w-full flex-col gap-4">
       {files.map((file) => (
         <Card key={file}>
           <CardHeader>

@@ -222,19 +222,16 @@ function ToolCall({
     );
   } else if (name === "present_files") {
     return (
-      <ChainOfThoughtStep
-        key={id}
-        label={`Present file${(args as { filepaths: string[] }).filepaths.length > 1 ? "s" : ""}`}
-        icon={FileTextIcon}
-      >
+      <ChainOfThoughtStep key={id} label="Present files" icon={FileTextIcon}>
         <ChainOfThoughtSearchResult>
-          {(args as { filepaths: string[] }).filepaths.map(
-            (filepath: string) => (
-              <ChainOfThoughtSearchResult key={filepath}>
-                {filepath}
-              </ChainOfThoughtSearchResult>
-            ),
-          )}
+          {Array.isArray((args as { filepaths: string[] }).filepaths) &&
+            (args as { filepaths: string[] }).filepaths.map(
+              (filepath: string) => (
+                <ChainOfThoughtSearchResult key={filepath}>
+                  {filepath}
+                </ChainOfThoughtSearchResult>
+              ),
+            )}
         </ChainOfThoughtSearchResult>
       </ChainOfThoughtStep>
     );
@@ -344,7 +341,7 @@ function describeStep(step: CoTStep | undefined): {
       label = "Execute command";
       icon = <SquareTerminalIcon className="size-4" />;
     } else if (step.name === "present_files") {
-      label = `Present file${(step.args as { filepaths: string[] }).filepaths.length > 1 ? "s" : ""}`;
+      label = "Present files";
       icon = <FileTextIcon className="size-4" />;
     } else {
       label = `Call tool "${step.name}"`;
