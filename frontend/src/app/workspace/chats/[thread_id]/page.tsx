@@ -10,13 +10,13 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { ArtifactFileDetail } from "@/components/workspace/artifacts";
 import {
+  ArtifactFileDetail,
   ArtifactsProvider,
   useArtifacts,
-} from "@/components/workspace/artifacts/context";
+} from "@/components/workspace/artifacts";
 import { InputBox } from "@/components/workspace/input-box";
-import { MessageList } from "@/components/workspace/message-list/message-list";
+import { MessageList } from "@/components/workspace/messages";
 import {
   WorkspaceContainer,
   WorkspaceBody,
