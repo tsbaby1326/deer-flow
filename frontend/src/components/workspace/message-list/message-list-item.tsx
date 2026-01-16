@@ -15,8 +15,9 @@ import {
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { cn } from "@/lib/utils";
 
-import { MessageGroup } from "./message-group";
 import { CopyButton } from "../copy-button";
+
+import { MessageGroup } from "./message-group";
 
 export function MessageListItem({
   className,
@@ -31,11 +32,11 @@ export function MessageListItem({
 }) {
   return (
     <AIElementMessage
-      className={cn("relative", "group/conversation-message", className)}
+      className={cn("group/conversation-message relative w-full", className)}
       from={message.type === "human" ? "user" : "assistant"}
     >
       <MessageContent
-        className={className}
+        className={message.type === "human" ? "w-fit" : "w-full"}
         message={message}
         messagesInGroup={messagesInGroup}
         isLoading={isLoading}
