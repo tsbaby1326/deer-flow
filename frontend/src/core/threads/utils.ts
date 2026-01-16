@@ -2,11 +2,8 @@ import type { BaseMessage } from "@langchain/core/messages";
 
 import type { AgentThread } from "./types";
 
-export function pathOfThread(thread: AgentThread, includeAssistantId = true) {
-  if (includeAssistantId) {
-    return `/workspace/chats/${thread.thread_id}`;
-  }
-  return `/workspace/chats/${thread.thread_id}`;
+export function pathOfThread(threadId: string) {
+  return `/workspace/chats/${threadId}`;
 }
 
 export function textOfMessage(message: BaseMessage) {
