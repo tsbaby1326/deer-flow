@@ -10,6 +10,6 @@ export interface AgentThread extends Thread<AgentThreadState> {}
 
 export interface AgentThreadContext extends Record<string, unknown> {
   thread_id: string;
-  model: string;
+  model_name: string;
   thinking_enabled: boolean;
 }

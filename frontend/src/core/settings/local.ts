@@ -2,7 +2,7 @@ import type { AgentThreadContext } from "../threads";
 
 export const DEFAULT_LOCAL_SETTINGS: LocalSettings = {
   context: {
-    model: "deepseek-v3.2",
+    model_name: "deepseek-v3.2",
     thinking_enabled: true,
   },
 };

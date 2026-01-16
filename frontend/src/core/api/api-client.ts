@@ -3,7 +3,7 @@
 import { Client as LangGraphClient } from "@langchain/langgraph-sdk/client";
 
 let _singleton: LangGraphClient | null = null;
-export function getLangGraphClient(): LangGraphClient {
+export function getAPIClient(): LangGraphClient {
   let url: URL | null = null;
   if (typeof window === "undefined") {
     url = new URL("/api/langgraph", "http://localhost:3000");

@@ -1,5 +1,10 @@
 import type { ChatStatus } from "ai";
-import { CheckIcon, LightbulbIcon, LightbulbOffIcon } from "lucide-react";
+import {
+  BoxIcon,
+  CheckIcon,
+  LightbulbIcon,
+  LightbulbOffIcon,
+} from "lucide-react";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 
 import {
@@ -20,10 +25,8 @@ import {
   ModelSelectorInput,
   ModelSelectorItem,
   ModelSelectorList,
-  ModelSelectorLogo,
   ModelSelectorName,
   ModelSelectorTrigger,
-  type ModelSelectorLogoProps,
 } from "../ai-elements/model-selector";
 
 import { Tooltip } from "./tooltip";
@@ -56,14 +59,14 @@ export function InputBox({
 }) {
   const [modelDialogOpen, setModelDialogOpen] = useState(false);
   const selectedModel = useMemo(
-    () => AVAILABLE_MODELS.find((m) => m.name === context.model),
-    [context.model],
+    () => AVAILABLE_MODELS.find((m) => m.name === context.model_name),
+    [context.model_name],
   );
   const handleModelSelect = useCallback(
-    (model: string) => {
+    (model_name: string) => {
       onContextChange?.({
         ...context,
-        model,
+        model_name,
       });
       setModelDialogOpen(false);
     },
@@ -140,13 +143,8 @@ export function InputBox({
           >
             <ModelSelectorTrigger asChild>
               <PromptInputButton>
-                <ModelSelectorLogo
-                  className="size-4"
-                  provider={
-                    selectedModel?.provider as ModelSelectorLogoProps["provider"]
-                  }
-                />
-                <ModelSelectorName>
+                <BoxIcon className="size-4" />
+                <ModelSelectorName className="font-light">
                   {selectedModel?.displayName}
                 </ModelSelectorName>
               </PromptInputButton>
@@ -160,12 +158,8 @@ export function InputBox({
                     value={m.name}
                     onSelect={() => handleModelSelect(m.name)}
                   >
-                    <ModelSelectorLogo
-                      className="size-4"
-                      provider={m.provider}
-                    />
                     <ModelSelectorName>{m.displayName}</ModelSelectorName>
-                    {m.name === context.model ? (
+                    {m.name === context.model_name ? (
                       <CheckIcon className="ml-auto size-4" />
                     ) : (
                       <div className="ml-auto size-4" />

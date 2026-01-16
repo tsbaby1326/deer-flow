@@ -1,7 +1,6 @@
 "use client";
 
 import { type HumanMessage } from "@langchain/core/messages";
-import { useStream } from "@langchain/langgraph-sdk/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -16,13 +15,11 @@ import {
   WorkspaceHeader,
   WorkspaceFooter,
 } from "@/components/workspace/workspace-container";
-import { getLangGraphClient } from "@/core/api";
 import { useLocalSettings } from "@/core/settings";
-import type { AgentThread, AgentThreadState } from "@/core/threads";
+import { type AgentThread } from "@/core/threads";
+import { useThreadStream } from "@/core/threads/hooks";
 import { titleOfThread } from "@/core/threads/utils";
 import { uuid } from "@/core/utils/uuid";
-
-const langGraphClient = getLangGraphClient();
 
 export default function ChatPage() {
   const router = useRouter();
@@ -42,15 +39,9 @@ export default function ChatPage() {
       setThreadId(uuid());
     }
   }, [threadIdFromPath]);
-  const thread = useStream<AgentThreadState>({
-    client: langGraphClient,
-    assistantId: "lead_agent",
-    threadId: !isNewThread ? threadId : undefined,
-    reconnectOnMount: true,
-    fetchStateHistory: true,
-    onFinish() {
-      void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
-    },
+  const thread = useThreadStream({
+    isNewThread,
+    threadId,
   });
   const handleSubmit = useCallback(
     async (message: PromptInputMessage) => {
