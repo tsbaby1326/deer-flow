@@ -21,14 +21,13 @@ import {
   ChainOfThoughtStep,
 } from "@/components/ai-elements/chain-of-thought";
 import { MessageResponse } from "@/components/ai-elements/message";
-import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
-import { extractTitleFromMarkdown } from "@/core/utils/markdown";
-import { cn } from "@/lib/utils";
-
 import {
   extractReasoningContentFromMessage,
   findToolCallResult,
-} from "./utils";
+} from "@/core/messages/utils";
+import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
+import { extractTitleFromMarkdown } from "@/core/utils/markdown";
+import { cn } from "@/lib/utils";
 
 export function MessageGroup({
   className,

@@ -6,11 +6,15 @@ import {
   MessageContent as AIElementMessageContent,
   MessageResponse as AIElementMessageResponse,
 } from "@/components/ai-elements/message";
+import {
+  extractContentFromMessage,
+  hasReasoning,
+  hasToolCalls,
+} from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { cn } from "@/lib/utils";
 
 import { MessageGroup } from "./message-group";
-import { extractContentFromMessage, hasReasoning, hasToolCalls } from "./utils";
 
 export function MessageListItem({
   className,

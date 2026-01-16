@@ -1,15 +1,19 @@
 import type { ChatStatus } from "ai";
+import { LightbulbIcon, LightbulbOffIcon } from "lucide-react";
 import { useCallback, type ComponentProps } from "react";
 
 import {
   PromptInput,
   PromptInputBody,
+  PromptInputButton,
   PromptInputFooter,
   PromptInputSubmit,
   PromptInputTextarea,
   type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
 import { cn } from "@/lib/utils";
+
+import { Tooltip } from "./tooltip";
 
 export function InputBox({
   className,
@@ -57,7 +61,13 @@ export function InputBox({
         />
       </PromptInputBody>
       <PromptInputFooter className="flex">
-        <div></div>
+        <div>
+          <Tooltip content="">
+            <PromptInputButton>
+              <LightbulbOffIcon className="size-4" />
+            </PromptInputButton>
+          </Tooltip>
+        </div>
         <div className="flex items-center gap-2">
           <PromptInputSubmit
             className="rounded-full"

@@ -5,7 +5,8 @@ import {
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import type { MessageThreadState } from "@/core/thread";
+import { groupMessages, hasContent } from "@/core/messages/utils";
+import type { AgentThreadState } from "@/core/threads";
 import { cn } from "@/lib/utils";
 
 import { StreamingIndicator } from "../streaming-indicator";
@@ -13,14 +14,13 @@ import { StreamingIndicator } from "../streaming-indicator";
 import { MessageGroup } from "./message-group";
 import { MessageListItem } from "./message-list-item";
 import { MessageListSkeleton } from "./skeleton";
-import { groupMessages, hasContent } from "./utils";
 
 export function MessageList({
   className,
   thread,
 }: {
   className?: string;
-  thread: UseStream<MessageThreadState>;
+  thread: UseStream<AgentThreadState>;
 }) {
   if (thread.isThreadLoading) {
     return <MessageListSkeleton />;

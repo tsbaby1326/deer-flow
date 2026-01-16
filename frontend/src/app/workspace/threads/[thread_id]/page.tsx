@@ -4,13 +4,13 @@ import { useStream } from "@langchain/langgraph-sdk/react";
 import { useParams } from "next/navigation";
 
 import { getLangGraphClient } from "@/core/api";
-import type { MessageThreadState } from "@/core/thread";
+import type { AgentThreadState } from "@/core/threads";
 
 const apiClient = getLangGraphClient();
 
 export default function TestPage() {
   const { thread_id: threadId } = useParams<{ thread_id: string }>();
-  const thread = useStream<MessageThreadState>({
+  const thread = useStream<AgentThreadState>({
     client: apiClient,
     assistantId: "lead_agent",
     threadId,

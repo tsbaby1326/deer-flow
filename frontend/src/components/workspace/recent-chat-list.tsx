@@ -21,7 +21,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useDeleteThread, useThreads } from "@/core/api";
-import { pathOfThread, titleOfThread } from "@/core/thread/utils";
+import { pathOfThread, titleOfThread } from "@/core/threads/utils";
 
 export function RecentChatList() {
   const router = useRouter();

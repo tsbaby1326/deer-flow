@@ -17,8 +17,12 @@ import {
   WorkspaceFooter,
 } from "@/components/workspace/workspace-container";
 import { getLangGraphClient } from "@/core/api";
-import type { MessageThread, MessageThreadState } from "@/core/thread";
-import { titleOfThread } from "@/core/thread/utils";
+import type {
+  AgentThread,
+  AgentThreadContext,
+  AgentThreadState,
+} from "@/core/threads";
+import { titleOfThread } from "@/core/threads/utils";
 import { uuid } from "@/core/utils/uuid";
 
 const langGraphClient = getLangGraphClient();
@@ -32,6 +36,11 @@ export default function ChatPage() {
     [threadIdFromPath],
   );
   const [threadId, setThreadId] = useState<string | null>(null);
+  const [threadContext, setThreadContext] = useState<AgentThreadContext>({
+    thread_id: "",
+    model: "deepseek-v3.2",
+    thinking_enabled: true,
+  });
   useEffect(() => {
     if (threadIdFromPath !== "new") {
       setThreadId(threadIdFromPath);
@@ -39,7 +48,7 @@ export default function ChatPage() {
       setThreadId(uuid());
     }
   }, [threadIdFromPath]);
-  const thread = useStream<MessageThreadState>({
+  const thread = useStream<AgentThreadState>({
     client: langGraphClient,
     assistantId: "lead_agent",
     threadId: !isNewThread ? threadId : undefined,
@@ -74,15 +83,14 @@ export default function ChatPage() {
           streamSubgraphs: true,
           streamResumable: true,
           context: {
+            ...threadContext,
             thread_id: threadId!,
-            model: "deepseek-v3.2",
-            thinking_enabled: true,
           },
         },
       );
       void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
     },
-    [isNewThread, queryClient, router, thread, threadId],
+    [isNewThread, queryClient, router, thread, threadContext, threadId],
   );
   const handleStop = useCallback(async () => {
     await thread.stop();
@@ -93,7 +101,7 @@ export default function ChatPage() {
         <BreadcrumbItem className="hidden md:block">
           {isNewThread
             ? "New"
-            : titleOfThread(thread as unknown as MessageThread)}
+            : titleOfThread(thread as unknown as AgentThread)}
         </BreadcrumbItem>
       </WorkspaceHeader>
       <WorkspaceBody>

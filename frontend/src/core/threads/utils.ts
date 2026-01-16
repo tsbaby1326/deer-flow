@@ -1,8 +1,8 @@
 import type { BaseMessage } from "@langchain/core/messages";
 
-import type { MessageThread } from "./types";
+import type { AgentThread } from "./types";
 
-export function pathOfThread(thread: MessageThread, includeAssistantId = true) {
+export function pathOfThread(thread: AgentThread, includeAssistantId = true) {
   if (includeAssistantId) {
     return `/workspace/chats/${thread.thread_id}`;
   }
@@ -19,9 +19,9 @@ export function textOfMessage(message: BaseMessage) {
   return null;
 }
 
-export function titleOfThread(thread: MessageThread) {
+export function titleOfThread(thread: AgentThread) {
   if (thread.values && "title" in thread.values) {
-    return thread.values.title as string;
+    return thread.values.title;
   }
   return "Untitled";
 }

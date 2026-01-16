@@ -1,7 +1,7 @@
 import type { ThreadsClient } from "@langchain/langgraph-sdk/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { MessageThread, MessageThreadState } from "../thread";
+import type { AgentThread, AgentThreadState } from "../threads";
 
 import { getLangGraphClient } from "./client";
 
@@ -13,12 +13,12 @@ export function useThreads(
   },
 ) {
   const langGraphClient = getLangGraphClient();
-  return useQuery<MessageThread[]>({
+  return useQuery<AgentThread[]>({
     queryKey: ["threads", "search", params],
     queryFn: async () => {
       const response =
-        await langGraphClient.threads.search<MessageThreadState>(params);
-      return response as MessageThread[];
+        await langGraphClient.threads.search<AgentThreadState>(params);
+      return response as AgentThread[];
     },
   });
 }
@@ -36,7 +36,7 @@ export function useDeleteThread() {
           queryKey: ["threads", "search"],
           exact: false,
         },
-        (oldData: Array<MessageThread>) => {
+        (oldData: Array<AgentThread>) => {
           return oldData.filter((t) => t.thread_id !== threadId);
         },
       );
