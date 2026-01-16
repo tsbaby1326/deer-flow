@@ -29,6 +29,8 @@ import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { extractTitleFromMarkdown } from "@/core/utils/markdown";
 import { cn } from "@/lib/utils";
 
+import { FlipDisplay } from "../flip-display";
+
 export function MessageGroup({
   className,
   messages,
@@ -62,17 +64,20 @@ export function MessageGroup({
               {open && steps.length > 1 ? (
                 <div>{steps.length} steps</div>
               ) : (
-                <MessageResponse rehypePlugins={rehypePlugins}>
-                  {label}
-                </MessageResponse>
+                <FlipDisplay uniqueKey={`step-${steps.length}`}>
+                  <MessageResponse rehypePlugins={rehypePlugins}>
+                    {label}
+                  </MessageResponse>
+                </FlipDisplay>
               )}
             </div>
           </div>
           <div>
             {!open && steps.length > 1 && (
-              <div className="tet-xs opacity-60">
-                {steps.length - 1} more step
-                {steps.length - 1 > 1 ? "s" : ""}
+              <div>
+                {steps.length - 1 > 1
+                  ? `${steps.length - 1} more steps`
+                  : `${steps.length - 1} more step`}
               </div>
             )}
           </div>

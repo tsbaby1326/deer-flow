@@ -28,7 +28,7 @@ export function MessageList({
     <Conversation
       className={cn("flex size-full flex-col justify-center pt-2", className)}
     >
-      <ConversationContent className="mx-auto w-full max-w-(--container-width-md) gap-12">
+      <ConversationContent className="mx-auto w-full max-w-(--container-width-md) gap-10">
         {groupMessages(
           thread.messages,
           (groupedMessages) => {
