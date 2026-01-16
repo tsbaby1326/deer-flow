@@ -13,11 +13,11 @@ import {
 import type { AgentThreadState } from "@/core/threads";
 import { cn } from "@/lib/utils";
 
+import { ArtifactFileList } from "../artifacts/artifact-file-list";
 import { StreamingIndicator } from "../streaming-indicator";
 
 import { MessageGroup } from "./message-group";
 import { MessageListItem } from "./message-list-item";
-import { PresentFileList } from "./present-file-list";
 import { MessageListSkeleton } from "./skeleton";
 
 export function MessageList({
@@ -57,7 +57,7 @@ export function MessageList({
                 }
               }
               return (
-                <PresentFileList key={groupedMessages[0].id} files={files} />
+                <ArtifactFileList key={groupedMessages[0].id} files={files} />
               );
             }
             return (
