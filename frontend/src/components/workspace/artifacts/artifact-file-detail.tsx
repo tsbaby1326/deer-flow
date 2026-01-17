@@ -1,4 +1,9 @@
-import { CopyIcon, DownloadIcon, XIcon } from "lucide-react";
+import {
+  CopyIcon,
+  DownloadIcon,
+  SquareArrowOutUpRightIcon,
+  XIcon,
+} from "lucide-react";
 import { useMemo } from "react";
 import { toast } from "sonner";
 
@@ -50,6 +55,13 @@ export function ArtifactFileDetail({
         </div>
         <div className="flex items-center gap-2">
           <ArtifactActions>
+            <a href={urlOfArtifact({ filepath, threadId })} target="_blank">
+              <ArtifactAction
+                icon={SquareArrowOutUpRightIcon}
+                label="Open in new window"
+                tooltip="Open in new window"
+              />
+            </a>
             {isCodeFile && (
               <ArtifactAction
                 icon={CopyIcon}
