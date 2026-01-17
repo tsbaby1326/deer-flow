@@ -28,6 +28,7 @@ export default function WorkspaceLayout({
   return (
     <QueryClientProvider client={queryClient}>
       <SidebarProvider
+        className="h-screen"
         style={
           {
             "--sidebar-width": "calc(var(--spacing) * 72)",

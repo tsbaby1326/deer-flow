@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
+import { useSidebar } from "@/components/ui/sidebar";
+
 export interface ArtifactsContextType {
   artifacts: string[];
   selectedArtifact: string | null;
@@ -23,6 +25,7 @@ export function ArtifactsProvider({ children }: ArtifactsProviderProps) {
   const [artifacts, setArtifacts] = useState<string[]>([]);
   const [selectedArtifact, setSelectedArtifact] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const { setOpen: setSidebarOpen } = useSidebar();
 
   const addArtifacts = (newArtifacts: string[]) => {
     setArtifacts((prev) => [...prev, ...newArtifacts]);
@@ -31,6 +34,7 @@ export function ArtifactsProvider({ children }: ArtifactsProviderProps) {
   const openArtifact = (artifact: string) => {
     setSelectedArtifact(artifact);
     setOpen(true);
+    setSidebarOpen(false);
   };
 
   const value: ArtifactsContextType = {
