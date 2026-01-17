@@ -46,9 +46,6 @@ export function groupMessages<T>(
       } else {
         // Assistant messages with content (text or images) are shown as a group if they have content
         // No matter whether it has tool calls or not
-        if (hasReasoning(message)) {
-          currentGroup.push(message);
-        }
         yieldCurrentGroup();
         currentGroup.push(message);
       }

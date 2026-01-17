@@ -7,7 +7,11 @@ import {
   MessageResponse as AIElementMessageResponse,
   MessageToolbar,
 } from "@/components/ai-elements/message";
-import { extractContentFromMessage, hasToolCalls } from "@/core/messages/utils";
+import {
+  extractContentFromMessage,
+  hasReasoning,
+  hasToolCalls,
+} from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +70,9 @@ function MessageContent_({
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
   return (
     <AIElementMessageContent className={className}>
+      {hasReasoning(message) && (
+        <MessageGroup messages={messagesInGroup} isLoading={isLoading} />
+      )}
       <AIElementMessageResponse rehypePlugins={rehypePlugins}>
         {extractContentFromMessage(message)}
       </AIElementMessageResponse>
