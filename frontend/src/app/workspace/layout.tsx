@@ -30,11 +30,6 @@ export default function WorkspaceLayout({
     <QueryClientProvider client={queryClient}>
       <SidebarProvider
         className="h-screen"
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-          } as React.CSSProperties
-        }
         open={open}
         onOpenChange={handleOpenChange}
       >
