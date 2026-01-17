@@ -55,10 +55,15 @@ export default function ChatPage() {
     isNewThread,
     threadId,
   });
-  const title = useMemo(
-    () => (isNewThread ? "" : titleOfThread(thread as unknown as AgentThread)),
-    [thread, isNewThread],
-  );
+  const title = useMemo(() => {
+    let result = isNewThread
+      ? ""
+      : titleOfThread(thread as unknown as AgentThread);
+    if (result === "Untitled") {
+      result = "";
+    }
+    return result;
+  }, [thread, isNewThread]);
 
   const handleSubmit = useSubmitThread({
     isNewThread,
