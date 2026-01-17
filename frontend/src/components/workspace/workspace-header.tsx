@@ -10,12 +10,12 @@ export function WorkspaceHeader({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "group/workspace-header flex h-15 flex-col justify-center",
+        "group/workspace-header flex h-12 flex-col justify-center",
         className,
       )}
     >
       {state === "collapsed" ? (
-        <div className="flex w-full cursor-pointer items-center justify-center group-has-data-[collapsible=icon]/sidebar-wrapper:-translate-y-[6px]">
+        <div className="group-has-data-[collapsible=icon]/sidebar-wrapper:-translate-y flex w-full cursor-pointer items-center justify-center">
           <div className="text-primary block font-serif group-hover/workspace-header:hidden">
             DF
           </div>
