@@ -7,11 +7,7 @@ import {
   MessageResponse as AIElementMessageResponse,
   MessageToolbar,
 } from "@/components/ai-elements/message";
-import {
-  extractContentFromMessage,
-  hasReasoning,
-  hasToolCalls,
-} from "@/core/messages/utils";
+import { extractContentFromMessage, hasToolCalls } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { cn } from "@/lib/utils";
 
