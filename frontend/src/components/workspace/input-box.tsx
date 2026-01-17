@@ -96,7 +96,7 @@ export function InputBox({
     <PromptInput
       className={cn(
         "bg-background/50 rounded-2xl backdrop-blur-sm transition-all duration-300 ease-out *:data-[slot='input-group']:rounded-2xl",
-        "focus-within:bg-background/85 h-48 translate-y-14 overflow-hidden",
+        "h-48 translate-y-14 overflow-hidden",
         className,
       )}
       globalDrop
