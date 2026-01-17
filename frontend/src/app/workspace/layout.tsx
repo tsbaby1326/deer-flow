@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
+import { Toaster } from "sonner";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Overscroll } from "@/components/workspace/overscroll";
@@ -41,6 +42,7 @@ export default function WorkspaceLayout({
         <WorkspaceSidebar />
         <SidebarInset>{children}</SidebarInset>
       </SidebarProvider>
+      <Toaster position="top-center" />
     </QueryClientProvider>
   );
 }

@@ -1,8 +1,9 @@
+import mimetypes
 import os
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 
 # Base directory for thread data (relative to backend/)
 THREAD_DATA_BASE_DIR = ".deer-flow/threads"
@@ -47,8 +48,19 @@ def _resolve_artifact_path(thread_id: str, artifact_path: str) -> Path:
     return actual_path
 
 
+def is_text_file_by_content(path: Path, sample_size: int = 8192) -> bool:
+    """Check if file is text by examining content for null bytes."""
+    try:
+        with open(path, "rb") as f:
+            chunk = f.read(sample_size)
+            # Text files shouldn't contain null bytes
+            return b"\x00" not in chunk
+    except Exception:
+        return False
+
+
 @router.get("/threads/{thread_id}/artifacts/{path:path}")
-async def get_artifact(thread_id: str, path: str) -> FileResponse:
+async def get_artifact(thread_id: str, path: str, request: Request) -> FileResponse:
     """Get an artifact file by its path.
 
     Args:
@@ -69,7 +81,19 @@ async def get_artifact(thread_id: str, path: str) -> FileResponse:
     if not actual_path.is_file():
         raise HTTPException(status_code=400, detail=f"Path is not a file: {path}")
 
-    return FileResponse(
-        path=actual_path,
-        filename=actual_path.name,
-    )
+    mime_type, _ = mimetypes.guess_type(actual_path)
+
+    # if `download` query parameter is true, return the file as a download
+    if request.query_params.get("download"):
+        return FileResponse(path=actual_path, filename=actual_path.name, media_type=mime_type, headers={"Content-Disposition": f'attachment; filename="{actual_path.name}"'})
+
+    if mime_type and mime_type == "text/html":
+        return HTMLResponse(content=actual_path.read_text())
+
+    if mime_type and mime_type.startswith("text/"):
+        return PlainTextResponse(content=actual_path.read_text(), media_type=mime_type)
+
+    if is_text_file_by_content(actual_path):
+        return PlainTextResponse(content=actual_path.read_text(), media_type=mime_type)
+
+    return Response(content=actual_path.read_bytes(), media_type=mime_type, headers={"Content-Disposition": f'inline; filename="{actual_path.name}"'})

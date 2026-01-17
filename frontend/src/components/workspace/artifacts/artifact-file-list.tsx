@@ -9,7 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getFileExtension, getFileName } from "@/core/utils/files";
+import { urlOfArtifact } from "@/core/artifacts/utils";
+import { getFileExtensionDisplayName, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
 
 import { useArtifacts } from "./context";
@@ -17,9 +18,11 @@ import { useArtifacts } from "./context";
 export function ArtifactFileList({
   className,
   files,
+  threadId,
 }: {
   className?: string;
   files: string[];
+  threadId: string;
 }) {
   const { openArtifact } = useArtifacts();
   const handleClick = useCallback(
@@ -38,12 +41,24 @@ export function ArtifactFileList({
         >
           <CardHeader>
             <CardTitle>{getFileName(file)}</CardTitle>
-            <CardDescription>{getFileExtension(file)} file</CardDescription>
+            <CardDescription>
+              {getFileExtensionDisplayName(file)} file
+            </CardDescription>
             <CardAction>
-              <Button variant="ghost">
-                <DownloadIcon className="size-4" />
-                Download
-              </Button>
+              <a
+                href={urlOfArtifact({
+                  filepath: file,
+                  threadId: threadId,
+                  download: true,
+                })}
+                target="_blank"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Button variant="ghost">
+                  <DownloadIcon className="size-4" />
+                  Download
+                </Button>
+              </a>
             </CardAction>
           </CardHeader>
         </Card>

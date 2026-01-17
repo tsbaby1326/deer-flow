@@ -22,9 +22,11 @@ import { MessageListSkeleton } from "./skeleton";
 
 export function MessageList({
   className,
+  threadId,
   thread,
 }: {
   className?: string;
+  threadId: string;
   thread: UseStream<AgentThreadState>;
 }) {
   if (thread.isThreadLoading) {
@@ -57,7 +59,11 @@ export function MessageList({
                 }
               }
               return (
-                <ArtifactFileList key={groupedMessages[0].id} files={files} />
+                <ArtifactFileList
+                  key={groupedMessages[0].id}
+                  files={files}
+                  threadId={threadId}
+                />
               );
             }
             return (

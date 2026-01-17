@@ -4,6 +4,7 @@ import { FilesIcon, XIcon } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { ConversationEmptyState } from "@/components/ai-elements/conversation";
 import { Button } from "@/components/ui/button";
 import {
   ResizableHandle,
@@ -25,7 +26,6 @@ import { useSubmitThread, useThreadStream } from "@/core/threads/hooks";
 import { pathOfThread, titleOfThread } from "@/core/threads/utils";
 import { uuid } from "@/core/utils/uuid";
 import { cn } from "@/lib/utils";
-import { ConversationEmptyState } from "@/components/ai-elements/conversation";
 
 export default function ChatPage() {
   const router = useRouter();
@@ -81,7 +81,7 @@ export default function ChatPage() {
         minSize={30}
       >
         <div className="relative flex size-full min-h-0 justify-between">
-          <header className="absolute top-0 right-0 left-0 z-30 flex h-12 shrink-0 items-center px-4 drop-shadow-2xl backdrop-blur">
+          <header className="bg-background/80 absolute top-0 right-0 left-0 z-30 flex h-12 shrink-0 items-center px-4 drop-shadow-2xl backdrop-blur">
             <div className="flex w-full items-center text-sm font-medium">
               <FlipDisplay
                 uniqueKey={title}
@@ -109,7 +109,11 @@ export default function ChatPage() {
           </header>
           <main className="flex min-h-0 grow flex-col">
             <div className="flex size-full justify-center">
-              <MessageList className="size-full" thread={thread} />
+              <MessageList
+                className="size-full"
+                threadId={threadId!}
+                thread={thread}
+              />
             </div>
             <div className="absolute right-0 bottom-0 left-0 flex justify-center px-4">
               <InputBox
@@ -139,17 +143,6 @@ export default function ChatPage() {
         defaultSize={artifactsOpen ? 64 : 0}
         minSize={0}
       >
-        <div className="absolute top-1 right-1 z-30">
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            onClick={() => {
-              setArtifactsOpen(false);
-            }}
-          >
-            <XIcon />
-          </Button>
-        </div>
         <div
           className={cn(
             "h-full transition-transform duration-300 ease-in-out",
@@ -160,9 +153,21 @@ export default function ChatPage() {
             <ArtifactFileDetail
               className="size-full"
               filepath={selectedArtifact}
+              threadId={threadId!}
             />
           ) : (
-            <div className="flex size-full items-center justify-center">
+            <div className="relative flex size-full items-center justify-center">
+              <div className="absolute top-1 right-1 z-30">
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setArtifactsOpen(false);
+                  }}
+                >
+                  <XIcon />
+                </Button>
+              </div>
               <ConversationEmptyState
                 icon={<FilesIcon />}
                 title="No artifact selected"

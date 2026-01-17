@@ -113,6 +113,9 @@ importers:
       shiki:
         specifier: 3.15.0
         version: 3.15.0
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       streamdown:
         specifier: 1.4.0
         version: 1.4.0(@types/react@19.2.8)(react@19.2.3)
@@ -4273,6 +4276,12 @@ packages:
     resolution: {integrity: sha512-b1KQPgUcMixgWBPuvD/Xbs+HvWimkj6aUslI/hol2uKkYdBcj6RIpfQFVbUTptxUe1lA82PNBqnI3yctLrvQoQ==}
     peerDependencies:
       vue: ^3
+
+  sonner@2.0.7:
+    resolution: {integrity: sha512-W6ZN4p58k8aDKA4XPcx2hpIQXBRAgyiWVkYhT7CvK6D3iAu7xjvVyhQHg2/iaKJZ1XVJ4r7XuwGL+WGEK37i9w==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -9286,6 +9295,11 @@ snapshots:
     dependencies:
       ufo: 1.6.2
       vue: 3.5.26(typescript@5.9.3)
+
+  sonner@2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   source-map-js@1.2.1: {}
 
