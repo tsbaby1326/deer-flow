@@ -17,9 +17,9 @@ import {
   ArtifactFileList,
   useArtifacts,
 } from "@/components/workspace/artifacts";
-import { FlipDisplay } from "@/components/workspace/flip-display";
 import { InputBox } from "@/components/workspace/input-box";
 import { MessageList } from "@/components/workspace/messages";
+import { ThreadTitle } from "@/components/workspace/thread-title";
 import { Tooltip } from "@/components/workspace/tooltip";
 import { useLocalSettings } from "@/core/settings";
 import { type AgentThread } from "@/core/threads";
@@ -95,12 +95,9 @@ export default function ChatPage() {
         <div className="relative flex size-full min-h-0 justify-between">
           <header className="bg-background/80 absolute top-0 right-0 left-0 z-30 flex h-12 shrink-0 items-center px-4 drop-shadow-2xl backdrop-blur">
             <div className="flex w-full items-center text-sm font-medium">
-              <FlipDisplay
-                uniqueKey={title}
-                className="w-fit overflow-hidden text-ellipsis whitespace-nowrap"
-              >
-                {title}
-              </FlipDisplay>
+              {threadId && title !== "Untitled" && (
+                <ThreadTitle threadId={threadId} threadTitle={title} />
+              )}
             </div>
             <div>
               {artifacts?.length && !artifactsOpen && (
