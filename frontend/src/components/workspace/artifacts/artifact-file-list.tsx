@@ -35,13 +35,13 @@ export function ArtifactFileList({
     <ul className={cn("flex w-full flex-col gap-4", className)}>
       {files.map((file) => (
         <Card
-          className="cursor-pointer"
           key={file}
+          className="cursor-pointer p-3"
           onClick={() => handleClick(file)}
         >
-          <CardHeader>
+          <CardHeader className="pr-2 pl-1">
             <CardTitle>{getFileName(file)}</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs">
               {getFileExtensionDisplayName(file)} file
             </CardDescription>
             <CardAction>
