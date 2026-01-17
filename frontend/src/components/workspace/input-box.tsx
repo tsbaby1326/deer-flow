@@ -12,6 +12,7 @@ import {
   PromptInputBody,
   PromptInputButton,
   PromptInputFooter,
+  PromptInputHeader,
   PromptInputSubmit,
   PromptInputTextarea,
   type PromptInputMessage,
@@ -45,6 +46,7 @@ export function InputBox({
   autoFocus,
   status = "ready",
   context,
+  showWelcome = false,
   onContextChange,
   onSubmit,
   onStop,
@@ -53,6 +55,7 @@ export function InputBox({
   assistantId?: string | null;
   status?: ChatStatus;
   context: Omit<AgentThreadContext, "thread_id">;
+  showWelcome?: boolean;
   onContextChange?: (context: Omit<AgentThreadContext, "thread_id">) => void;
   onSubmit?: (message: PromptInputMessage) => void;
   onStop?: () => void;
@@ -94,7 +97,7 @@ export function InputBox({
   return (
     <PromptInput
       className={cn(
-        "bg-background/50 rounded-2xl drop-shadow-2xl backdrop-blur-sm transition-all duration-300 ease-out *:data-[slot='input-group']:rounded-2xl",
+        "bg-background/50 rounded-2xl backdrop-blur-sm transition-all duration-300 ease-out *:data-[slot='input-group']:rounded-2xl",
         "focus-within:bg-background/85 h-48 translate-y-14 overflow-hidden",
         className,
       )}

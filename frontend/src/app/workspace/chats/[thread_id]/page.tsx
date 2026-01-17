@@ -21,6 +21,7 @@ import { InputBox } from "@/components/workspace/input-box";
 import { MessageList } from "@/components/workspace/messages";
 import { ThreadTitle } from "@/components/workspace/thread-title";
 import { Tooltip } from "@/components/workspace/tooltip";
+import { Welcome } from "@/components/workspace/welcome";
 import { useLocalSettings } from "@/core/settings";
 import { type AgentThread } from "@/core/threads";
 import { useSubmitThread, useThreadStream } from "@/core/threads/hooks";
@@ -125,18 +126,33 @@ export default function ChatPage() {
               />
             </div>
             <div className="absolute right-0 bottom-0 left-0 flex justify-center px-4">
-              <InputBox
+              <div
                 className={cn(
-                  "w-full max-w-(--container-width-md) transition-transform duration-300 ease-in-out",
+                  "relative w-full",
                   isNewThread && "-translate-y-[calc(50vh-120px)]",
+                  isNewThread
+                    ? "max-w-(--container-width-sm)"
+                    : "max-w-(--container-width-md)",
                 )}
-                autoFocus={isNewThread}
-                status={thread.isLoading ? "streaming" : "ready"}
-                context={settings.context}
-                onContextChange={(context) => setSettings("context", context)}
-                onSubmit={handleSubmit}
-                onStop={handleStop}
-              />
+              >
+                <div
+                  className={cn(
+                    "absolute right-0 bottom-[148px] left-0 flex",
+                    isNewThread ? "" : "pointer-events-none opacity-0",
+                  )}
+                >
+                  <Welcome />
+                </div>
+                <InputBox
+                  className={cn("z-30 w-full")}
+                  autoFocus={isNewThread}
+                  status={thread.isLoading ? "streaming" : "ready"}
+                  context={settings.context}
+                  onContextChange={(context) => setSettings("context", context)}
+                  onSubmit={handleSubmit}
+                  onStop={handleStop}
+                />
+              </div>
             </div>
           </main>
         </div>
