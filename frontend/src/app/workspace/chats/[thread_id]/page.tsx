@@ -126,7 +126,10 @@ export default function ChatPage() {
             </div>
             <div className="absolute right-0 bottom-0 left-0 flex justify-center px-4">
               <InputBox
-                className="w-full max-w-(--container-width-md)"
+                className={cn(
+                  "w-full max-w-(--container-width-md) transition-transform duration-300 ease-in-out",
+                  isNewThread && "-translate-y-[calc(50vh-120px)]",
+                )}
                 autoFocus={isNewThread}
                 status={thread.isLoading ? "streaming" : "ready"}
                 context={settings.context}
