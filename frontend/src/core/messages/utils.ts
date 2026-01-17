@@ -2,29 +2,17 @@ import type { Message } from "@langchain/langgraph-sdk";
 
 export function groupMessages<T>(
   messages: Message[],
-  mapper: (
-    groupedMessages: Message[],
-    groupIndex: number,
-    isLastGroup: boolean,
-  ) => T,
+  mapper: (groupedMessages: Message[]) => T,
   isLoading = false,
 ): T[] {
   if (messages.length === 0) {
     return [];
   }
-  const resultsOfGroups: T[] = [];
+  const groups: Message[][] = [];
   let currentGroup: Message[] = [];
-  const lastMessage = messages[messages.length - 1]!;
   const yieldCurrentGroup = () => {
     if (currentGroup.length > 0) {
-      const resultOfGroup = mapper(
-        currentGroup,
-        resultsOfGroups.length,
-        currentGroup.includes(lastMessage),
-      );
-      if (resultOfGroup !== undefined && resultOfGroup !== null) {
-        resultsOfGroups.push(resultOfGroup);
-      }
+      groups.push(currentGroup);
       currentGroup = [];
     }
   };
@@ -47,6 +35,7 @@ export function groupMessages<T>(
           isLoading)
       ) {
         if (message.tool_calls?.[0]?.name === "present_files") {
+          // When `present_files` called, put them into an individual group
           yieldCurrentGroup();
           currentGroup.push(message);
         } else {
@@ -57,6 +46,9 @@ export function groupMessages<T>(
       } else {
         // Assistant messages with content (text or images) are shown as a group if they have content
         // No matter whether it has tool calls or not
+        if (hasReasoning(message)) {
+          currentGroup.push(message);
+        }
         yieldCurrentGroup();
         currentGroup.push(message);
       }
@@ -64,6 +56,14 @@ export function groupMessages<T>(
     messageIndex++;
   }
   yieldCurrentGroup();
+
+  const resultsOfGroups: T[] = [];
+  for (const group of groups) {
+    const resultOfGroup = mapper(group);
+    if (resultOfGroup !== undefined && resultOfGroup !== null) {
+      resultsOfGroups.push(resultOfGroup);
+    }
+  }
   return resultsOfGroups;
 }
 

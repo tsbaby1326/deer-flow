@@ -70,13 +70,6 @@ function MessageContent_({
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
   return (
     <AIElementMessageContent className={className}>
-      {hasReasoning(message) && (
-        <MessageGroup
-          className="mb-2"
-          messages={[message]}
-          isLoading={isLoading}
-        />
-      )}
       <AIElementMessageResponse rehypePlugins={rehypePlugins}>
         {extractContentFromMessage(message)}
       </AIElementMessageResponse>
