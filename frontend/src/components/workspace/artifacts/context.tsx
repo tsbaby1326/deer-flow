@@ -4,13 +4,15 @@ import { useSidebar } from "@/components/ui/sidebar";
 
 export interface ArtifactsContextType {
   artifacts: string[];
+  setArtifacts: (artifacts: string[]) => void;
+
   selectedArtifact: string | null;
 
   open: boolean;
   setOpen: (open: boolean) => void;
+  deselect: () => void;
 
-  addArtifacts: (artifacts: string[]) => void;
-  openArtifact: (artifact: string) => void;
+  select: (artifact: string) => void;
 }
 
 const ArtifactsContext = createContext<ArtifactsContextType | undefined>(
@@ -27,23 +29,25 @@ export function ArtifactsProvider({ children }: ArtifactsProviderProps) {
   const [open, setOpen] = useState(false);
   const { setOpen: setSidebarOpen } = useSidebar();
 
-  const addArtifacts = (newArtifacts: string[]) => {
-    setArtifacts((prev) => [...prev, ...newArtifacts]);
+  const select = (artifact: string) => {
+    setSelectedArtifact(artifact);
+    setSidebarOpen(false);
   };
 
-  const openArtifact = (artifact: string) => {
-    setSelectedArtifact(artifact);
-    setOpen(true);
-    setSidebarOpen(false);
+  const deselect = () => {
+    setSelectedArtifact(null);
   };
 
   const value: ArtifactsContextType = {
     artifacts,
-    selectedArtifact,
+    setArtifacts,
+
     open,
     setOpen,
-    addArtifacts,
-    openArtifact,
+
+    selectedArtifact,
+    select,
+    deselect,
   };
 
   return (

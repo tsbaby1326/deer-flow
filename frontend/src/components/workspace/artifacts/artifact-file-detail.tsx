@@ -12,17 +12,19 @@ import {
   ArtifactAction,
   ArtifactActions,
   ArtifactContent,
-  ArtifactDescription,
   ArtifactHeader,
   ArtifactTitle,
 } from "@/components/ai-elements/artifact";
+import { Select, SelectItem } from "@/components/ui/select";
+import {
+  SelectContent,
+  SelectGroup,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
-import {
-  checkCodeFile,
-  getFileExtensionDisplayName,
-  getFileName,
-} from "@/core/utils/files";
+import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
 
 import { useArtifacts } from "./context";
@@ -37,7 +39,7 @@ export function ArtifactFileDetail({
   filepath: string;
   threadId: string;
 }) {
-  const { setOpen } = useArtifacts();
+  const { artifacts, setOpen, select } = useArtifacts();
   const { isCodeFile } = useMemo(() => checkCodeFile(filepath), [filepath]);
   const { content } = useArtifactContent({
     threadId,
@@ -46,12 +48,24 @@ export function ArtifactFileDetail({
   });
   return (
     <Artifact className={cn("rounded-none", className)}>
-      <ArtifactHeader>
+      <ArtifactHeader className="px-2">
         <div>
-          <ArtifactTitle>{getFileName(filepath)}</ArtifactTitle>
-          <ArtifactDescription className="mt-1 text-xs">
-            {getFileExtensionDisplayName(filepath)} file
-          </ArtifactDescription>
+          <ArtifactTitle>
+            <Select value={filepath} onValueChange={select}>
+              <SelectTrigger className="border-none bg-transparent! select-none focus:outline-0 active:outline-0">
+                <SelectValue placeholder="Select a file" />
+              </SelectTrigger>
+              <SelectContent className="select-none">
+                <SelectGroup>
+                  {(artifacts ?? []).map((filepath) => (
+                    <SelectItem key={filepath} value={filepath}>
+                      {getFileName(filepath)}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </ArtifactTitle>
         </div>
         <div className="flex items-center gap-2">
           <ArtifactActions>

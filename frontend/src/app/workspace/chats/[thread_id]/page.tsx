@@ -14,6 +14,7 @@ import {
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   ArtifactFileDetail,
+  ArtifactFileList,
   useArtifacts,
 } from "@/components/workspace/artifacts";
 import { FlipDisplay } from "@/components/workspace/flip-display";
@@ -32,8 +33,10 @@ export default function ChatPage() {
   const [settings, setSettings] = useLocalSettings();
   const { setOpen: setSidebarOpen } = useSidebar();
   const {
+    artifacts,
     open: artifactsOpen,
     setOpen: setArtifactsOpen,
+    setArtifacts,
     selectedArtifact,
   } = useArtifacts();
 
@@ -64,6 +67,10 @@ export default function ChatPage() {
     }
     return result;
   }, [thread, isNewThread]);
+
+  useEffect(() => {
+    setArtifacts(thread.values.artifacts);
+  }, [setArtifacts, thread.values.artifacts]);
 
   const handleSubmit = useSubmitThread({
     isNewThread,
@@ -96,17 +103,17 @@ export default function ChatPage() {
               </FlipDisplay>
             </div>
             <div>
-              {!artifactsOpen && (
-                <Tooltip content="Show artifacts">
+              {artifacts?.length && !artifactsOpen && (
+                <Tooltip content="Show artifacts of this conversation">
                   <Button
                     variant="ghost"
-                    size="icon"
                     onClick={() => {
                       setArtifactsOpen(true);
                       setSidebarOpen(false);
                     }}
                   >
                     <FilesIcon />
+                    Artifacts
                   </Button>
                 </Tooltip>
               )}
@@ -161,7 +168,7 @@ export default function ChatPage() {
               threadId={threadId!}
             />
           ) : (
-            <div className="relative flex size-full items-center justify-center">
+            <div className="relative flex size-full justify-center">
               <div className="absolute top-1 right-1 z-30">
                 <Button
                   size="icon-sm"
@@ -173,11 +180,26 @@ export default function ChatPage() {
                   <XIcon />
                 </Button>
               </div>
-              <ConversationEmptyState
-                icon={<FilesIcon />}
-                title="No artifact selected"
-                description="Select an artifact to view its details"
-              />
+              {thread.values.artifacts?.length === 0 ? (
+                <ConversationEmptyState
+                  icon={<FilesIcon />}
+                  title="No artifact selected"
+                  description="Select an artifact to view its details"
+                />
+              ) : (
+                <div className="flex size-full max-w-(--container-width-sm) flex-col justify-center p-4 pt-8">
+                  <header className="shrink-0">
+                    <h2 className="text-lg font-medium">Artifacts</h2>
+                  </header>
+                  <main className="min-h-0 grow">
+                    <ArtifactFileList
+                      className="max-w-(--container-width-sm) p-4 pt-12"
+                      files={thread.values.artifacts ?? []}
+                      threadId={threadId!}
+                    />
+                  </main>
+                </div>
+              )}
             </div>
           )}
         </div>

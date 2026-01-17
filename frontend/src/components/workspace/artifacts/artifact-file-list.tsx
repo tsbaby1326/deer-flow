@@ -24,12 +24,13 @@ export function ArtifactFileList({
   files: string[];
   threadId: string;
 }) {
-  const { openArtifact } = useArtifacts();
+  const { select: selectArtifact, setOpen } = useArtifacts();
   const handleClick = useCallback(
     (filepath: string) => {
-      openArtifact(filepath);
+      selectArtifact(filepath);
+      setOpen(true);
     },
-    [openArtifact],
+    [selectArtifact, setOpen],
   );
   return (
     <ul className={cn("flex w-full flex-col gap-4", className)}>
