@@ -125,7 +125,7 @@ export default function ChatPage() {
                 thread={thread}
               />
             </div>
-            <div className="absolute right-0 bottom-0 left-0 flex justify-center px-4">
+            <div className="absolute right-0 bottom-0 left-0 z-30 flex justify-center px-4">
               <div
                 className={cn(
                   "relative w-full",
@@ -144,7 +144,7 @@ export default function ChatPage() {
                   <Welcome />
                 </div>
                 <InputBox
-                  className={cn("z-30 w-full")}
+                  className={cn("w-full")}
                   autoFocus={isNewThread}
                   status={thread.isLoading ? "streaming" : "ready"}
                   context={settings.context}
