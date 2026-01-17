@@ -42,6 +42,10 @@ export function MessageGroup({
   isLoading?: boolean;
 }) {
   const steps = useMemo(() => convertToSteps(messages), [messages]);
+  const stepCount = useMemo(
+    () => steps.filter((step) => step.type !== "reasoning").length,
+    [steps],
+  );
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
   const [open, setOpen] = useState(false);
   const lastStep = steps[steps.length - 1];
@@ -56,16 +60,16 @@ export function MessageGroup({
       <ChainOfThoughtHeader
         className="min-h-6"
         icon={
-          open && steps.length > 1 ? <ListTreeIcon className="size-4" /> : icon
+          open && stepCount > 1 ? <ListTreeIcon className="size-4" /> : icon
         }
       >
         <div className="flex w-full items-center justify-between">
           <div>
             <div>
-              {open && steps.length > 1 ? (
-                <div>{steps.length} steps</div>
+              {open && stepCount > 1 ? (
+                <div>{stepCount} steps</div>
               ) : (
-                <FlipDisplay uniqueKey={`step-${steps.length}`}>
+                <FlipDisplay uniqueKey={`step-${stepCount}`}>
                   <MessageResponse rehypePlugins={rehypePlugins}>
                     {label}
                   </MessageResponse>
@@ -74,11 +78,9 @@ export function MessageGroup({
             </div>
           </div>
           <div>
-            {!open && steps.length > 1 && (
+            {!open && stepCount > 1 && (
               <div>
-                {steps.length - 1 > 1
-                  ? `${steps.length - 1} more steps`
-                  : `${steps.length - 1} more step`}
+                {stepCount > 1 ? `${stepCount} steps` : `${stepCount}  step`}
               </div>
             )}
           </div>
