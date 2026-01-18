@@ -1,5 +1,5 @@
 import type { Message } from "@langchain/langgraph-sdk";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 
 import {
   Message as AIElementMessage,
@@ -9,25 +9,20 @@ import {
 } from "@/components/ai-elements/message";
 import {
   extractContentFromMessage,
-  hasReasoning,
-  hasToolCalls,
+  extractReasoningContentFromMessage,
 } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { cn } from "@/lib/utils";
 
 import { CopyButton } from "../copy-button";
 
-import { MessageGroup } from "./message-group";
-
 export function MessageListItem({
   className,
   message,
-  messagesInGroup,
   isLoading,
 }: {
   className?: string;
   message: Message;
-  messagesInGroup: Message[];
   isLoading?: boolean;
 }) {
   return (
@@ -38,7 +33,6 @@ export function MessageListItem({
       <MessageContent
         className={message.type === "human" ? "w-fit" : "w-full"}
         message={message}
-        messagesInGroup={messagesInGroup}
         isLoading={isLoading}
       />
       <MessageToolbar
@@ -49,7 +43,13 @@ export function MessageListItem({
         )}
       >
         <div className="flex gap-1">
-          <CopyButton clipboardData={extractContentFromMessage(message)} />
+          <CopyButton
+            clipboardData={
+              extractContentFromMessage(message)
+                ? extractContentFromMessage(message)
+                : (extractReasoningContentFromMessage(message) ?? "")
+            }
+          />
         </div>
       </MessageToolbar>
     </AIElementMessage>
@@ -59,26 +59,26 @@ export function MessageListItem({
 function MessageContent_({
   className,
   message,
-  messagesInGroup,
   isLoading = false,
 }: {
   className?: string;
   message: Message;
-  messagesInGroup: Message[];
   isLoading?: boolean;
 }) {
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
+  const content = useMemo(() => {
+    const reasoningContent = extractReasoningContentFromMessage(message);
+    const content = extractContentFromMessage(message);
+    if (!isLoading && reasoningContent && !content) {
+      return reasoningContent;
+    }
+    return content;
+  }, [isLoading, message]);
   return (
     <AIElementMessageContent className={className}>
-      {hasReasoning(message) && (
-        <MessageGroup messages={messagesInGroup} isLoading={isLoading} />
-      )}
       <AIElementMessageResponse rehypePlugins={rehypePlugins}>
-        {extractContentFromMessage(message)}
+        {content}
       </AIElementMessageResponse>
-      {hasToolCalls(message) && (
-        <MessageGroup messages={messagesInGroup} isLoading={isLoading} />
-      )}
     </AIElementMessageContent>
   );
 }

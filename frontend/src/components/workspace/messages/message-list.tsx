@@ -7,7 +7,6 @@ import {
 import {
   extractPresentFilesFromMessage,
   groupMessages,
-  hasContent,
   hasPresentFiles,
 } from "@/core/messages/utils";
 import type { AgentThreadState } from "@/core/threads";
@@ -39,28 +38,26 @@ export function MessageList({
       <ConversationContent className="mx-auto w-full max-w-(--container-width-md) gap-10 pt-12">
         {groupMessages(
           thread.messages,
-          (groupedMessages) => {
-            if (groupedMessages[0] && hasContent(groupedMessages[0])) {
-              const message = groupedMessages[0];
+          (group) => {
+            if (group.type === "human" || group.type === "assistant") {
               return (
                 <MessageListItem
-                  key={message.id}
-                  message={message}
-                  messagesInGroup={groupedMessages}
+                  key={group.id}
+                  message={group.messages[0]!}
                   isLoading={thread.isLoading}
                 />
               );
             }
-            if (groupedMessages[0] && hasPresentFiles(groupedMessages[0])) {
+            if (group.type === "assistant:present-files") {
               const files = [];
-              for (const message of groupedMessages) {
+              for (const message of group.messages) {
                 if (hasPresentFiles(message)) {
                   files.push(...extractPresentFilesFromMessage(message));
                 }
               }
               return (
                 <ArtifactFileList
-                  key={groupedMessages[0].id}
+                  key={group.id}
                   files={files}
                   threadId={threadId}
                 />
@@ -68,8 +65,8 @@ export function MessageList({
             }
             return (
               <MessageGroup
-                key={groupedMessages[0]!.id}
-                messages={groupedMessages}
+                key={group.id}
+                messages={group.messages}
                 isLoading={thread.isLoading}
               />
             );

@@ -1,58 +1,110 @@
 import type { Message } from "@langchain/langgraph-sdk";
 
+interface GenericMessageGroup<T = string> {
+  type: T;
+  id: string | undefined;
+  messages: Message[];
+}
+
+interface HumanMessageGroup extends GenericMessageGroup<"human"> {}
+
+interface AssistantProcessingGroup extends GenericMessageGroup<"assistant:processing"> {}
+
+interface AssistantMessageGroup extends GenericMessageGroup<"assistant"> {}
+
+interface AssistantPresentFilesGroup extends GenericMessageGroup<"assistant:present-files"> {}
+
+type MessageGroup =
+  | HumanMessageGroup
+  | AssistantProcessingGroup
+  | AssistantMessageGroup
+  | AssistantPresentFilesGroup;
+
 export function groupMessages<T>(
   messages: Message[],
-  mapper: (groupedMessages: Message[]) => T,
+  mapper: (group: MessageGroup) => T,
   isLoading = false,
 ): T[] {
   if (messages.length === 0) {
     return [];
   }
-  const groups: Message[][] = [];
-  let currentGroup: Message[] = [];
-  const yieldCurrentGroup = () => {
-    if (currentGroup.length > 0) {
-      groups.push(currentGroup);
-      currentGroup = [];
-    }
-  };
-  let messageIndex = 0;
+  const groups: MessageGroup[] = [];
+
   for (const message of messages) {
+    const lastGroup = groups[groups.length - 1];
     if (message.type === "human") {
-      // Human messages are always shown as a individual group
-      yieldCurrentGroup();
-      currentGroup.push(message);
-      yieldCurrentGroup();
+      groups.push({
+        id: message.id,
+        type: "human",
+        messages: [message],
+      });
     } else if (message.type === "tool") {
-      // Tool messages are always shown with the assistant messages that contains the tool calls
-      currentGroup.push(message);
-    } else if (message.type === "ai") {
       if (
-        hasToolCalls(message) ||
-        (extractTextFromMessage(message) === "" &&
-          extractReasoningContentFromMessage(message) !== "" &&
-          messageIndex === messages.length - 1 &&
-          isLoading)
+        lastGroup &&
+        lastGroup.type !== "human" &&
+        lastGroup.type !== "assistant"
       ) {
-        if (message.tool_calls?.[0]?.name === "present_files") {
-          // When `present_files` called, put them into an individual group
-          yieldCurrentGroup();
-          currentGroup.push(message);
-        } else {
-          // Assistant messages without any content are folded into the previous group
-          // Normally, these are tool calls (with or without thinking)
-          currentGroup.push(message);
-        }
+        lastGroup.messages.push(message);
       } else {
-        // Assistant messages with content (text or images) are shown as a group if they have content
-        // No matter whether it has tool calls or not
-        yieldCurrentGroup();
-        currentGroup.push(message);
+        throw new Error(
+          "Tool message must be matched with a previous assistant message with tool calls",
+        );
+      }
+    } else if (message.type === "ai") {
+      if (hasReasoning(message) || hasToolCalls(message)) {
+        if (hasPresentFiles(message)) {
+          groups.push({
+            id: message.id,
+            type: "assistant:present-files",
+            messages: [message],
+          });
+        } else {
+          if (lastGroup?.type !== "assistant:processing") {
+            groups.push({
+              id: message.id,
+              type: "assistant:processing",
+              messages: [],
+            });
+          }
+          const currentGroup = groups[groups.length - 1];
+          if (currentGroup?.type === "assistant:processing") {
+            currentGroup.messages.push(message);
+          } else {
+            throw new Error(
+              "Assistant message with reasoning or tool calls must be preceded by a processing group",
+            );
+          }
+        }
+      }
+      if (hasContent(message) && !hasToolCalls(message)) {
+        groups.push({
+          id: message.id,
+          type: "assistant",
+          messages: [message],
+        });
       }
     }
-    messageIndex++;
   }
-  yieldCurrentGroup();
+
+  if (!isLoading) {
+    const lastGroup: MessageGroup | undefined = groups[groups.length - 1];
+    if (
+      lastGroup?.type === "assistant:processing" &&
+      lastGroup.messages.length > 0
+    ) {
+      const reasoningContent = extractReasoningContentFromMessage(
+        lastGroup.messages[lastGroup.messages.length - 1]!,
+      );
+      const content = extractContentFromMessage(
+        lastGroup.messages[lastGroup.messages.length - 1]!,
+      );
+      if (reasoningContent && !content) {
+        const group = groups.pop()!;
+        group.type = "assistant";
+        groups.push(group);
+      }
+    }
+  }
 
   const resultsOfGroups: T[] = [];
   for (const group of groups) {
