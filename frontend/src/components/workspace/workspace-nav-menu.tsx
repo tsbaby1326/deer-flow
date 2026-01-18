@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquarePlus, MessagesSquare } from "lucide-react";
+import { MessagesSquare } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,19 +14,8 @@ import {
 export function WorkspaceNavMenu() {
   const pathname = usePathname();
   return (
-    <SidebarGroup>
+    <SidebarGroup className="pt-1">
       <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            isActive={pathname === "/workspace/chats/new"}
-            asChild
-          >
-            <Link className="text-muted-foreground" href="/workspace/chats/new">
-              <MessageSquarePlus size={16} />
-              <span>New chat</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
         <SidebarMenuItem>
           <SidebarMenuButton isActive={pathname === "/workspace/chats"} asChild>
             <Link className="text-muted-foreground" href="/workspace/chats">
