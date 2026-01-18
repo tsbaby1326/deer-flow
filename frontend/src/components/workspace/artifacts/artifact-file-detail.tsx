@@ -46,7 +46,7 @@ export function ArtifactFileDetail({
   const filepath = useMemo(() => {
     if (isWriteFile) {
       const url = new URL(filepathFromProps);
-      return url.pathname;
+      return decodeURIComponent(url.pathname);
     }
     return filepathFromProps;
   }, [filepathFromProps, isWriteFile]);

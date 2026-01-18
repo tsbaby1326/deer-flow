@@ -22,7 +22,7 @@ export function FileViewer({
   const { isCodeFile, language } = useMemo(() => {
     if (isWriteFile) {
       const url = new URL(filepath);
-      const path = url.pathname;
+      const path = decodeURIComponent(url.pathname);
       return checkCodeFile(path);
     }
     return checkCodeFile(filepath);
