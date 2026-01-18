@@ -1,10 +1,5 @@
 import type { ChatStatus } from "ai";
-import {
-  BoxIcon,
-  CheckIcon,
-  LightbulbIcon,
-  LightbulbOffIcon,
-} from "lucide-react";
+import { CheckIcon, LightbulbIcon, LightbulbOffIcon } from "lucide-react";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 
 import {

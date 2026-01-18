@@ -23,7 +23,6 @@ type MessageGroup =
 export function groupMessages<T>(
   messages: Message[],
   mapper: (group: MessageGroup) => T,
-  isLoading = false,
 ): T[] {
   if (messages.length === 0) {
     return [];
@@ -86,25 +85,28 @@ export function groupMessages<T>(
     }
   }
 
-  if (!isLoading) {
-    const lastGroup: MessageGroup | undefined = groups[groups.length - 1];
-    if (
-      lastGroup?.type === "assistant:processing" &&
-      lastGroup.messages.length > 0
-    ) {
-      const reasoningContent = extractReasoningContentFromMessage(
-        lastGroup.messages[lastGroup.messages.length - 1]!,
-      );
-      const content = extractContentFromMessage(
-        lastGroup.messages[lastGroup.messages.length - 1]!,
-      );
-      if (reasoningContent && !content) {
-        const group = groups.pop()!;
-        group.type = "assistant";
-        groups.push(group);
-      }
-    }
-  }
+  // if (!isLoading) {
+  //   const lastGroup: MessageGroup | undefined = groups[groups.length - 1];
+  //   if (
+  //     lastGroup?.type === "assistant:processing" &&
+  //     lastGroup.messages.length > 0
+  //   ) {
+  //     const lastMessage = lastGroup.messages[lastGroup.messages.length - 1]!;
+  //     const reasoningContent = extractReasoningContentFromMessage(lastMessage);
+  //     const content = extractContentFromMessage(lastMessage);
+  //     if (reasoningContent && !content) {
+  //       lastGroup.messages.pop();
+  //       if (lastGroup.messages.length === 0) {
+  //         groups.pop();
+  //       }
+  //       groups.push({
+  //         id: lastMessage.id,
+  //         type: "assistant",
+  //         messages: [lastMessage],
+  //       });
+  //     }
+  //   }
+  // }
 
   const resultsOfGroups: T[] = [];
   for (const group of groups) {
@@ -160,6 +162,13 @@ export function extractReasoningContentFromMessage(message: Message) {
     return message.additional_kwargs.reasoning_content as string | null;
   }
   return null;
+}
+
+export function removeReasoningContentFromMessage(message: Message) {
+  if (message.type !== "ai" || !message.additional_kwargs) {
+    return;
+  }
+  delete message.additional_kwargs.reasoning_content;
 }
 
 export function extractURLFromImageURLContent(

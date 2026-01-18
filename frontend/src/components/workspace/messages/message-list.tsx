@@ -36,43 +36,39 @@ export function MessageList({
       className={cn("flex size-full flex-col justify-center", className)}
     >
       <ConversationContent className="mx-auto w-full max-w-(--container-width-md) gap-10 pt-12">
-        {groupMessages(
-          thread.messages,
-          (group) => {
-            if (group.type === "human" || group.type === "assistant") {
-              return (
-                <MessageListItem
-                  key={group.id}
-                  message={group.messages[0]!}
-                  isLoading={thread.isLoading}
-                />
-              );
-            }
-            if (group.type === "assistant:present-files") {
-              const files = [];
-              for (const message of group.messages) {
-                if (hasPresentFiles(message)) {
-                  files.push(...extractPresentFilesFromMessage(message));
-                }
-              }
-              return (
-                <ArtifactFileList
-                  key={group.id}
-                  files={files}
-                  threadId={threadId}
-                />
-              );
-            }
+        {groupMessages(thread.messages, (group) => {
+          if (group.type === "human" || group.type === "assistant") {
             return (
-              <MessageGroup
+              <MessageListItem
                 key={group.id}
-                messages={group.messages}
+                message={group.messages[0]!}
                 isLoading={thread.isLoading}
               />
             );
-          },
-          thread.isLoading,
-        )}
+          }
+          if (group.type === "assistant:present-files") {
+            const files = [];
+            for (const message of group.messages) {
+              if (hasPresentFiles(message)) {
+                files.push(...extractPresentFilesFromMessage(message));
+              }
+            }
+            return (
+              <ArtifactFileList
+                key={group.id}
+                files={files}
+                threadId={threadId}
+              />
+            );
+          }
+          return (
+            <MessageGroup
+              key={"group-" + group.id}
+              messages={group.messages}
+              isLoading={thread.isLoading}
+            />
+          );
+        })}
         {thread.isLoading && <StreamingIndicator className="my-4" />}
         <div className="h-40" />
       </ConversationContent>
