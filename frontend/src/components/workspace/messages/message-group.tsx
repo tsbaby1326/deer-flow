@@ -30,6 +30,7 @@ import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { extractTitleFromMarkdown } from "@/core/utils/markdown";
 import { cn } from "@/lib/utils";
 
+import { useArtifacts } from "../artifacts";
 import { FlipDisplay } from "../flip-display";
 
 export function MessageGroup({
@@ -108,15 +109,18 @@ export function MessageGroup({
 
 function ToolCall({
   id,
+  messageId,
   name,
   args,
   result,
 }: {
   id?: string;
+  messageId?: string;
   name: string;
   args: Record<string, unknown>;
   result?: string | Record<string, unknown>;
 }) {
+  const { select, setOpen } = useArtifacts();
   if (name === "web_search") {
     let label: React.ReactNode = "Search for related information";
     if (typeof args.query === "string") {
@@ -198,7 +202,20 @@ function ToolCall({
     }
     const path: string | undefined = (args as { path: string })?.path;
     return (
-      <ChainOfThoughtStep key={id} label={description} icon={NotebookPenIcon}>
+      <ChainOfThoughtStep
+        key={id}
+        className="cursor-pointer"
+        label={description}
+        icon={NotebookPenIcon}
+        onClick={() => {
+          select(
+            new URL(
+              `write-file:${path}?message_id=${messageId}&tool_call_id=${id}`,
+            ).toString(),
+          );
+          setOpen(true);
+        }}
+      >
         {path && (
           <ChainOfThoughtSearchResult>{path}</ChainOfThoughtSearchResult>
         )}
@@ -258,6 +275,7 @@ function ToolCall({
 
 interface GenericCoTStep<T extends string = string> {
   id?: string;
+  messageId?: string;
   type: T;
 }
 
@@ -281,6 +299,7 @@ function convertToSteps(messages: Message[]): CoTStep[] {
       if (reasoning) {
         const step: CoTReasoningStep = {
           id: message.id,
+          messageId: message.id,
           type: "reasoning",
           reasoning: extractReasoningContentFromMessage(message),
         };
@@ -289,6 +308,7 @@ function convertToSteps(messages: Message[]): CoTStep[] {
       for (const tool_call of message.tool_calls ?? []) {
         const step: CoTToolCallStep = {
           id: tool_call.id,
+          messageId: message.id,
           type: "toolCall",
           name: tool_call.name,
           args: tool_call.args,

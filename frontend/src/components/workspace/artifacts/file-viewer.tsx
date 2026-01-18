@@ -16,14 +16,21 @@ export function FileViewer({
   filepath: string;
   threadId: string;
 }) {
-  const { isCodeFile, language } = useMemo(
-    () => checkCodeFile(filepath),
-    [filepath],
-  );
-  if (isCodeFile && language !== "html") {
+  const isWriteFile = useMemo(() => {
+    return filepath.startsWith("write-file:");
+  }, [filepath]);
+  const { isCodeFile, language } = useMemo(() => {
+    if (isWriteFile) {
+      const url = new URL(filepath);
+      const path = url.pathname;
+      return checkCodeFile(path);
+    }
+    return checkCodeFile(filepath);
+  }, [filepath, isWriteFile]);
+  if (isWriteFile || (isCodeFile && language !== "html")) {
     return (
       <CodeFileView
-        language={language}
+        language={language ?? "markdown"}
         filepath={filepath}
         threadId={threadId}
       />
@@ -55,7 +62,7 @@ function CodeFileView({
   if (code) {
     return (
       <CodeBlock
-        className="rounded-none border-none"
+        className="size-full rounded-none border-none"
         language={language}
         code={code}
       />

@@ -35,7 +35,7 @@ export default function WorkspaceLayout({
       >
         <Overscroll behavior="none" overflow="hidden" />
         <WorkspaceSidebar />
-        <SidebarInset>{children}</SidebarInset>
+        <SidebarInset className="min-w-0">{children}</SidebarInset>
       </SidebarProvider>
       <Toaster position="top-center" />
     </QueryClientProvider>

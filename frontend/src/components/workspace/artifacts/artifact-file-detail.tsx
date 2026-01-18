@@ -32,7 +32,7 @@ import { FileViewer } from "./file-viewer";
 
 export function ArtifactFileDetail({
   className,
-  filepath,
+  filepath: filepathFromProps,
   threadId,
 }: {
   className?: string;
@@ -40,42 +40,65 @@ export function ArtifactFileDetail({
   threadId: string;
 }) {
   const { artifacts, setOpen, select } = useArtifacts();
-  const { isCodeFile } = useMemo(() => checkCodeFile(filepath), [filepath]);
+  const isWriteFile = useMemo(() => {
+    return filepathFromProps.startsWith("write-file:");
+  }, [filepathFromProps]);
+  const filepath = useMemo(() => {
+    if (isWriteFile) {
+      const url = new URL(filepathFromProps);
+      return url.pathname;
+    }
+    return filepathFromProps;
+  }, [filepathFromProps, isWriteFile]);
+  const { isCodeFile } = useMemo(() => {
+    if (isWriteFile) {
+      let language = checkCodeFile(filepath).language;
+      language ??= "markdown";
+      return { isCodeFile: true, language };
+    }
+    return checkCodeFile(filepath);
+  }, [filepath, isWriteFile]);
   const { content } = useArtifactContent({
     threadId,
-    filepath,
-    enabled: isCodeFile,
+    filepath: filepathFromProps,
+    enabled: isCodeFile && !isWriteFile,
   });
   return (
     <Artifact className={cn("rounded-none", className)}>
       <ArtifactHeader className="px-2">
         <div>
           <ArtifactTitle>
-            <Select value={filepath} onValueChange={select}>
-              <SelectTrigger className="border-none bg-transparent! shadow-none select-none focus:outline-0 active:outline-0">
-                <SelectValue placeholder="Select a file" />
-              </SelectTrigger>
-              <SelectContent className="select-none">
-                <SelectGroup>
-                  {(artifacts ?? []).map((filepath) => (
-                    <SelectItem key={filepath} value={filepath}>
-                      {getFileName(filepath)}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            {isWriteFile ? (
+              <div className="px-2">{getFileName(filepath)}</div>
+            ) : (
+              <Select value={filepath} onValueChange={select}>
+                <SelectTrigger className="border-none bg-transparent! shadow-none select-none focus:outline-0 active:outline-0">
+                  <SelectValue placeholder="Select a file" />
+                </SelectTrigger>
+                <SelectContent className="select-none">
+                  <SelectGroup>
+                    {(artifacts ?? []).map((filepath) => (
+                      <SelectItem key={filepath} value={filepath}>
+                        {getFileName(filepath)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
           </ArtifactTitle>
         </div>
         <div className="flex items-center gap-2">
           <ArtifactActions>
-            <a href={urlOfArtifact({ filepath, threadId })} target="_blank">
-              <ArtifactAction
-                icon={SquareArrowOutUpRightIcon}
-                label="Open in new window"
-                tooltip="Open in new window"
-              />
-            </a>
+            {!isWriteFile && (
+              <a href={urlOfArtifact({ filepath, threadId })} target="_blank">
+                <ArtifactAction
+                  icon={SquareArrowOutUpRightIcon}
+                  label="Open in new window"
+                  tooltip="Open in new window"
+                />
+              </a>
+            )}
             {isCodeFile && (
               <ArtifactAction
                 icon={CopyIcon}
@@ -93,17 +116,19 @@ export function ArtifactFileDetail({
                 tooltip="Copy content to clipboard"
               />
             )}
-            <a
-              href={urlOfArtifact({ filepath, threadId, download: true })}
-              target="_blank"
-            >
-              <ArtifactAction
-                icon={DownloadIcon}
-                label="Download"
-                onClick={() => console.log("Download")}
-                tooltip="Download file"
-              />
-            </a>
+            {!isWriteFile && (
+              <a
+                href={urlOfArtifact({ filepath, threadId, download: true })}
+                target="_blank"
+              >
+                <ArtifactAction
+                  icon={DownloadIcon}
+                  label="Download"
+                  onClick={() => console.log("Download")}
+                  tooltip="Download file"
+                />
+              </a>
+            )}
             <ArtifactAction
               icon={XIcon}
               label="Close"
@@ -117,7 +142,7 @@ export function ArtifactFileDetail({
         <FileViewer
           className="size-full"
           threadId={threadId}
-          filepath={filepath}
+          filepath={filepathFromProps}
         />
       </ArtifactContent>
     </Artifact>
