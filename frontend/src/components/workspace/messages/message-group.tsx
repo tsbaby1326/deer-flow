@@ -6,6 +6,7 @@ import {
   FolderOpenIcon,
   GlobeIcon,
   LightbulbIcon,
+  MessageCircleQuestionMarkIcon,
   NotebookPenIcon,
   SearchIcon,
   SquareTerminalIcon,
@@ -83,7 +84,7 @@ export function MessageGroup({
               <span className="opacity-60">
                 {showAbove
                   ? "Less steps"
-                  : `${aboveLastToolCallSteps.length} more steps`}
+                  : `${aboveLastToolCallSteps.length} more step${aboveLastToolCallSteps.length === 1 ? "" : "s"}`}
               </span>
             }
             icon={
@@ -317,6 +318,15 @@ function ToolCall({
             )}
         </ChainOfThoughtSearchResult>
       </ChainOfThoughtStep>
+    );
+  }
+  if (name === "ask_clarification") {
+    return (
+      <ChainOfThoughtStep
+        key={id}
+        label="Need your help"
+        icon={MessageCircleQuestionMarkIcon}
+      ></ChainOfThoughtStep>
     );
   } else {
     const description: string | undefined = (args as { description: string })
