@@ -962,13 +962,10 @@ export const PromptInputButton = ({
   size,
   ...props
 }: PromptInputButtonProps) => {
-  const newSize =
-    size ?? (Children.count(props.children) > 1 ? "sm" : "icon-sm");
-
   return (
     <InputGroupButton
       className={cn(className)}
-      size={newSize}
+      size="sm"
       type="button"
       variant={variant}
       {...props}

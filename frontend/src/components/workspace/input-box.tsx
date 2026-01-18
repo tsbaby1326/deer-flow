@@ -144,8 +144,7 @@ export function InputBox({
           >
             <ModelSelectorTrigger asChild>
               <PromptInputButton>
-                <BoxIcon className="size-4" />
-                <ModelSelectorName className="font-light">
+                <ModelSelectorName className="text-xs font-normal">
                   {selectedModel?.displayName}
                 </ModelSelectorName>
               </PromptInputButton>
