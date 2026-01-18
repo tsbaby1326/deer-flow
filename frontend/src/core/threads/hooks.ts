@@ -90,6 +90,9 @@ export function useSubmitThread({
           threadId: isNewThread ? threadId! : undefined,
           streamSubgraphs: true,
           streamResumable: true,
+          config: {
+            recursion_limit: 100,
+          },
           context: {
             ...threadContext,
             thread_id: threadId,
