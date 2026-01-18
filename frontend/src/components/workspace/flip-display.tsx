@@ -12,7 +12,7 @@ export function FlipDisplay({
   className?: string;
 }) {
   return (
-    <div className={cn("relative h-6 overflow-hidden", className)}>
+    <div className={cn("relative overflow-hidden", className)}>
       <AnimatePresence mode="wait">
         <motion.div
           key={uniqueKey}

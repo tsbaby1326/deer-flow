@@ -1,11 +1,11 @@
 import type { Message } from "@langchain/langgraph-sdk";
 import {
   BookOpenTextIcon,
+  ChevronUp,
   FileTextIcon,
   FolderOpenIcon,
   GlobeIcon,
   LightbulbIcon,
-  ListTreeIcon,
   NotebookPenIcon,
   SearchIcon,
   SquareTerminalIcon,
@@ -16,12 +16,12 @@ import { useMemo, useState } from "react";
 import {
   ChainOfThought,
   ChainOfThoughtContent,
-  ChainOfThoughtHeader,
   ChainOfThoughtSearchResult,
   ChainOfThoughtSearchResults,
   ChainOfThoughtStep,
 } from "@/components/ai-elements/chain-of-thought";
 import { MessageResponse } from "@/components/ai-elements/message";
+import { Button } from "@/components/ui/button";
 import {
   extractReasoningContentFromMessage,
   findToolCallResult,
@@ -42,67 +42,123 @@ export function MessageGroup({
   messages: Message[];
   isLoading?: boolean;
 }) {
+  const [showAbove, setShowAbove] = useState(false);
+  const [showLastThinking, setShowLastThinking] = useState(false);
   const steps = useMemo(() => convertToSteps(messages), [messages]);
-  const stepCount = useMemo(
-    () => steps.filter((step) => step.type !== "reasoning").length,
-    [steps],
-  );
+  const lastToolCallStep = useMemo(() => {
+    const filteredSteps = steps.filter((step) => step.type === "toolCall");
+    return filteredSteps[filteredSteps.length - 1];
+  }, [steps]);
+  const aboveLastToolCallSteps = useMemo(() => {
+    if (lastToolCallStep) {
+      const index = steps.indexOf(lastToolCallStep);
+      return steps.slice(0, index);
+    }
+    return [];
+  }, [lastToolCallStep, steps]);
+  const lastReasoningStep = useMemo(() => {
+    if (lastToolCallStep) {
+      const index = steps.indexOf(lastToolCallStep);
+      return steps.slice(index + 1).find((step) => step.type === "reasoning");
+    } else {
+      const filteredSteps = steps.filter((step) => step.type === "reasoning");
+      return filteredSteps[filteredSteps.length - 1];
+    }
+  }, [lastToolCallStep, steps]);
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
-  const [open, setOpen] = useState(false);
-  const lastStep = steps[steps.length - 1];
-  const { label, icon } = describeStep(lastStep);
   return (
     <ChainOfThought
-      className={cn("w-full rounded-lg border px-3 py-2", className)}
-      defaultOpen={false}
-      open={open}
-      onOpenChange={setOpen}
+      className={cn("w-full gap-2 rounded-lg border py-0", className)}
+      open={true}
     >
-      <ChainOfThoughtHeader
-        className="min-h-6"
-        icon={
-          open && stepCount > 1 ? <ListTreeIcon className="size-4" /> : icon
-        }
-      >
-        <div className="flex w-full items-center justify-between">
-          <div>
-            <div>
-              {open && stepCount > 1 ? (
-                <div>{stepCount} steps</div>
+      {aboveLastToolCallSteps.length > 0 && (
+        <Button
+          key="above"
+          className="w-full items-start justify-start text-left"
+          variant="ghost"
+          onClick={() => setShowAbove(!showAbove)}
+        >
+          <ChainOfThoughtStep
+            label={
+              <span className="opacity-60">
+                {showAbove
+                  ? "Less steps"
+                  : `${aboveLastToolCallSteps.length} more steps`}
+              </span>
+            }
+            icon={
+              <ChevronUp
+                className={cn(
+                  "size-4 opacity-60 transition-transform duration-200",
+                  showAbove ? "rotate-180" : "",
+                )}
+              />
+            }
+          ></ChainOfThoughtStep>
+        </Button>
+      )}
+      {aboveLastToolCallSteps.length > 0 && (
+        <ChainOfThoughtContent className="px-4 pb-2">
+          {showAbove &&
+            aboveLastToolCallSteps.map((step) =>
+              step.type === "reasoning" ? (
+                <ChainOfThoughtStep
+                  key={step.id}
+                  label={
+                    <MessageResponse rehypePlugins={rehypePlugins}>
+                      {step.reasoning ?? ""}
+                    </MessageResponse>
+                  }
+                ></ChainOfThoughtStep>
               ) : (
-                <FlipDisplay uniqueKey={`step-${stepCount}`}>
-                  <MessageResponse rehypePlugins={rehypePlugins}>
-                    {label}
-                  </MessageResponse>
-                </FlipDisplay>
-              )}
-            </div>
-          </div>
-          <div>
-            {!open && stepCount > 1 && (
-              <div>
-                {stepCount > 1 ? `${stepCount} steps` : `${stepCount}  step`}
-              </div>
+                <ToolCall key={step.id} {...step} />
+              ),
             )}
-          </div>
-        </div>
-      </ChainOfThoughtHeader>
-      <ChainOfThoughtContent className="pb-2">
-        {steps.map((step) =>
-          step.type === "reasoning" ? (
-            <ChainOfThoughtStep
-              key={step.id}
-              label={
-                <MessageResponse rehypePlugins={rehypePlugins}>
-                  {step.reasoning ?? ""}
-                </MessageResponse>
-              }
-            />
-          ) : (
-            <ToolCall key={step.id} {...step} />
-          ),
-        )}
-      </ChainOfThoughtContent>
+          {lastToolCallStep && (
+            <FlipDisplay uniqueKey={lastToolCallStep.id ?? ""}>
+              <ToolCall key={lastToolCallStep.id} {...lastToolCallStep} />
+            </FlipDisplay>
+          )}
+        </ChainOfThoughtContent>
+      )}
+      {lastReasoningStep && (
+        <>
+          <Button
+            key={lastReasoningStep.id}
+            className="w-full items-start justify-start text-left"
+            variant="ghost"
+            onClick={() => setShowLastThinking(!showLastThinking)}
+          >
+            <div className="flex w-full items-center justify-between">
+              <ChainOfThoughtStep
+                className="font-normal"
+                label="Thinking"
+                icon={LightbulbIcon}
+              ></ChainOfThoughtStep>
+              <div>
+                <ChevronUp
+                  className={cn(
+                    "text-muted-foreground size-4",
+                    showLastThinking ? "" : "rotate-180",
+                  )}
+                />
+              </div>
+            </div>
+          </Button>
+          {showLastThinking && (
+            <ChainOfThoughtContent className="px-4 pb-2">
+              <ChainOfThoughtStep
+                key={lastReasoningStep.id}
+                label={
+                  <MessageResponse rehypePlugins={rehypePlugins}>
+                    {lastReasoningStep.reasoning ?? ""}
+                  </MessageResponse>
+                }
+              ></ChainOfThoughtStep>
+            </ChainOfThoughtContent>
+          )}
+        </>
+      )}
     </ChainOfThought>
   );
 }
@@ -156,7 +212,15 @@ function ToolCall({
       }
     }
     return (
-      <ChainOfThoughtStep key={id} label="View web page" icon={GlobeIcon}>
+      <ChainOfThoughtStep
+        key={id}
+        className="cursor-pointer"
+        label="View web page"
+        icon={GlobeIcon}
+        onClick={() => {
+          window.open(url, "_blank");
+        }}
+      >
         <ChainOfThoughtSearchResult>
           {url && (
             <a href={url} target="_blank" rel="noreferrer">
@@ -330,48 +394,4 @@ function convertToSteps(messages: Message[]): CoTStep[] {
     }
   }
   return steps;
-}
-
-function describeStep(step: CoTStep | undefined): {
-  label: string;
-  icon: React.ReactElement;
-} {
-  if (!step) {
-    return { label: "Thinking", icon: <LightbulbIcon className="size-4" /> };
-  }
-  if (step.type === "reasoning") {
-    return { label: "Thinking", icon: <LightbulbIcon className="size-4" /> };
-  } else {
-    let label: string;
-    let icon: React.ReactElement = <WrenchIcon className="size-4" />;
-    if (step.name === "web_search") {
-      label = `Search &quot;${(step.args as { query: string }).query}&quot; on web`;
-      icon = <SearchIcon className="size-4" />;
-    } else if (step.name === "web_fetch") {
-      label = "View web page";
-      icon = <GlobeIcon className="size-4" />;
-    } else if (step.name === "ls") {
-      label = "List folder";
-      icon = <FolderOpenIcon className="size-4" />;
-    } else if (step.name === "read_file") {
-      label = "Read file";
-      icon = <BookOpenTextIcon className="size-4" />;
-    } else if (step.name === "write_file" || step.name === "str_replace") {
-      label = "Write file";
-      icon = <NotebookPenIcon className="size-4" />;
-    } else if (step.name === "bash") {
-      label = "Execute command";
-      icon = <SquareTerminalIcon className="size-4" />;
-    } else if (step.name === "present_files") {
-      label = "Present files";
-      icon = <FileTextIcon className="size-4" />;
-    } else {
-      label = `Call tool "${step.name}"`;
-      icon = <WrenchIcon className="size-4" />;
-    }
-    if (typeof step.args.description === "string") {
-      label = step.args.description;
-    }
-    return { label, icon };
-  }
 }
