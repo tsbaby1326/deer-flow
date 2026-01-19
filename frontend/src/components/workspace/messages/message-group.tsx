@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 
 import { useArtifacts } from "../artifacts";
 import { FlipDisplay } from "../flip-display";
+import { CodeBlock } from "@/components/ai-elements/code-block";
 
 export function MessageGroup({
   className,
@@ -300,7 +301,12 @@ function ToolCall({
         icon={SquareTerminalIcon}
       >
         {command && (
-          <ChainOfThoughtSearchResult>{command}</ChainOfThoughtSearchResult>
+          <CodeBlock
+            className="mx-0 border-none px-0"
+            showLineNumbers={false}
+            language="bash"
+            code={command}
+          />
         )}
       </ChainOfThoughtStep>
     );
