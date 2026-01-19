@@ -7,3 +7,11 @@ export function getBackendBaseURL() {
     return "http://localhost:8000";
   }
 }
+
+export function getLangGraphBaseURL() {
+  if (env.NEXT_PUBLIC_LANGGRAPH_BASE_URL) {
+    return env.NEXT_PUBLIC_LANGGRAPH_BASE_URL;
+  } else {
+    return getBackendBaseURL();
+  }
+}
