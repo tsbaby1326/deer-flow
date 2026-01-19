@@ -11,6 +11,7 @@ import {
   PromptInputTextarea,
   type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
+import { useModels } from "@/core/models/hooks";
 import type { AgentThreadContext } from "@/core/threads";
 import { cn } from "@/lib/utils";
 
@@ -25,15 +26,6 @@ import {
 } from "../ai-elements/model-selector";
 
 import { Tooltip } from "./tooltip";
-
-const AVAILABLE_MODELS = [
-  { name: "deepseek-v3.2", displayName: "DeepSeek v3.2", provider: "deepseek" },
-  {
-    name: "doubao-seed-1.8",
-    displayName: "Doubao Seed 1.8",
-    provider: "doubao",
-  },
-];
 
 export function InputBox({
   className,
@@ -54,19 +46,22 @@ export function InputBox({
   onStop?: () => void;
 }) {
   const [modelDialogOpen, setModelDialogOpen] = useState(false);
+  const { models } = useModels();
   const selectedModel = useMemo(
-    () => AVAILABLE_MODELS.find((m) => m.name === context.model_name),
-    [context.model_name],
+    () => models.find((m) => m.name === context.model_name),
+    [context.model_name, models],
   );
   const handleModelSelect = useCallback(
     (model_name: string) => {
+      const supports_thinking = selectedModel?.supports_thinking ?? false;
       onContextChange?.({
         ...context,
         model_name,
+        thinking_enabled: supports_thinking && context.thinking_enabled,
       });
       setModelDialogOpen(false);
     },
-    [onContextChange, context],
+    [selectedModel?.supports_thinking, onContextChange, context],
   );
   const handleThinkingToggle = useCallback(() => {
     onContextChange?.({
@@ -90,7 +85,7 @@ export function InputBox({
   return (
     <PromptInput
       className={cn(
-        "bg-background/50 rounded-2xl backdrop-blur-sm transition-all duration-300 ease-out *:data-[slot='input-group']:rounded-2xl",
+        "bg-background/85 rounded-2xl backdrop-blur-sm transition-all duration-300 ease-out *:data-[slot='input-group']:rounded-2xl",
         "h-48 translate-y-14 overflow-hidden",
         className,
       )}
@@ -123,13 +118,15 @@ export function InputBox({
               )
             }
           >
-            <PromptInputButton onClick={handleThinkingToggle}>
-              {context.thinking_enabled ? (
-                <LightbulbIcon className="text-primary size-4" />
-              ) : (
-                <LightbulbOffIcon className="size-4" />
-              )}
-            </PromptInputButton>
+            {selectedModel?.supports_thinking && (
+              <PromptInputButton onClick={handleThinkingToggle}>
+                {context.thinking_enabled ? (
+                  <LightbulbIcon className="text-primary size-4" />
+                ) : (
+                  <LightbulbOffIcon className="size-4" />
+                )}
+              </PromptInputButton>
+            )}
           </Tooltip>
         </div>
         <div className="flex items-center gap-2">
@@ -140,20 +137,20 @@ export function InputBox({
             <ModelSelectorTrigger asChild>
               <PromptInputButton>
                 <ModelSelectorName className="text-xs font-normal">
-                  {selectedModel?.displayName}
+                  {selectedModel?.display_name}
                 </ModelSelectorName>
               </PromptInputButton>
             </ModelSelectorTrigger>
             <ModelSelectorContent>
               <ModelSelectorInput placeholder="Search models..." />
               <ModelSelectorList>
-                {AVAILABLE_MODELS.map((m) => (
+                {models.map((m) => (
                   <ModelSelectorItem
                     key={m.name}
                     value={m.name}
                     onSelect={() => handleModelSelect(m.name)}
                   >
-                    <ModelSelectorName>{m.displayName}</ModelSelectorName>
+                    <ModelSelectorName>{m.display_name}</ModelSelectorName>
                     {m.name === context.model_name ? (
                       <CheckIcon className="ml-auto size-4" />
                     ) : (
