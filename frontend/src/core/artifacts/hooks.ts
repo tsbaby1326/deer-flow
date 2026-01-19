@@ -3,7 +3,7 @@ import { useMemo } from "react";
 
 import { useThread } from "@/components/workspace/messages/context";
 
-import { loadArtifactContent } from "./loader";
+import { loadArtifactContent, loadArtifactContentFromToolCall } from "./loader";
 
 export function useArtifactContent({
   filepath,
@@ -20,25 +20,10 @@ export function useArtifactContent({
   const { thread } = useThread();
   const content = useMemo(() => {
     if (isWriteFile) {
-      const url = new URL(filepath);
-      const toolCallId = url.searchParams.get("tool_call_id");
-      const messageId = url.searchParams.get("message_id");
-      if (messageId && toolCallId) {
-        const message = thread.messages.find(
-          (message) => message.id === messageId,
-        );
-        if (message?.type === "ai" && message.tool_calls) {
-          const toolCall = message.tool_calls.find(
-            (toolCall) => toolCall.id === toolCallId,
-          );
-          if (toolCall) {
-            return toolCall.args.content;
-          }
-        }
-      }
+      return loadArtifactContentFromToolCall({ url: filepath, thread });
     }
     return null;
-  }, [filepath, isWriteFile, thread.messages]);
+  }, [filepath, isWriteFile, thread]);
   const { data, isLoading, error } = useQuery({
     queryKey: ["artifact", filepath, threadId],
     queryFn: () => {

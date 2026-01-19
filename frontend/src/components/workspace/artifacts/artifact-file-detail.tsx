@@ -4,8 +4,9 @@ import {
   SquareArrowOutUpRightIcon,
   XIcon,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Streamdown } from "streamdown";
 
 import {
   Artifact,
@@ -22,13 +23,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
 
 import { useArtifacts } from "./context";
-import { FileViewer } from "./file-viewer";
 
 export function ArtifactFileDetail({
   className,
@@ -50,23 +52,34 @@ export function ArtifactFileDetail({
     }
     return filepathFromProps;
   }, [filepathFromProps, isWriteFile]);
-  const { isCodeFile } = useMemo(() => {
+  const { isCodeFile, language } = useMemo(() => {
     if (isWriteFile) {
       let language = checkCodeFile(filepath).language;
-      language ??= "markdown";
+      language ??= "text";
       return { isCodeFile: true, language };
     }
     return checkCodeFile(filepath);
   }, [filepath, isWriteFile]);
+  const previewable = useMemo(() => {
+    return (language === "html" && !isWriteFile) || language === "markdown";
+  }, [isWriteFile, language]);
   const { content } = useArtifactContent({
     threadId,
     filepath: filepathFromProps,
     enabled: isCodeFile && !isWriteFile,
   });
+  const [viewMode, setViewMode] = useState<"code" | "preview">("code");
+  useEffect(() => {
+    if (previewable) {
+      setViewMode("preview");
+    } else {
+      setViewMode("code");
+    }
+  }, [previewable]);
   return (
     <Artifact className={cn("rounded-none", className)}>
       <ArtifactHeader className="px-2">
-        <div>
+        <div className="flex items-center gap-2">
           <ArtifactTitle>
             {isWriteFile ? (
               <div className="px-2">{getFileName(filepath)}</div>
@@ -87,6 +100,23 @@ export function ArtifactFileDetail({
               </Select>
             )}
           </ArtifactTitle>
+        </div>
+        <div className="flex min-w-0 grow items-center justify-center">
+          {previewable && (
+            <ToggleGroup
+              className="mx-auto"
+              type="single"
+              variant="outline"
+              size="sm"
+              value={viewMode}
+              onValueChange={(value) =>
+                setViewMode(value as "code" | "preview")
+              }
+            >
+              <ToggleGroupItem value="code">Code</ToggleGroupItem>
+              <ToggleGroupItem value="preview">Preview</ToggleGroupItem>
+            </ToggleGroup>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <ArtifactActions>
@@ -139,12 +169,57 @@ export function ArtifactFileDetail({
         </div>
       </ArtifactHeader>
       <ArtifactContent className="p-0">
-        <FileViewer
-          className="size-full"
-          threadId={threadId}
-          filepath={filepathFromProps}
-        />
+        {previewable && viewMode === "preview" && (
+          <ArtifactFilePreview
+            filepath={filepath}
+            threadId={threadId}
+            content={content}
+            language={language ?? "text"}
+          />
+        )}
+        {isCodeFile && viewMode === "code" && (
+          <Textarea
+            className="size-full resize-none rounded-none border-none"
+            readOnly
+            value={content ?? ""}
+          />
+        )}
+        {!isCodeFile && (
+          <iframe
+            className="size-full"
+            src={urlOfArtifact({ filepath, threadId })}
+          />
+        )}
       </ArtifactContent>
     </Artifact>
   );
+}
+
+export function ArtifactFilePreview({
+  filepath,
+  threadId,
+  content,
+  language,
+}: {
+  filepath: string;
+  threadId: string;
+  content: string;
+  language: string;
+}) {
+  if (language === "markdown") {
+    return (
+      <div className="size-full px-4">
+        <Streamdown className="size-full">{content ?? ""}</Streamdown>
+      </div>
+    );
+  }
+  if (language === "html") {
+    return (
+      <iframe
+        className="size-full"
+        src={urlOfArtifact({ filepath, threadId })}
+      />
+    );
+  }
+  return null;
 }

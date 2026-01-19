@@ -1,6 +1,13 @@
-import type { BundledLanguage } from "shiki";
+const extensionMap: Record<string, string> = {
+  // Text
+  txt: "text",
+  csv: "csv",
+  log: "text",
+  conf: "text",
+  config: "text",
+  properties: "text",
+  props: "text",
 
-const extensionMap: Record<string, BundledLanguage> = {
   // JavaScript/TypeScript ecosystem
   js: "javascript",
   jsx: "jsx",
@@ -137,14 +144,14 @@ export function getFileExtension(filepath: string) {
 export function checkCodeFile(
   filepath: string,
 ):
-  | { isCodeFile: true; language: BundledLanguage }
+  | { isCodeFile: true; language: string }
   | { isCodeFile: false; language: null } {
   const extension = getFileExtension(filepath);
   const isCodeFile = extension in extensionMap;
   if (isCodeFile) {
     return {
       isCodeFile: true,
-      language: extensionMap[extension] as unknown as BundledLanguage,
+      language: extensionMap[extension] ?? "text",
     };
   }
   return {
