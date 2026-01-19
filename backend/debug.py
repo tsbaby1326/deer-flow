@@ -26,6 +26,14 @@ load_dotenv()
 
 
 async def main():
+    # Initialize MCP tools at startup
+    try:
+        from src.mcp import initialize_mcp_tools
+
+        await initialize_mcp_tools()
+    except Exception as e:
+        print(f"Warning: Failed to initialize MCP tools: {e}")
+
     # Create agent with default config
     config = {
         "configurable": {

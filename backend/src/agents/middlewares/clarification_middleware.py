@@ -41,7 +41,7 @@ class ClarificationMiddleware(AgentMiddleware[ClarificationMiddlewareState]):
         Returns:
             True if text contains Chinese characters
         """
-        return any('\u4e00' <= char <= '\u9fff' for char in text)
+        return any("\u4e00" <= char <= "\u9fff" for char in text)
 
     def _format_clarification_message(self, args: dict) -> str:
         """Format the clarification arguments into a user-friendly message.

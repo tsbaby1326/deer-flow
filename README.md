@@ -14,6 +14,10 @@ A LangGraph-based AI agent backend with sandbox execution capabilities.
    # Set your API keys
    export OPENAI_API_KEY="your-key-here"
    # or edit config.yaml directly
+
+   # Optional: Enable MCP servers for additional tools
+   cp mcp_config.example.json mcp_config.json
+   # Edit mcp_config.json to enable desired servers
    ```
 
 2. **Install dependencies**:
@@ -45,6 +49,7 @@ deer-flow/
 
 - [Configuration Guide](backend/docs/CONFIGURATION.md) - Setup and configuration instructions
 - [Architecture Overview](backend/CLAUDE.md) - Technical architecture details
+- [MCP Setup Guide](MCP_SETUP.md) - Configure Model Context Protocol servers for additional tools
 
 ## License
 

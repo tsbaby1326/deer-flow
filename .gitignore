@@ -16,6 +16,7 @@ venv/
 
 # Configuration files
 config.yaml
+mcp_config.json
 
 # IDE
 .idea/

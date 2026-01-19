@@ -17,6 +17,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     config = get_gateway_config()
     logger.info(f"Starting API Gateway on {config.host}:{config.port}")
     logger.info(f"Proxying to LangGraph server at {config.langgraph_url}")
+
+    # Initialize MCP tools at startup
+    try:
+        from src.mcp import initialize_mcp_tools
+
+        await initialize_mcp_tools()
+    except Exception as e:
+        logger.warning(f"Failed to initialize MCP tools: {e}")
+
     yield
     logger.info("Shutting down API Gateway")
     # Close the shared HTTP client

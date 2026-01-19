@@ -1,0 +1,54 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "enabled": true,
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/files"],
+      "env": {},
+      "description": "Provides file system access within specified directory"
+    },
+    "postgres": {
+      "enabled": false,
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"],
+      "env": {
+        "PGPASSWORD": "$POSTGRES_PASSWORD"
+      },
+      "description": "PostgreSQL database access"
+    },
+    "github": {
+      "enabled": false,
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_TOKEN"
+      },
+      "description": "GitHub repository operations"
+    },
+    "brave-search": {
+      "enabled": false,
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "$BRAVE_API_KEY"
+      },
+      "description": "Brave Search API integration"
+    },
+    "puppeteer": {
+      "enabled": false,
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "env": {},
+      "description": "Browser automation with Puppeteer"
+    },
+    "custom-server": {
+      "enabled": false,
+      "command": "python",
+      "args": ["-m", "my_custom_mcp_server"],
+      "env": {
+        "API_KEY": "$CUSTOM_API_KEY"
+      },
+      "description": "Custom MCP server implementation"
+    }
+  }
+}

@@ -65,6 +65,27 @@ Config values starting with `$` are resolved as environment variables (e.g., `$O
 - Tools defined in config with `use` path (e.g., `src.sandbox.tools:bash_tool`)
 - `get_available_tools()` resolves tool paths via reflection
 - Community tools in `src/community/`: Jina AI (web fetch), Tavily (web search)
+- Supports MCP (Model Context Protocol) for pluggable external tools
+
+**MCP System** (`src/mcp/`)
+- Integrates with MCP servers to provide pluggable external tools using `langchain-mcp-adapters`
+- Configuration in `mcp_config.json` in project root (separate from `config.yaml`)
+- Uses `MultiServerMCPClient` from langchain-mcp-adapters for multi-server management
+- **Automatic initialization**: Tools are loaded on first use with lazy initialization
+- Supports both eager loading (FastAPI startup) and lazy loading (LangGraph Studio)
+- `initialize_mcp_tools()` can be called in FastAPI lifespan handler for eager loading
+- `get_cached_mcp_tools()` automatically initializes tools if not already loaded
+- Works seamlessly in both FastAPI server and LangGraph Studio environments
+- Each server can be enabled/disabled independently via `enabled` flag
+- Supports environment variable resolution (e.g., `$GITHUB_TOKEN`)
+- Configuration priority:
+  1. Explicit `config_path` argument
+  2. `DEER_FLOW_MCP_CONFIG_PATH` environment variable
+  3. `mcp_config.json` in current directory (backend/)
+  4. `mcp_config.json` in parent directory (project root - **recommended location**)
+- Popular MCP servers: filesystem, postgres, github, brave-search, puppeteer
+- See `mcp_config.example.json` for configuration examples
+- Built on top of langchain-ai/langchain-mcp-adapters for seamless integration
 
 **Reflection System** (`src/reflection/`)
 - `resolve_variable()` imports module and returns variable (e.g., `module:variable`)
@@ -102,6 +123,14 @@ Models, tools, sandbox providers, skills, and middleware settings are configured
 - `skills.container_path`: Container mount path (default: `/mnt/skills`)
 - `title`: Automatic thread title generation configuration
 - `summarization`: Automatic conversation summarization configuration
+
+MCP servers are configured separately in `mcp_config.json`:
+- `mcpServers`: Map of server name to configuration
+  - `enabled`: Whether the server is enabled (boolean)
+  - `command`: Command to execute to start the server (e.g., "npx", "python")
+  - `args`: Arguments to pass to the command (array)
+  - `env`: Environment variables (object with `$VAR` support)
+  - `description`: Human-readable description
 
 ## Code Style
 
