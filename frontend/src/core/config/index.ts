@@ -1,5 +1,9 @@
 import { env } from "@/env";
 
 export function getBackendBaseURL() {
-  return env.NEXT_PUBLIC_BACKEND_BASE_URL ?? "http://localhost:8000";
+  if (env.NEXT_PUBLIC_BACKEND_BASE_URL) {
+    return env.NEXT_PUBLIC_BACKEND_BASE_URL;
+  } else {
+    return "http://localhost:8000";
+  }
 }

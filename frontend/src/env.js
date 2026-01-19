@@ -24,10 +24,7 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_BACKEND_BASE_URL: z
-      .string()
-      .optional()
-      .default("http://localhost:8000/api"),
+    NEXT_PUBLIC_BACKEND_BASE_URL: z.string().optional(),
   },
 
   /**
