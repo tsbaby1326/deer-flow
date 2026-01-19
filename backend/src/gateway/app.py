@@ -19,6 +19,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info(f"Proxying to LangGraph server at {config.langgraph_url}")
     yield
     logger.info("Shutting down API Gateway")
+    # Close the shared HTTP client
+    await proxy.close_http_client()
 
 
 def create_app() -> FastAPI:
