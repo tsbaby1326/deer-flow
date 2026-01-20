@@ -1,3 +1,5 @@
+"use client";
+
 import type { ChatStatus } from "ai";
 import { CheckIcon, LightbulbIcon, LightbulbOffIcon } from "lucide-react";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
@@ -11,6 +13,7 @@ import {
   PromptInputTextarea,
   type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
+import { useI18n } from "@/core/i18n/hooks";
 import { useModels } from "@/core/models/hooks";
 import type { AgentThreadContext } from "@/core/threads";
 import { cn } from "@/lib/utils";
@@ -40,11 +43,11 @@ export function InputBox({
   assistantId?: string | null;
   status?: ChatStatus;
   context: Omit<AgentThreadContext, "thread_id">;
-  showWelcome?: boolean;
   onContextChange?: (context: Omit<AgentThreadContext, "thread_id">) => void;
   onSubmit?: (message: PromptInputMessage) => void;
   onStop?: () => void;
 }) {
+  const { t } = useI18n();
   const [modelDialogOpen, setModelDialogOpen] = useState(false);
   const { models } = useModels();
   const selectedModel = useMemo(
@@ -97,7 +100,7 @@ export function InputBox({
       <PromptInputBody>
         <PromptInputTextarea
           className={cn("size-full")}
-          placeholder="How can I assist you today?"
+          placeholder={t.inputBox.placeholder}
           autoFocus={autoFocus}
         />
       </PromptInputBody>
@@ -107,13 +110,17 @@ export function InputBox({
             content={
               context.thinking_enabled ? (
                 <div className="tex-sm flex flex-col gap-1">
-                  <div>Thinking is enabled</div>
-                  <div className="opacity-50">Click to disable thinking</div>
+                  <div>{t.inputBox.thinkingEnabled}</div>
+                  <div className="opacity-50">
+                    {t.inputBox.clickToDisableThinking}
+                  </div>
                 </div>
               ) : (
                 <div className="tex-sm flex flex-col gap-1">
-                  <div>Thinking is disabled</div>
-                  <div className="opacity-50">Click to enable thinking</div>
+                  <div>{t.inputBox.thinkingDisabled}</div>
+                  <div className="opacity-50">
+                    {t.inputBox.clickToEnableThinking}
+                  </div>
                 </div>
               )
             }
@@ -142,7 +149,7 @@ export function InputBox({
               </PromptInputButton>
             </ModelSelectorTrigger>
             <ModelSelectorContent>
-              <ModelSelectorInput placeholder="Search models..." />
+              <ModelSelectorInput placeholder={t.inputBox.searchModels} />
               <ModelSelectorList>
                 {models.map((m) => (
                   <ModelSelectorItem

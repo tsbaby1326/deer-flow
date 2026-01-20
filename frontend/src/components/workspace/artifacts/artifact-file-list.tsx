@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { urlOfArtifact } from "@/core/artifacts/utils";
+import { useI18n } from "@/core/i18n/hooks";
 import { getFileExtensionDisplayName, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ export function ArtifactFileList({
   files: string[];
   threadId: string;
 }) {
+  const { t } = useI18n();
   const { select: selectArtifact, setOpen } = useArtifacts();
   const handleClick = useCallback(
     (filepath: string) => {
@@ -57,7 +59,7 @@ export function ArtifactFileList({
               >
                 <Button variant="ghost">
                   <DownloadIcon className="size-4" />
-                  Download
+                  {t.common.download}
                 </Button>
               </a>
             </CardAction>

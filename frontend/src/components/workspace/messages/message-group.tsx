@@ -21,8 +21,10 @@ import {
   ChainOfThoughtSearchResults,
   ChainOfThoughtStep,
 } from "@/components/ai-elements/chain-of-thought";
+import { CodeBlock } from "@/components/ai-elements/code-block";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/core/i18n/hooks";
 import {
   extractReasoningContentFromMessage,
   findToolCallResult,
@@ -33,7 +35,6 @@ import { cn } from "@/lib/utils";
 
 import { useArtifacts } from "../artifacts";
 import { FlipDisplay } from "../flip-display";
-import { CodeBlock } from "@/components/ai-elements/code-block";
 
 export function MessageGroup({
   className,
@@ -44,6 +45,7 @@ export function MessageGroup({
   messages: Message[];
   isLoading?: boolean;
 }) {
+  const { t } = useI18n();
   const [showAbove, setShowAbove] = useState(false);
   const [showLastThinking, setShowLastThinking] = useState(false);
   const steps = useMemo(() => convertToSteps(messages), [messages]);
@@ -84,8 +86,8 @@ export function MessageGroup({
             label={
               <span className="opacity-60">
                 {showAbove
-                  ? "Less steps"
-                  : `${aboveLastToolCallSteps.length} more step${aboveLastToolCallSteps.length === 1 ? "" : "s"}`}
+                  ? t.toolCalls.lessSteps
+                  : t.toolCalls.moreSteps(aboveLastToolCallSteps.length)}
               </span>
             }
             icon={
@@ -134,7 +136,7 @@ export function MessageGroup({
             <div className="flex w-full items-center justify-between">
               <ChainOfThoughtStep
                 className="font-normal"
-                label="Thinking"
+                label={t.common.thinking}
                 icon={LightbulbIcon}
               ></ChainOfThoughtStep>
               <div>
@@ -178,16 +180,12 @@ function ToolCall({
   args: Record<string, unknown>;
   result?: string | Record<string, unknown>;
 }) {
+  const { t } = useI18n();
   const { select, setOpen } = useArtifacts();
   if (name === "web_search") {
-    let label: React.ReactNode = "Search for related information";
+    let label: React.ReactNode = t.toolCalls.searchForRelatedInfo;
     if (typeof args.query === "string") {
-      label = (
-        <div>
-          Search on the web for{" "}
-          <span className="font-bold">&quot;{args.query}&quot;</span>
-        </div>
-      );
+      label = t.toolCalls.searchOnWebFor(args.query);
     }
     return (
       <ChainOfThoughtStep key={id} label={label} icon={SearchIcon}>
@@ -217,7 +215,7 @@ function ToolCall({
       <ChainOfThoughtStep
         key={id}
         className="cursor-pointer"
-        label="View web page"
+        label={t.toolCalls.viewWebPage}
         icon={GlobeIcon}
         onClick={() => {
           window.open(url, "_blank");
@@ -236,7 +234,7 @@ function ToolCall({
     let description: string | undefined = (args as { description: string })
       ?.description;
     if (!description) {
-      description = "List folder";
+      description = t.toolCalls.listFolder;
     }
     const path: string | undefined = (args as { path: string })?.path;
     return (
@@ -250,7 +248,7 @@ function ToolCall({
     let description: string | undefined = (args as { description: string })
       ?.description;
     if (!description) {
-      description = "Read file";
+      description = t.toolCalls.readFile;
     }
     const path: string | undefined = (args as { path: string })?.path;
     return (
@@ -264,7 +262,7 @@ function ToolCall({
     let description: string | undefined = (args as { description: string })
       ?.description;
     if (!description) {
-      description = "Write file";
+      description = t.toolCalls.writeFile;
     }
     const path: string | undefined = (args as { path: string })?.path;
     return (
@@ -291,7 +289,7 @@ function ToolCall({
     const description: string | undefined = (args as { description: string })
       ?.description;
     if (!description) {
-      return "Execute command";
+      return t.toolCalls.executeCommand;
     }
     const command: string | undefined = (args as { command: string })?.command;
     return (
@@ -312,7 +310,11 @@ function ToolCall({
     );
   } else if (name === "present_files") {
     return (
-      <ChainOfThoughtStep key={id} label="Present files" icon={FileTextIcon}>
+      <ChainOfThoughtStep
+        key={id}
+        label={t.toolCalls.presentFiles}
+        icon={FileTextIcon}
+      >
         <ChainOfThoughtSearchResult>
           {Array.isArray((args as { filepaths: string[] }).filepaths) &&
             (args as { filepaths: string[] }).filepaths.map(
@@ -330,7 +332,7 @@ function ToolCall({
     return (
       <ChainOfThoughtStep
         key={id}
-        label="Need your help"
+        label={t.toolCalls.needYourHelp}
         icon={MessageCircleQuestionMarkIcon}
       ></ChainOfThoughtStep>
     );
@@ -340,13 +342,7 @@ function ToolCall({
     return (
       <ChainOfThoughtStep
         key={id}
-        label={
-          description ?? (
-            <div>
-              Use &quot;<span className="font-bold">{name}</span>&quot; tool
-            </div>
-          )
-        }
+        label={description ?? t.toolCalls.useTool(name)}
         icon={WrenchIcon}
       ></ChainOfThoughtStep>
     );

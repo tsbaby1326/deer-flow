@@ -20,10 +20,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useI18n } from "@/core/i18n/hooks";
 import { useDeleteThread, useThreads } from "@/core/threads/hooks";
 import { pathOfThread, titleOfThread } from "@/core/threads/utils";
 
 export function RecentChatList() {
+  const { t } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
   const { thread_id: threadIdFromPath } = useParams<{ thread_id: string }>();
@@ -52,7 +54,7 @@ export function RecentChatList() {
   }
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Recent chats</SidebarGroupLabel>
+      <SidebarGroupLabel>{t.sidebar.recentChats}</SidebarGroupLabel>
       <SidebarGroupContent className="group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0">
         <SidebarMenu>
           <div className="flex w-full flex-col gap-1">
@@ -78,7 +80,7 @@ export function RecentChatList() {
                             className="bg-background/50 hover:bg-background"
                           >
                             <MoreHorizontal />
-                            <span className="sr-only">More</span>
+                            <span className="sr-only">{t.common.more}</span>
                           </SidebarMenuAction>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
@@ -90,7 +92,7 @@ export function RecentChatList() {
                             onSelect={() => handleDelete(thread.thread_id)}
                           >
                             <Trash2 className="text-muted-foreground" />
-                            <span>Delete</span>
+                            <span>{t.common.delete}</span>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

@@ -23,6 +23,7 @@ import { ThreadContext } from "@/components/workspace/messages/context";
 import { ThreadTitle } from "@/components/workspace/thread-title";
 import { Tooltip } from "@/components/workspace/tooltip";
 import { Welcome } from "@/components/workspace/welcome";
+import { useI18n } from "@/core/i18n/hooks";
 import { useLocalSettings } from "@/core/settings";
 import { type AgentThread } from "@/core/threads";
 import { useSubmitThread, useThreadStream } from "@/core/threads/hooks";
@@ -31,6 +32,7 @@ import { uuid } from "@/core/utils/uuid";
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [settings, setSettings] = useLocalSettings();
   const { setOpen: setSidebarOpen } = useSidebar();
@@ -41,7 +43,6 @@ export default function ChatPage() {
     setArtifacts,
     selectedArtifact,
   } = useArtifacts();
-
   const { thread_id: threadIdFromPath } = useParams<{ thread_id: string }>();
   const isNewThread = useMemo(
     () => threadIdFromPath === "new",
@@ -117,7 +118,7 @@ export default function ChatPage() {
                       }}
                     >
                       <FilesIcon />
-                      Artifacts
+                      {t.common.artifacts}
                     </Button>
                   </Tooltip>
                 )}

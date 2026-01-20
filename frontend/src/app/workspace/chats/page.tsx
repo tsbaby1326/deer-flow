@@ -10,11 +10,13 @@ import {
   WorkspaceContainer,
   WorkspaceHeader,
 } from "@/components/workspace/workspace-container";
+import { useI18n } from "@/core/i18n/hooks";
 import { useThreads } from "@/core/threads/hooks";
 import { pathOfThread, titleOfThread } from "@/core/threads/utils";
 import { formatTimeAgo } from "@/core/utils/datetime";
 
 export default function ChatsPage() {
+  const { t } = useI18n();
   const { data: threads } = useThreads();
   const [search, setSearch] = useState("");
   const filteredThreads = useMemo(() => {
@@ -31,7 +33,7 @@ export default function ChatsPage() {
             <Input
               type="search"
               className="h-12 w-full max-w-(--container-width-md) text-xl"
-              placeholder="Search chats"
+              placeholder={t.chats.searchChats}
               autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}

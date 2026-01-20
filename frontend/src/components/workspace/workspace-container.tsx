@@ -12,6 +12,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useI18n } from "@/core/i18n/hooks";
 import { cn } from "@/lib/utils";
 
 import { GithubIcon } from "./github-icon";
@@ -34,6 +35,7 @@ export function WorkspaceHeader({
   children,
   ...props
 }: React.ComponentProps<"header">) {
+  const { t } = useI18n();
   const pathname = usePathname();
   const segments = useMemo(() => {
     const parts = pathname?.split("/") || [];
@@ -56,7 +58,7 @@ export function WorkspaceHeader({
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink asChild>
                   <Link href={`/${segments[0]}`}>
-                    {nameOfSegment(segments[0])}
+                    {nameOfSegment(segments[0], t)}
                   </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -68,12 +70,12 @@ export function WorkspaceHeader({
                   {segments.length >= 2 ? (
                     <BreadcrumbLink asChild>
                       <Link href={`/${segments[0]}/${segments[1]}`}>
-                        {nameOfSegment(segments[1])}
+                        {nameOfSegment(segments[1], t)}
                       </Link>
                     </BreadcrumbLink>
                   ) : (
                     <BreadcrumbPage>
-                      {nameOfSegment(segments[1])}
+                      {nameOfSegment(segments[1], t)}
                     </BreadcrumbPage>
                   )}
                 </BreadcrumbItem>
@@ -89,7 +91,7 @@ export function WorkspaceHeader({
         </Breadcrumb>
       </div>
       <div className="pr-4">
-        <Tooltip content="DeerFlow on Github">
+        <Tooltip content={t.workspace.githubTooltip}>
           <a
             href="https://github.com/bytedance/deer-flow"
             target="_blank"
@@ -122,7 +124,12 @@ export function WorkspaceBody({
   );
 }
 
-function nameOfSegment(segment: string | undefined) {
-  if (!segment) return "Home";
+function nameOfSegment(
+  segment: string | undefined,
+  t: ReturnType<typeof useI18n>["t"],
+) {
+  if (!segment) return t.common.home;
+  if (segment === "workspace") return t.breadcrumb.workspace;
+  if (segment === "chats") return t.breadcrumb.chats;
   return segment[0]?.toUpperCase() + segment.slice(1);
 }

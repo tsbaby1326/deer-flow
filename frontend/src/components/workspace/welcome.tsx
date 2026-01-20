@@ -1,6 +1,10 @@
+"use client";
+
+import { useI18n } from "@/core/i18n/hooks";
 import { cn } from "@/lib/utils";
 
 export function Welcome({ className }: { className?: string }) {
+  const { t } = useI18n();
   return (
     <div
       className={cn(
@@ -8,17 +12,13 @@ export function Welcome({ className }: { className?: string }) {
         className,
       )}
     >
-      <div className="text-2xl font-bold">👋 Hello, again!</div>
+      <div className="text-2xl font-bold">{t.welcome.greeting}</div>
       <div className="text-muted-foreground text-sm">
-        <p>
-          Welcome to 🦌 DeerFlow, an open source super agent. With built-in and
-          custom
-        </p>
-        <p>
-          skills, DeerFlow helps you search on the web, analyze data, and
-          generate
-        </p>{" "}
-        <p>artifacts like slides, web pages and do almost anything.</p>
+        {t.welcome.description.includes("\n") ? (
+          <pre className="whitespace-pre">{t.welcome.description}</pre>
+        ) : (
+          <p>{t.welcome.description}</p>
+        )}
       </div>
     </div>
   );

@@ -10,8 +10,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useI18n } from "@/core/i18n/hooks";
 
 export function WorkspaceNavMenu() {
+  const { t } = useI18n();
   const pathname = usePathname();
   return (
     <SidebarGroup className="pt-1">
@@ -20,7 +22,7 @@ export function WorkspaceNavMenu() {
           <SidebarMenuButton isActive={pathname === "/workspace/chats"} asChild>
             <Link className="text-muted-foreground" href="/workspace/chats">
               <MessagesSquare />
-              <span>Chats</span>
+              <span>{t.sidebar.chats}</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>

@@ -2,6 +2,7 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import { useCallback, useState, type ComponentProps } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/core/i18n/hooks";
 
 import { Tooltip } from "./tooltip";
 
@@ -11,6 +12,7 @@ export function CopyButton({
 }: ComponentProps<typeof Button> & {
   clipboardData: string;
 }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const handleCopy = useCallback(() => {
     void navigator.clipboard.writeText(clipboardData);
@@ -18,7 +20,7 @@ export function CopyButton({
     setTimeout(() => setCopied(false), 2000);
   }, [clipboardData]);
   return (
-    <Tooltip content="Copy to clipboard">
+    <Tooltip content={t.clipboard.copyToClipboard}>
       <Button
         size="icon-sm"
         type="button"

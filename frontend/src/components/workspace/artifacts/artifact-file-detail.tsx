@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
+import { useI18n } from "@/core/i18n/hooks";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,7 @@ export function ArtifactFileDetail({
   filepath: string;
   threadId: string;
 }) {
+  const { t } = useI18n();
   const { artifacts, setOpen, select } = useArtifacts();
   const isWriteFile = useMemo(() => {
     return filepathFromProps.startsWith("write-file:");
@@ -124,26 +126,26 @@ export function ArtifactFileDetail({
               <a href={urlOfArtifact({ filepath, threadId })} target="_blank">
                 <ArtifactAction
                   icon={SquareArrowOutUpRightIcon}
-                  label="Open in new window"
-                  tooltip="Open in new window"
+                  label={t.common.openInNewWindow}
+                  tooltip={t.common.openInNewWindow}
                 />
               </a>
             )}
             {isCodeFile && (
               <ArtifactAction
                 icon={CopyIcon}
-                label="Copy"
+                label={t.clipboard.copyToClipboard}
                 disabled={!content}
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(content ?? "");
-                    toast.success("Copied to clipboard");
+                    toast.success(t.clipboard.copiedToClipboard);
                   } catch (error) {
                     toast.error("Failed to copy to clipboard");
                     console.error(error);
                   }
                 }}
-                tooltip="Copy content to clipboard"
+                tooltip={t.clipboard.copyToClipboard}
               />
             )}
             {!isWriteFile && (
@@ -153,17 +155,16 @@ export function ArtifactFileDetail({
               >
                 <ArtifactAction
                   icon={DownloadIcon}
-                  label="Download"
-                  onClick={() => console.log("Download")}
-                  tooltip="Download file"
+                  label={t.common.download}
+                  tooltip={t.common.download}
                 />
               </a>
             )}
             <ArtifactAction
               icon={XIcon}
-              label="Close"
+              label={t.common.close}
               onClick={() => setOpen(false)}
-              tooltip="Close"
+              tooltip={t.common.close}
             />
           </ArtifactActions>
         </div>

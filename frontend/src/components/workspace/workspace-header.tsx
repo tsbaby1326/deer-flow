@@ -11,9 +11,11 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useI18n } from "@/core/i18n/hooks";
 import { cn } from "@/lib/utils";
 
 export function WorkspaceHeader({ className }: { className?: string }) {
+  const { t } = useI18n();
   const { state } = useSidebar();
   const pathname = usePathname();
   return (
@@ -48,7 +50,7 @@ export function WorkspaceHeader({ className }: { className?: string }) {
           >
             <Link className="text-muted-foreground" href="/workspace/chats/new">
               <MessageSquarePlus size={16} />
-              <span>New chat</span>
+              <span>{t.sidebar.newChat}</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
