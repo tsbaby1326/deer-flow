@@ -21,12 +21,40 @@ class ModelsListResponse(BaseModel):
     models: list[ModelResponse]
 
 
-@router.get("/models", response_model=ModelsListResponse)
+@router.get(
+    "/models",
+    response_model=ModelsListResponse,
+    summary="List All Models",
+    description="Retrieve a list of all available AI models configured in the system.",
+)
 async def list_models() -> ModelsListResponse:
     """List all available models from configuration.
 
     Returns model information suitable for frontend display,
     excluding sensitive fields like API keys and internal configuration.
+
+    Returns:
+        A list of all configured models with their metadata.
+
+    Example Response:
+        ```json
+        {
+            "models": [
+                {
+                    "name": "gpt-4",
+                    "display_name": "GPT-4",
+                    "description": "OpenAI GPT-4 model",
+                    "supports_thinking": false
+                },
+                {
+                    "name": "claude-3-opus",
+                    "display_name": "Claude 3 Opus",
+                    "description": "Anthropic Claude 3 Opus model",
+                    "supports_thinking": true
+                }
+            ]
+        }
+        ```
     """
     config = get_app_config()
     models = [
@@ -41,7 +69,12 @@ async def list_models() -> ModelsListResponse:
     return ModelsListResponse(models=models)
 
 
-@router.get("/models/{model_name}", response_model=ModelResponse)
+@router.get(
+    "/models/{model_name}",
+    response_model=ModelResponse,
+    summary="Get Model Details",
+    description="Retrieve detailed information about a specific AI model by its name.",
+)
 async def get_model(model_name: str) -> ModelResponse:
     """Get a specific model by name.
 
@@ -53,6 +86,16 @@ async def get_model(model_name: str) -> ModelResponse:
 
     Raises:
         HTTPException: 404 if model not found.
+
+    Example Response:
+        ```json
+        {
+            "name": "gpt-4",
+            "display_name": "GPT-4",
+            "description": "OpenAI GPT-4 model",
+            "supports_thinking": false
+        }
+        ```
     """
     config = get_app_config()
     model = config.get_model_config(model_name)

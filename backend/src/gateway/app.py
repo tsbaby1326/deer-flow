@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.gateway.config import get_gateway_config
-from src.gateway.routers import artifacts, models
+from src.gateway.routers import artifacts, mcp, models
 
 # Configure logging
 logging.basicConfig(
@@ -44,9 +44,46 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title="DeerFlow API Gateway",
-        description="API Gateway for DeerFlow - provides custom endpoints (models, artifacts). LangGraph requests are handled by nginx.",
+        description="""
+## DeerFlow API Gateway
+
+API Gateway for DeerFlow - A LangGraph-based AI agent backend with sandbox execution capabilities.
+
+### Features
+
+- **Models Management**: Query and retrieve available AI models
+- **MCP Configuration**: Manage Model Context Protocol (MCP) server configurations
+- **Artifacts**: Access thread artifacts and generated files
+- **Health Monitoring**: System health check endpoints
+
+### Architecture
+
+LangGraph requests are handled by nginx reverse proxy.
+This gateway provides custom endpoints for models, MCP configuration, and artifacts.
+        """,
         version="0.1.0",
         lifespan=lifespan,
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
+        openapi_tags=[
+            {
+                "name": "models",
+                "description": "Operations for querying available AI models and their configurations",
+            },
+            {
+                "name": "mcp",
+                "description": "Manage Model Context Protocol (MCP) server configurations",
+            },
+            {
+                "name": "artifacts",
+                "description": "Access and download thread artifacts and generated files",
+            },
+            {
+                "name": "health",
+                "description": "Health check and system status endpoints",
+            },
+        ],
     )
 
     # CORS is handled by nginx - no need for FastAPI middleware
@@ -55,12 +92,19 @@ def create_app() -> FastAPI:
     # Models API is mounted at /api/models
     app.include_router(models.router)
 
+    # MCP API is mounted at /api/mcp
+    app.include_router(mcp.router)
+
     # Artifacts API is mounted at /api/threads/{thread_id}/artifacts
     app.include_router(artifacts.router)
 
-    @app.get("/health")
+    @app.get("/health", tags=["health"])
     async def health_check() -> dict:
-        """Health check endpoint."""
+        """Health check endpoint.
+
+        Returns:
+            Service health status information.
+        """
         return {"status": "healthy", "service": "deer-flow-gateway"}
 
     return app
