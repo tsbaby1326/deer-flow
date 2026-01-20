@@ -4,7 +4,7 @@ import logging
 
 from langchain_core.tools import BaseTool
 
-from src.config.mcp_config import get_mcp_config
+from src.config.extensions_config import get_extensions_config
 from src.mcp.client import build_servers_config
 
 logger = logging.getLogger(__name__)
@@ -22,8 +22,8 @@ async def get_mcp_tools() -> list[BaseTool]:
         logger.warning("langchain-mcp-adapters not installed. Install it to enable MCP tools: pip install langchain-mcp-adapters")
         return []
 
-    mcp_config = get_mcp_config()
-    servers_config = build_servers_config(mcp_config)
+    extensions_config = get_extensions_config()
+    servers_config = build_servers_config(extensions_config)
 
     if not servers_config:
         logger.info("No enabled MCP servers configured")

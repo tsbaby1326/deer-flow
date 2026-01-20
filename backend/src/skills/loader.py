@@ -18,18 +18,19 @@ def get_skills_root_path() -> Path:
     return skills_dir
 
 
-def load_skills(skills_path: Path | None = None, use_config: bool = True) -> list[Skill]:
+def load_skills(skills_path: Path | None = None, use_config: bool = True, enabled_only: bool = False) -> list[Skill]:
     """
     Load all skills from the skills directory.
 
     Scans both public and custom skill directories, parsing SKILL.md files
-    to extract metadata.
+    to extract metadata. The enabled state is determined by the skills_state_config.json file.
 
     Args:
         skills_path: Optional custom path to skills directory.
                      If not provided and use_config is True, uses path from config.
                      Otherwise defaults to deer-flow/skills
         use_config: Whether to load skills path from config (default: True)
+        enabled_only: If True, only return enabled skills (default: False)
 
     Returns:
         List of Skill objects, sorted by name
@@ -70,6 +71,21 @@ def load_skills(skills_path: Path | None = None, use_config: bool = True) -> lis
             skill = parse_skill_file(skill_file, category=category)
             if skill:
                 skills.append(skill)
+
+    # Load skills state configuration and update enabled status
+    try:
+        from src.config.extensions_config import get_extensions_config
+
+        extensions_config = get_extensions_config()
+        for skill in skills:
+            skill.enabled = extensions_config.is_skill_enabled(skill.name)
+    except Exception as e:
+        # If config loading fails, default to all enabled
+        print(f"Warning: Failed to load extensions config: {e}")
+
+    # Filter by enabled status if requested
+    if enabled_only:
+        skills = [skill for skill in skills if skill.enabled]
 
     # Sort by name for consistent ordering
     skills.sort(key=lambda s: s.name)

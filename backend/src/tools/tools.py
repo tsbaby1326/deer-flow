@@ -32,7 +32,7 @@ def get_available_tools(groups: list[str] | None = None, include_mcp: bool = Tru
 
     # Get cached MCP tools if enabled
     mcp_tools = []
-    if include_mcp and config.mcp and config.mcp.get_enabled_servers():
+    if include_mcp and config.extensions and config.extensions.get_enabled_mcp_servers():
         try:
             from src.mcp.cache import get_cached_mcp_tools
 

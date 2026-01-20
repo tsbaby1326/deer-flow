@@ -56,6 +56,7 @@ def parse_skill_file(skill_file: Path, category: str) -> Skill | None:
             skill_dir=skill_file.parent,
             skill_file=skill_file,
             category=category,
+            enabled=True,  # Default to enabled, actual state comes from config file
         )
 
     except Exception as e:

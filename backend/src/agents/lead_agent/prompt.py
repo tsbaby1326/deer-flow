@@ -132,8 +132,8 @@ All temporary work happens in `/mnt/user-data/workspace`. Final deliverables mus
 
 
 def apply_prompt_template() -> str:
-    # Load all available skills
-    skills = load_skills()
+    # Load only enabled skills
+    skills = load_skills(enabled_only=True)
 
     # Get skills container path from config
     try:

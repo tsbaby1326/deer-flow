@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.gateway.config import get_gateway_config
-from src.gateway.routers import artifacts, mcp, models
+from src.gateway.routers import artifacts, mcp, models, skills
 
 # Configure logging
 logging.basicConfig(
@@ -53,13 +53,14 @@ API Gateway for DeerFlow - A LangGraph-based AI agent backend with sandbox execu
 
 - **Models Management**: Query and retrieve available AI models
 - **MCP Configuration**: Manage Model Context Protocol (MCP) server configurations
+- **Skills Management**: Query and manage skills and their enabled status
 - **Artifacts**: Access thread artifacts and generated files
 - **Health Monitoring**: System health check endpoints
 
 ### Architecture
 
 LangGraph requests are handled by nginx reverse proxy.
-This gateway provides custom endpoints for models, MCP configuration, and artifacts.
+This gateway provides custom endpoints for models, MCP configuration, skills, and artifacts.
         """,
         version="0.1.0",
         lifespan=lifespan,
@@ -74,6 +75,10 @@ This gateway provides custom endpoints for models, MCP configuration, and artifa
             {
                 "name": "mcp",
                 "description": "Manage Model Context Protocol (MCP) server configurations",
+            },
+            {
+                "name": "skills",
+                "description": "Manage skills and their configurations",
             },
             {
                 "name": "artifacts",
@@ -94,6 +99,9 @@ This gateway provides custom endpoints for models, MCP configuration, and artifa
 
     # MCP API is mounted at /api/mcp
     app.include_router(mcp.router)
+
+    # Skills API is mounted at /api/skills
+    app.include_router(skills.router)
 
     # Artifacts API is mounted at /api/threads/{thread_id}/artifacts
     app.include_router(artifacts.router)

@@ -6,7 +6,7 @@ import yaml
 from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.config.mcp_config import McpConfig
+from src.config.extensions_config import ExtensionsConfig
 from src.config.model_config import ModelConfig
 from src.config.sandbox_config import SandboxConfig
 from src.config.skills_config import SkillsConfig
@@ -25,7 +25,7 @@ class AppConfig(BaseModel):
     tools: list[ToolConfig] = Field(default_factory=list, description="Available tools")
     tool_groups: list[ToolGroupConfig] = Field(default_factory=list, description="Available tool groups")
     skills: SkillsConfig = Field(default_factory=SkillsConfig, description="Skills configuration")
-    mcp: McpConfig = Field(default_factory=McpConfig, description="MCP configuration")
+    extensions: ExtensionsConfig = Field(default_factory=ExtensionsConfig, description="Extensions configuration (MCP servers and skills state)")
     model_config = ConfigDict(extra="allow", frozen=False)
 
     @classmethod
@@ -82,9 +82,9 @@ class AppConfig(BaseModel):
         if "summarization" in config_data:
             load_summarization_config_from_dict(config_data["summarization"])
 
-        # Load MCP config separately (it's in a different file)
-        mcp_config = McpConfig.from_file()
-        config_data["mcp"] = mcp_config.model_dump()
+        # Load extensions config separately (it's in a different file)
+        extensions_config = ExtensionsConfig.from_file()
+        config_data["extensions"] = extensions_config.model_dump()
 
         result = cls.model_validate(config_data)
         return result

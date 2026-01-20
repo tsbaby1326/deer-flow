@@ -12,6 +12,7 @@ class Skill:
     skill_dir: Path
     skill_file: Path
     category: str  # 'public' or 'custom'
+    enabled: bool = False  # Whether this skill is enabled
 
     @property
     def skill_path(self) -> str:

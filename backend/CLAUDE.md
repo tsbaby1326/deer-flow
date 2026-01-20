@@ -69,7 +69,6 @@ Config values starting with `$` are resolved as environment variables (e.g., `$O
 
 **MCP System** (`src/mcp/`)
 - Integrates with MCP servers to provide pluggable external tools using `langchain-mcp-adapters`
-- Configuration in `mcp_config.json` in project root (separate from `config.yaml`)
 - Uses `MultiServerMCPClient` from langchain-mcp-adapters for multi-server management
 - **Automatic initialization**: Tools are loaded on first use with lazy initialization
 - Supports both eager loading (FastAPI startup) and lazy loading (LangGraph Studio)
@@ -77,14 +76,7 @@ Config values starting with `$` are resolved as environment variables (e.g., `$O
 - `get_cached_mcp_tools()` automatically initializes tools if not already loaded
 - Works seamlessly in both FastAPI server and LangGraph Studio environments
 - Each server can be enabled/disabled independently via `enabled` flag
-- Supports environment variable resolution (e.g., `$GITHUB_TOKEN`)
-- Configuration priority:
-  1. Explicit `config_path` argument
-  2. `DEER_FLOW_MCP_CONFIG_PATH` environment variable
-  3. `mcp_config.json` in current directory (backend/)
-  4. `mcp_config.json` in parent directory (project root - **recommended location**)
 - Popular MCP servers: filesystem, postgres, github, brave-search, puppeteer
-- See `mcp_config.example.json` for configuration examples
 - Built on top of langchain-ai/langchain-mcp-adapters for seamless integration
 
 **Reflection System** (`src/reflection/`)
@@ -97,10 +89,11 @@ Config values starting with `$` are resolved as environment variables (e.g., `$O
 - Each skill has a `SKILL.md` file with YAML front matter (name, description, license)
 - Skills are automatically discovered and loaded at runtime
 - `load_skills()` scans directories and parses SKILL.md files
-- Skills are injected into agent's system prompt with paths
+- Skills are injected into agent's system prompt with paths (only enabled skills)
 - Path mapping system allows seamless access in both local and Docker sandbox:
   - Local sandbox: `/mnt/skills` → `/path/to/deer-flow/skills`
   - Docker sandbox: Automatically mounted as volume
+- Each skill can be enabled/disabled independently via `enabled` flag in extensions config
 
 **Middleware System**
 - Custom middlewares in `src/agents/middlewares/`: Title generation, thread data, clarification, etc.
@@ -124,13 +117,35 @@ Models, tools, sandbox providers, skills, and middleware settings are configured
 - `title`: Automatic thread title generation configuration
 - `summarization`: Automatic conversation summarization configuration
 
-MCP servers are configured separately in `mcp_config.json`:
-- `mcpServers`: Map of server name to configuration
+**Extensions Configuration** (`extensions_config.json`)
+
+MCP servers and skills are configured together in `extensions_config.json` in project root:
+
+**Setup**: Copy `extensions_config.example.json` to `extensions_config.json` in the **project root** directory.
+
+```bash
+# From project root (deer-flow/)
+cp extensions_config.example.json extensions_config.json
+```
+
+Configuration priority:
+1. Explicit `config_path` argument
+2. `DEER_FLOW_EXTENSIONS_CONFIG_PATH` environment variable
+3. `extensions_config.json` in current directory (backend/)
+4. `extensions_config.json` in parent directory (project root - **recommended location**)
+5. For backward compatibility: `mcp_config.json` (will be deprecated)
+
+Structure:
+- `mcpServers`: Map of MCP server name to configuration
   - `enabled`: Whether the server is enabled (boolean)
   - `command`: Command to execute to start the server (e.g., "npx", "python")
   - `args`: Arguments to pass to the command (array)
-  - `env`: Environment variables (object with `$VAR` support)
+  - `env`: Environment variables (object with `$VAR` support for env variable resolution)
   - `description`: Human-readable description
+- `skills`: Map of skill name to state configuration
+  - `enabled`: Whether the skill is enabled (boolean, default: true if not specified)
+
+Both MCP servers and skills can be modified at runtime via API endpoints.
 
 ## Code Style
 

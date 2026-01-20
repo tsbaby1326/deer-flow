@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from src.config.mcp_config import McpConfig, McpServerConfig
+from src.config.extensions_config import ExtensionsConfig, McpServerConfig
 
 logger = logging.getLogger(__name__)
 
@@ -31,16 +31,16 @@ def build_server_params(server_name: str, config: McpServerConfig) -> dict[str, 
     return params
 
 
-def build_servers_config(mcp_config: McpConfig) -> dict[str, dict[str, Any]]:
+def build_servers_config(extensions_config: ExtensionsConfig) -> dict[str, dict[str, Any]]:
     """Build servers configuration for MultiServerMCPClient.
 
     Args:
-        mcp_config: MCP configuration containing all servers.
+        extensions_config: Extensions configuration containing all MCP servers.
 
     Returns:
         Dictionary mapping server names to their parameters.
     """
-    enabled_servers = mcp_config.get_enabled_servers()
+    enabled_servers = extensions_config.get_enabled_mcp_servers()
 
     if not enabled_servers:
         logger.info("No enabled MCP servers found")

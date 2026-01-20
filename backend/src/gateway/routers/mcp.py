@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from src.config.mcp_config import McpConfig, get_mcp_config, reload_mcp_config
+from src.config.extensions_config import ExtensionsConfig, get_extensions_config, reload_extensions_config
 from src.mcp.cache import reset_mcp_tools_cache
 
 logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ async def get_mcp_configuration() -> McpConfigResponse:
         }
         ```
     """
-    config = get_mcp_config()
+    config = get_extensions_config()
 
     return McpConfigResponse(
         mcp_servers={name: McpServerConfigResponse(**server.model_dump()) for name, server in config.mcp_servers.items()}
@@ -114,15 +114,21 @@ async def update_mcp_configuration(request: McpConfigUpdateRequest) -> McpConfig
     """
     try:
         # Get the current config path (or determine where to save it)
-        config_path = McpConfig.resolve_config_path()
+        config_path = ExtensionsConfig.resolve_config_path()
 
         # If no config file exists, create one in the parent directory (project root)
         if config_path is None:
-            config_path = Path.cwd().parent / "mcp_config.json"
-            logger.info(f"No existing MCP config found. Creating new config at: {config_path}")
+            config_path = Path.cwd().parent / "extensions_config.json"
+            logger.info(f"No existing extensions config found. Creating new config at: {config_path}")
+
+        # Load current config to preserve skills configuration
+        current_config = get_extensions_config()
 
         # Convert request to dict format for JSON serialization
-        config_data = {"mcpServers": {name: server.model_dump() for name, server in request.mcp_servers.items()}}
+        config_data = {
+            "mcpServers": {name: server.model_dump() for name, server in request.mcp_servers.items()},
+            "skills": {name: {"enabled": skill.enabled} for name, skill in current_config.skills.items()},
+        }
 
         # Write the configuration to file
         with open(config_path, "w") as f:
@@ -131,14 +137,14 @@ async def update_mcp_configuration(request: McpConfigUpdateRequest) -> McpConfig
         logger.info(f"MCP configuration updated and saved to: {config_path}")
 
         # Reload the configuration to update the cache
-        reload_mcp_config()
+        reload_extensions_config()
 
         # Reset MCP tools cache so they will be reinitialized with new config on next use
         reset_mcp_tools_cache()
         logger.info("MCP tools cache reset - tools will be reinitialized on next use")
 
         # Return the updated configuration
-        reloaded_config = get_mcp_config()
+        reloaded_config = get_extensions_config()
         return McpConfigResponse(
             mcp_servers={name: McpServerConfigResponse(**server.model_dump()) for name, server in reloaded_config.mcp_servers.items()}
         )
