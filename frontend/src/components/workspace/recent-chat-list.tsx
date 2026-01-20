@@ -52,7 +52,7 @@ export function RecentChatList() {
   }
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Recents</SidebarGroupLabel>
+      <SidebarGroupLabel>Recent chats</SidebarGroupLabel>
       <SidebarGroupContent className="group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0">
         <SidebarMenu>
           <div className="flex w-full flex-col gap-1">
