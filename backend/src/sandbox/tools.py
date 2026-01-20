@@ -185,6 +185,43 @@ def ensure_sandbox_initialized(runtime: ToolRuntime[ContextT, ThreadState] | Non
     return sandbox
 
 
+def ensure_thread_directories_exist(runtime: ToolRuntime[ContextT, ThreadState] | None) -> None:
+    """Ensure thread data directories (workspace, uploads, outputs) exist.
+
+    This function is called lazily when any sandbox tool is first used.
+    For local sandbox, it creates the directories on the filesystem.
+    For other sandboxes (like aio), directories are already mounted in the container.
+
+    Args:
+        runtime: Tool runtime containing state and context.
+    """
+    if runtime is None:
+        return
+
+    # Only create directories for local sandbox
+    if not is_local_sandbox(runtime):
+        return
+
+    thread_data = get_thread_data(runtime)
+    if thread_data is None:
+        return
+
+    # Check if directories have already been created
+    if runtime.state.get("thread_directories_created"):
+        return
+
+    # Create the three directories
+    import os
+
+    for key in ["workspace_path", "uploads_path", "outputs_path"]:
+        path = thread_data.get(key)
+        if path:
+            os.makedirs(path, exist_ok=True)
+
+    # Mark as created to avoid redundant operations
+    runtime.state["thread_directories_created"] = True
+
+
 @tool("bash", parse_docstring=True)
 def bash_tool(runtime: ToolRuntime[ContextT, ThreadState], description: str, command: str) -> str:
     """Execute a bash command in a Linux environment.
@@ -199,6 +236,7 @@ def bash_tool(runtime: ToolRuntime[ContextT, ThreadState], description: str, com
     """
     try:
         sandbox = ensure_sandbox_initialized(runtime)
+        ensure_thread_directories_exist(runtime)
         if is_local_sandbox(runtime):
             thread_data = get_thread_data(runtime)
             command = replace_virtual_paths_in_command(command, thread_data)
@@ -219,6 +257,7 @@ def ls_tool(runtime: ToolRuntime[ContextT, ThreadState], description: str, path:
     """
     try:
         sandbox = ensure_sandbox_initialized(runtime)
+        ensure_thread_directories_exist(runtime)
         if is_local_sandbox(runtime):
             thread_data = get_thread_data(runtime)
             path = replace_virtual_path(path, thread_data)
@@ -254,6 +293,7 @@ def read_file_tool(
     """
     try:
         sandbox = ensure_sandbox_initialized(runtime)
+        ensure_thread_directories_exist(runtime)
         if is_local_sandbox(runtime):
             thread_data = get_thread_data(runtime)
             path = replace_virtual_path(path, thread_data)
@@ -292,6 +332,7 @@ def write_file_tool(
     """
     try:
         sandbox = ensure_sandbox_initialized(runtime)
+        ensure_thread_directories_exist(runtime)
         if is_local_sandbox(runtime):
             thread_data = get_thread_data(runtime)
             path = replace_virtual_path(path, thread_data)
@@ -330,6 +371,7 @@ def str_replace_tool(
     """
     try:
         sandbox = ensure_sandbox_initialized(runtime)
+        ensure_thread_directories_exist(runtime)
         if is_local_sandbox(runtime):
             thread_data = get_thread_data(runtime)
             path = replace_virtual_path(path, thread_data)
