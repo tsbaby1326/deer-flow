@@ -6,18 +6,18 @@ export type Locale = "en-US" | "zh-CN";
 
 // Helper function to detect browser locale
 export function detectLocale(): Locale {
-  // if (typeof window === "undefined") {
-  //   return "en-US";
-  // }
+  if (typeof window === "undefined") {
+    return "en-US";
+  }
 
-  // const browserLang =
-  //   navigator.language ||
-  //   (navigator as unknown as { userLanguage: string }).userLanguage;
+  const browserLang =
+    navigator.language ||
+    (navigator as unknown as { userLanguage: string }).userLanguage;
 
-  // // Check if browser language is Chinese (zh, zh-CN, zh-TW, etc.)
-  // if (browserLang.toLowerCase().startsWith("zh")) {
-  //   return "zh-CN";
-  // }
+  // Check if browser language is Chinese (zh, zh-CN, zh-TW, etc.)
+  if (browserLang.toLowerCase().startsWith("zh")) {
+    return "zh-CN";
+  }
 
   return "en-US";
 }
