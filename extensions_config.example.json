@@ -25,14 +25,11 @@
     }
   },
   "skills": {
-    "PDF Processing": {
+    "pdf-processing": {
       "enabled": true
     },
-    "Frontend Design": {
+    "frontend-design": {
       "enabled": true
-    },
-    "Data Analysis": {
-      "enabled": false
     }
   }
 }
