@@ -27,3 +27,4 @@ coverage.xml
 coverage/
 .deer-flow/
 .claude/
+skills/custom/*

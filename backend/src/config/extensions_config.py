@@ -146,19 +146,20 @@ class ExtensionsConfig(BaseModel):
         """
         return {name: config for name, config in self.mcp_servers.items() if config.enabled}
 
-    def is_skill_enabled(self, skill_name: str) -> bool:
+    def is_skill_enabled(self, skill_name: str, skill_category: str) -> bool:
         """Check if a skill is enabled.
 
         Args:
             skill_name: Name of the skill
+            skill_category: Category of the skill
 
         Returns:
-            True if enabled, False otherwise (default if not in config)
+            True if enabled, False otherwise
         """
         skill_config = self.skills.get(skill_name)
         if skill_config is None:
-            # Default to disable if not in config
-            return False
+            # Default to enable for public skill, disable for custom
+            return skill_category == "public"
         return skill_config.enabled
 
 

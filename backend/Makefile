@@ -8,6 +8,12 @@ gateway:
 	uv run uvicorn src.gateway.app:app --host 0.0.0.0 --port 8001
 
 nginx:
+	@echo "Stopping existing nginx if any..."
+	@-nginx -c $(PWD)/../nginx.conf -p $(PWD)/.. -s quit 2>/dev/null || true
+	@sleep 1
+	@-pkill -9 nginx 2>/dev/null || true
+	@sleep 1
+	@echo "Starting nginx..."
 	nginx -c $(PWD)/../nginx.conf -p $(PWD)/..
 
 serve:
@@ -15,6 +21,8 @@ serve:
 	@-pkill -f "langgraph dev" 2>/dev/null || true
 	@-pkill -f "uvicorn src.gateway.app:app" 2>/dev/null || true
 	@-nginx -c $(PWD)/../nginx.conf -p $(PWD)/.. -s quit 2>/dev/null || true
+	@sleep 1
+	@-pkill -9 nginx 2>/dev/null || true
 	@sleep 1
 	@echo "Starting services..."
 	@trap 'kill 0' EXIT; \
