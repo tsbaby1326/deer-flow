@@ -31,5 +31,17 @@ class Skill:
         """
         return f"{container_base_path}/{self.category}/{self.skill_dir.name}"
 
+    def get_container_file_path(self, container_base_path: str = "/mnt/skills") -> str:
+        """
+        Get the full path to this skill's main file (SKILL.md) in the container.
+
+        Args:
+            container_base_path: Base path where skills are mounted in the container
+
+        Returns:
+            Full container path to the skill's SKILL.md file
+        """
+        return f"{container_base_path}/{self.category}/{self.skill_dir.name}/SKILL.md"
+
     def __repr__(self) -> str:
         return f"Skill(name={self.name!r}, description={self.description!r}, category={self.category!r})"

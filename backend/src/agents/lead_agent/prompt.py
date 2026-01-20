@@ -145,8 +145,8 @@ def apply_prompt_template() -> str:
         # Fallback to default if config fails
         container_base_path = "/mnt/skills"
 
-    # Generate skills list XML with paths
-    skills_list = "\n".join(f'<skill name="{skill.name}" path="{skill.get_container_path(container_base_path)}">\n{skill.description}\n</skill>' for skill in skills)
+    # Generate skills list XML with paths (path points to SKILL.md file)
+    skills_list = "\n".join(f'<skill name="{skill.name}" path="{skill.get_container_file_path(container_base_path)}">\n{skill.description}\n</skill>' for skill in skills)
 
     # If no skills found, provide empty list
     if not skills_list:
