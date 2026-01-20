@@ -1,6 +1,11 @@
 import type { Translations } from "./types";
 
 export const enUS: Translations = {
+  // Locale meta
+  locale: {
+    localName: "English",
+  },
+
   // Common
   common: {
     home: "Home",
@@ -82,5 +87,42 @@ export const enUS: Translations = {
     listFolder: "List folder",
     readFile: "Read file",
     writeFile: "Write file",
+  },
+
+  // Settings
+  settings: {
+    title: "Settings",
+    description: "Adjust how DeerFlow looks and behaves for you.",
+    sections: {
+      appearance: "Appearance",
+      tools: "Tools",
+      skills: "Skills",
+      acknowledge: "Acknowledge",
+    },
+    appearance: {
+      themeTitle: "Theme",
+      themeDescription:
+        "Choose how the interface follows your device or stays fixed.",
+      system: "System",
+      light: "Light",
+      dark: "Dark",
+      systemDescription: "Match the operating system preference automatically.",
+      lightDescription: "Bright palette with higher contrast for daytime.",
+      darkDescription: "Dim palette that reduces glare for focus.",
+      languageTitle: "Language",
+      languageDescription: "Switch between languages.",
+    },
+    tools: {
+      title: "Tools",
+      description: "Manage the configuration and enabled status of MCP tools.",
+    },
+    skills: {
+      title: "Skills",
+      description: "Manage the configuration and enabled status of the skills.",
+    },
+    acknowledge: {
+      emptyTitle: "Acknowledgements",
+      emptyDescription: "Credits and acknowledgements will show here.",
+    },
   },
 };

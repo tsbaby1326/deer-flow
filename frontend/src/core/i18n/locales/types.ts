@@ -1,4 +1,9 @@
 export interface Translations {
+  // Locale meta
+  locale: {
+    localName: string;
+  };
+
   // Common
   common: {
     home: string;
@@ -79,5 +84,41 @@ export interface Translations {
     listFolder: string;
     readFile: string;
     writeFile: string;
+  };
+
+  // Settings
+  settings: {
+    title: string;
+    description: string;
+    sections: {
+      appearance: string;
+      tools: string;
+      skills: string;
+      acknowledge: string;
+    };
+    appearance: {
+      themeTitle: string;
+      themeDescription: string;
+      system: string;
+      light: string;
+      dark: string;
+      systemDescription: string;
+      lightDescription: string;
+      darkDescription: string;
+      languageTitle: string;
+      languageDescription: string;
+    };
+    tools: {
+      title: string;
+      description: string;
+    };
+    skills: {
+      title: string;
+      description: string;
+    };
+    acknowledge: {
+      emptyTitle: string;
+      emptyDescription: string;
+    };
   };
 }

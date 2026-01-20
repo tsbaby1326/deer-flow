@@ -1,6 +1,11 @@
 import type { Translations } from "./types";
 
 export const zhCN: Translations = {
+  // Locale meta
+  locale: {
+    localName: "中文",
+  },
+
   // Common
   common: {
     home: "首页",
@@ -82,5 +87,41 @@ export const zhCN: Translations = {
     listFolder: "列出文件夹",
     readFile: "读取文件",
     writeFile: "写入文件",
+  },
+
+  // Settings
+  settings: {
+    title: "设置",
+    description: "根据你的偏好调整 DeerFlow 的界面和行为。",
+    sections: {
+      appearance: "外观",
+      tools: "工具",
+      skills: "技能",
+      acknowledge: "致谢",
+    },
+    appearance: {
+      themeTitle: "主题",
+      themeDescription: "跟随系统或选择固定的界面模式。",
+      system: "系统",
+      light: "浅色",
+      dark: "深色",
+      systemDescription: "自动匹配操作系统偏好。",
+      lightDescription: "更明亮的配色，适合日间使用。",
+      darkDescription: "更暗的配色，减少眩光方便专注。",
+      languageTitle: "语言",
+      languageDescription: "在不同语言之间切换。",
+    },
+    tools: {
+      title: "工具",
+      description: "管理 MCP 工具的配置和启用状态。",
+    },
+    skills: {
+      title: "技能",
+      description: "管理智能体的技能配置和启用状态。",
+    },
+    acknowledge: {
+      emptyTitle: "致谢",
+      emptyDescription: "相关的致谢信息会展示在这里。",
+    },
   },
 };
