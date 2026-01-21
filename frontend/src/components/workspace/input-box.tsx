@@ -89,7 +89,7 @@ export function InputBox({
     <PromptInput
       className={cn(
         "bg-background/85 rounded-2xl backdrop-blur-sm transition-all duration-300 ease-out *:data-[slot='input-group']:rounded-2xl",
-        "h-48 translate-y-14 overflow-hidden",
+        "-translate-y-4 overflow-hidden",
         className,
       )}
       globalDrop
@@ -127,11 +127,23 @@ export function InputBox({
           >
             {selectedModel?.supports_thinking && (
               <PromptInputButton onClick={handleThinkingToggle}>
-                {context.thinking_enabled ? (
-                  <LightbulbIcon className="text-primary size-4" />
-                ) : (
-                  <LightbulbOffIcon className="size-4" />
-                )}
+                <>
+                  {context.thinking_enabled ? (
+                    <LightbulbIcon className="text-primary size-4" />
+                  ) : (
+                    <LightbulbOffIcon className="size-4" />
+                  )}
+                  <span
+                    className={cn(
+                      "text-xs font-normal",
+                      context.thinking_enabled
+                        ? "text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    Thinking
+                  </span>
+                </>
               </PromptInputButton>
             )}
           </Tooltip>

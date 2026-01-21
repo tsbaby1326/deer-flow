@@ -101,7 +101,14 @@ export default function ChatPage() {
           minSize={artifactsOpen ? 30 : 100}
         >
           <div className="relative flex size-full min-h-0 justify-between">
-            <header className="bg-background/80 absolute top-0 right-0 left-0 z-30 flex h-12 shrink-0 items-center px-4 backdrop-blur">
+            <header
+              className={cn(
+                "absolute top-0 right-0 left-0 z-30 flex h-12 shrink-0 items-center px-4",
+                isNewThread
+                  ? "bg-background/0 backdrop-blur-none"
+                  : "bg-background/80 backdrop-blur",
+              )}
+            >
               <div className="flex w-full items-center text-sm font-medium">
                 {title !== "Untitled" && (
                   <ThreadTitle threadId={threadId} threadTitle={title} />
@@ -144,14 +151,14 @@ export default function ChatPage() {
                 >
                   <div
                     className={cn(
-                      "absolute right-0 bottom-[148px] left-0 flex",
+                      "absolute right-0 bottom-[136px] left-0 flex",
                       isNewThread ? "" : "pointer-events-none opacity-0",
                     )}
                   >
                     <Welcome />
                   </div>
                   <InputBox
-                    className={cn("w-full")}
+                    className={cn("bg-background/5 w-full")}
                     autoFocus={isNewThread}
                     status={thread.isLoading ? "streaming" : "ready"}
                     context={settings.context}
