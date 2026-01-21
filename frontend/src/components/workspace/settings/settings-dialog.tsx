@@ -61,7 +61,7 @@ export function SettingsDialog({
           </p>
         </DialogHeader>
         <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-[220px_1fr]">
-          <nav className="bg-muted/30 min-h-0 overflow-y-auto rounded-lg border p-2">
+          <nav className="bg-sidebar min-h-0 overflow-y-auto rounded-lg border p-2">
             <ul className="space-y-1 pr-1">
               {sections.map(({ id, label, icon: Icon }) => {
                 const active = activeSection === id;
