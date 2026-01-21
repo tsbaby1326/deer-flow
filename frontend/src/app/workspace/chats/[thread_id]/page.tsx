@@ -21,6 +21,7 @@ import { InputBox } from "@/components/workspace/input-box";
 import { MessageList } from "@/components/workspace/messages";
 import { ThreadContext } from "@/components/workspace/messages/context";
 import { ThreadTitle } from "@/components/workspace/thread-title";
+import { TodoList } from "@/components/workspace/todo-list";
 import { Tooltip } from "@/components/workspace/tooltip";
 import { Welcome } from "@/components/workspace/welcome";
 import { useI18n } from "@/core/i18n/hooks";
@@ -74,6 +75,8 @@ export default function ChatPage() {
   useEffect(() => {
     setArtifacts(thread.values.artifacts);
   }, [setArtifacts, thread.values.artifacts]);
+
+  const [todoListCollapsed, setTodoListCollapsed] = useState(true);
 
   const handleSubmit = useSubmitThread({
     isNewThread,
@@ -137,6 +140,7 @@ export default function ChatPage() {
                   className="size-full"
                   threadId={threadId}
                   thread={thread}
+                  paddingBottom={todoListCollapsed ? 160 : 280}
                 />
               </div>
               <div className="absolute right-0 bottom-0 left-0 z-30 flex justify-center px-4">
@@ -149,19 +153,34 @@ export default function ChatPage() {
                       : "max-w-(--container-width-md)",
                   )}
                 >
-                  <div
-                    className={cn(
-                      "absolute right-0 bottom-[136px] left-0 flex",
-                      isNewThread ? "" : "pointer-events-none opacity-0",
-                    )}
-                  >
-                    <Welcome />
-                  </div>
+                  {isNewThread && (
+                    <div
+                      className={cn(
+                        "absolute right-0 bottom-[136px] left-0 flex",
+                      )}
+                    >
+                      <Welcome />
+                    </div>
+                  )}
                   <InputBox
-                    className={cn("bg-background/5 w-full")}
+                    className={cn("bg-background/5 w-full -translate-y-4")}
                     autoFocus={isNewThread}
                     status={thread.isLoading ? "streaming" : "ready"}
                     context={settings.context}
+                    extraHeader={
+                      thread.values.todos?.length ? (
+                        <div className="mx-4">
+                          <TodoList
+                            className="bg-background/5"
+                            todos={thread.values.todos ?? []}
+                            collapsed={todoListCollapsed}
+                            onToggle={() =>
+                              setTodoListCollapsed(!todoListCollapsed)
+                            }
+                          />
+                        </div>
+                      ) : null
+                    }
                     onContextChange={(context) =>
                       setSettings("context", context)
                     }

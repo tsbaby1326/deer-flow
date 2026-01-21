@@ -4,6 +4,7 @@ export const DEFAULT_LOCAL_SETTINGS: LocalSettings = {
   context: {
     model_name: "deepseek-v3.2",
     thinking_enabled: true,
+    is_plan_mode: true,
   },
   layout: {
     sidebar_collapsed: false,
@@ -27,10 +28,18 @@ export function getLocalSettings(): LocalSettings {
   try {
     if (json) {
       const settings = JSON.parse(json);
-      return {
+      const mergedSettings = {
         ...DEFAULT_LOCAL_SETTINGS,
-        ...settings,
+        context: {
+          ...DEFAULT_LOCAL_SETTINGS.context,
+          ...settings.context,
+        },
+        layout: {
+          ...DEFAULT_LOCAL_SETTINGS.layout,
+          ...settings.layout,
+        },
       };
+      return mergedSettings;
     }
   } catch {}
   return DEFAULT_LOCAL_SETTINGS;

@@ -23,10 +23,12 @@ export function MessageList({
   className,
   threadId,
   thread,
+  paddingBottom = 160,
 }: {
   className?: string;
   threadId: string;
   thread: UseStream<AgentThreadState>;
+  paddingBottom?: number;
 }) {
   if (thread.isThreadLoading) {
     return <MessageListSkeleton />;
@@ -70,7 +72,7 @@ export function MessageList({
           );
         })}
         {thread.isLoading && <StreamingIndicator className="my-4" />}
-        <div className="h-40" />
+        <div style={{ height: `${paddingBottom}px` }} />
       </ConversationContent>
     </Conversation>
   );

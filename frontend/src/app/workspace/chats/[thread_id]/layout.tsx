@@ -28,7 +28,7 @@ export default function ChatLayout({
             color={
               resolvedTheme === "dark" ? "#60A5FA" : "oklch(0 0.0098 87.47)"
             }
-            maxOpacity={resolvedTheme === "dark" ? 0.04 : 0.03}
+            maxOpacity={resolvedTheme === "dark" ? 0.04 : 0.025}
             flickerChance={0.1}
           />
           <FlickeringGrid

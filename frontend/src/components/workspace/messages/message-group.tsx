@@ -2,10 +2,10 @@ import type { Message } from "@langchain/langgraph-sdk";
 import {
   BookOpenTextIcon,
   ChevronUp,
-  FileTextIcon,
   FolderOpenIcon,
   GlobeIcon,
   LightbulbIcon,
+  ListTodoIcon,
   MessageCircleQuestionMarkIcon,
   NotebookPenIcon,
   SearchIcon,
@@ -115,12 +115,17 @@ export function MessageGroup({
                   }
                 ></ChainOfThoughtStep>
               ) : (
-                <ToolCall key={step.id} {...step} />
+                <ToolCall key={step.id} {...step} isLoading={isLoading} />
               ),
             )}
           {lastToolCallStep && (
             <FlipDisplay uniqueKey={lastToolCallStep.id ?? ""}>
-              <ToolCall key={lastToolCallStep.id} {...lastToolCallStep} />
+              <ToolCall
+                key={lastToolCallStep.id}
+                {...lastToolCallStep}
+                isLast={true}
+                isLoading={isLoading}
+              />
             </FlipDisplay>
           )}
         </ChainOfThoughtContent>
@@ -173,15 +178,20 @@ function ToolCall({
   name,
   args,
   result,
+  isLast = false,
+  isLoading = false,
 }: {
   id?: string;
   messageId?: string;
   name: string;
   args: Record<string, unknown>;
   result?: string | Record<string, unknown>;
+  isLast?: boolean;
+  isLoading?: boolean;
 }) {
   const { t } = useI18n();
-  const { setOpen, autoOpen, selectedArtifact, select } = useArtifacts();
+  const { setOpen, autoOpen, autoSelect, selectedArtifact, select } =
+    useArtifacts();
   if (name === "web_search") {
     let label: React.ReactNode = t.toolCalls.searchForRelatedInfo;
     if (typeof args.query === "string") {
@@ -265,7 +275,7 @@ function ToolCall({
       description = t.toolCalls.writeFile;
     }
     const path: string | undefined = (args as { path: string })?.path;
-    if (autoOpen && path) {
+    if (isLoading && isLast && autoOpen && autoSelect && path) {
       setTimeout(() => {
         const url = new URL(
           `write-file:${path}?message_id=${messageId}&tool_call_id=${id}`,
@@ -273,7 +283,7 @@ function ToolCall({
         if (selectedArtifact === url) {
           return;
         }
-        select(url);
+        select(url, true);
         setOpen(true);
       }, 100);
     }
@@ -320,32 +330,20 @@ function ToolCall({
         )}
       </ChainOfThoughtStep>
     );
-  } else if (name === "present_files") {
-    return (
-      <ChainOfThoughtStep
-        key={id}
-        label={t.toolCalls.presentFiles}
-        icon={FileTextIcon}
-      >
-        <ChainOfThoughtSearchResult>
-          {Array.isArray((args as { filepaths: string[] }).filepaths) &&
-            (args as { filepaths: string[] }).filepaths.map(
-              (filepath: string) => (
-                <ChainOfThoughtSearchResult key={filepath}>
-                  {filepath}
-                </ChainOfThoughtSearchResult>
-              ),
-            )}
-        </ChainOfThoughtSearchResult>
-      </ChainOfThoughtStep>
-    );
-  }
-  if (name === "ask_clarification") {
+  } else if (name === "ask_clarification") {
     return (
       <ChainOfThoughtStep
         key={id}
         label={t.toolCalls.needYourHelp}
         icon={MessageCircleQuestionMarkIcon}
+      ></ChainOfThoughtStep>
+    );
+  } else if (name === "write_todos") {
+    return (
+      <ChainOfThoughtStep
+        key={id}
+        label={t.toolCalls.writeTodos}
+        icon={ListTodoIcon}
       ></ChainOfThoughtStep>
     );
   } else {

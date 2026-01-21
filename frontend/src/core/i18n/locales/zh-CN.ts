@@ -41,6 +41,11 @@ export const zhCN: Translations = {
     thinkingDisabled: "思考功能已禁用",
     clickToDisableThinking: "点击禁用思考功能",
     clickToEnableThinking: "点击启用思考功能",
+    planMode: "To-do 模式",
+    planModeEnabled: "To-do 模式已启用",
+    planModeDisabled: "To-do 模式已禁用",
+    clickToDisablePlanMode: "点击禁用 To-do 模式",
+    clickToEnablePlanMode: "点击启用 To-do 模式",
     searchModels: "搜索模型...",
   },
 
@@ -87,6 +92,7 @@ export const zhCN: Translations = {
     listFolder: "列出文件夹",
     readFile: "读取文件",
     writeFile: "写入文件",
+    writeTodos: "更新 To-do 列表",
   },
 
   // Settings

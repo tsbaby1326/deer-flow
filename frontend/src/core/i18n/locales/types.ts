@@ -38,6 +38,11 @@ export interface Translations {
     thinkingDisabled: string;
     clickToDisableThinking: string;
     clickToEnableThinking: string;
+    planMode: string;
+    planModeEnabled: string;
+    planModeDisabled: string;
+    clickToDisablePlanMode: string;
+    clickToEnablePlanMode: string;
     searchModels: string;
   };
 
@@ -84,6 +89,7 @@ export interface Translations {
     listFolder: string;
     readFile: string;
     writeFile: string;
+    writeTodos: string;
   };
 
   // Settings

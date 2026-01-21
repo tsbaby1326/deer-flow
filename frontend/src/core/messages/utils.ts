@@ -85,29 +85,6 @@ export function groupMessages<T>(
     }
   }
 
-  // if (!isLoading) {
-  //   const lastGroup: MessageGroup | undefined = groups[groups.length - 1];
-  //   if (
-  //     lastGroup?.type === "assistant:processing" &&
-  //     lastGroup.messages.length > 0
-  //   ) {
-  //     const lastMessage = lastGroup.messages[lastGroup.messages.length - 1]!;
-  //     const reasoningContent = extractReasoningContentFromMessage(lastMessage);
-  //     const content = extractContentFromMessage(lastMessage);
-  //     if (reasoningContent && !content) {
-  //       lastGroup.messages.pop();
-  //       if (lastGroup.messages.length === 0) {
-  //         groups.pop();
-  //       }
-  //       groups.push({
-  //         id: lastMessage.id,
-  //         type: "assistant",
-  //         messages: [lastMessage],
-  //       });
-  //     }
-  //   }
-  // }
-
   const resultsOfGroups: T[] = [];
   for (const group of groups) {
     const resultOfGroup = mapper(group);

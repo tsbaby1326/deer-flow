@@ -7,13 +7,13 @@ export interface ArtifactsContextType {
   setArtifacts: (artifacts: string[]) => void;
 
   selectedArtifact: string | null;
+  autoSelect: boolean;
+  select: (artifact: string, autoSelect?: boolean) => void;
+  deselect: () => void;
 
   open: boolean;
   autoOpen: boolean;
   setOpen: (open: boolean) => void;
-  deselect: () => void;
-
-  select: (artifact: string) => void;
 }
 
 const ArtifactsContext = createContext<ArtifactsContextType | undefined>(
@@ -27,17 +27,22 @@ interface ArtifactsProviderProps {
 export function ArtifactsProvider({ children }: ArtifactsProviderProps) {
   const [artifacts, setArtifacts] = useState<string[]>([]);
   const [selectedArtifact, setSelectedArtifact] = useState<string | null>(null);
+  const [autoSelect, setAutoSelect] = useState(true);
   const [open, setOpen] = useState(false);
   const [autoOpen, setAutoOpen] = useState(true);
   const { setOpen: setSidebarOpen } = useSidebar();
 
-  const select = (artifact: string) => {
+  const select = (artifact: string, autoSelect = false) => {
     setSelectedArtifact(artifact);
     setSidebarOpen(false);
+    if (!autoSelect) {
+      setAutoSelect(false);
+    }
   };
 
   const deselect = () => {
     setSelectedArtifact(null);
+    setAutoSelect(true);
   };
 
   const value: ArtifactsContextType = {
@@ -46,9 +51,11 @@ export function ArtifactsProvider({ children }: ArtifactsProviderProps) {
 
     open,
     autoOpen,
+    autoSelect,
     setOpen: (isOpen: boolean) => {
       if (!isOpen && autoOpen) {
         setAutoOpen(false);
+        setAutoSelect(false);
       }
       setOpen(isOpen);
     },

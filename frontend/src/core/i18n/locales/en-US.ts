@@ -41,6 +41,11 @@ export const enUS: Translations = {
     thinkingDisabled: "Thinking is disabled",
     clickToDisableThinking: "Click to disable thinking",
     clickToEnableThinking: "Click to enable thinking",
+    planMode: "Plan mode",
+    planModeEnabled: "Plan mode is enabled",
+    planModeDisabled: "Plan mode is disabled",
+    clickToDisablePlanMode: "Click to disable plan mode",
+    clickToEnablePlanMode: "Click to enable plan mode",
     searchModels: "Search models...",
   },
 
@@ -87,6 +92,7 @@ export const enUS: Translations = {
     listFolder: "List folder",
     readFile: "Read file",
     writeFile: "Write file",
+    writeTodos: "Update to-do list",
   },
 
   // Settings
