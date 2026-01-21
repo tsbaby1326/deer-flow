@@ -105,7 +105,7 @@ export const zhCN: Translations = {
       system: "系统",
       light: "浅色",
       dark: "深色",
-      systemDescription: "自动匹配操作系统偏好。",
+      systemDescription: "自动跟随系统主题。",
       lightDescription: "更明亮的配色，适合日间使用。",
       darkDescription: "更暗的配色，减少眩光方便专注。",
       languageTitle: "语言",
