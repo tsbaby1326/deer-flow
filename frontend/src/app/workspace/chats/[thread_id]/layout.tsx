@@ -16,8 +16,7 @@ export default function ChatLayout({
   const isNewThread = useMemo(() => {
     return pathname === "/workspace/chats/new";
   }, [pathname]);
-  const { theme, systemTheme } = useTheme();
-  const currentTheme = theme === "system" ? systemTheme : theme;
+  const { resolvedTheme } = useTheme();
   return (
     <ArtifactsProvider>
       {isNewThread && (
@@ -27,9 +26,9 @@ export default function ChatLayout({
             squareSize={4}
             gridGap={4}
             color={
-              currentTheme === "dark" ? "#60A5FA" : "oklch(0 0.0098 87.47)"
+              resolvedTheme === "dark" ? "#60A5FA" : "oklch(0 0.0098 87.47)"
             }
-            maxOpacity={currentTheme === "dark" ? 0.04 : 0.03}
+            maxOpacity={resolvedTheme === "dark" ? 0.04 : 0.03}
             flickerChance={0.1}
           />
           <FlickeringGrid
@@ -37,9 +36,9 @@ export default function ChatLayout({
             squareSize={4}
             gridGap={4}
             color={
-              currentTheme === "dark" ? "#60A5FA" : "oklch(0 0.0098 87.47)"
+              resolvedTheme === "dark" ? "#60A5FA" : "oklch(0 0.0098 87.47)"
             }
-            maxOpacity={currentTheme === "dark" ? 0.15 : 0.11}
+            maxOpacity={resolvedTheme === "dark" ? 0.15 : 0.11}
             flickerChance={0.12}
           />
         </>

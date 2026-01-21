@@ -25,7 +25,7 @@ const languageOptions: { value: Locale; label: string }[] = [
 
 export function AppearanceSettingsPage() {
   const { t, locale, changeLocale } = useI18n();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme, systemTheme } = useTheme();
   const currentTheme = (theme ?? "system") as "system" | "light" | "dark";
 
   const themeOptions = useMemo(
@@ -74,7 +74,7 @@ export function AppearanceSettingsPage() {
               description={option.description}
               active={currentTheme === option.id}
               mode={option.id as "system" | "light" | "dark"}
-              resolvedTheme={resolvedTheme}
+              systemTheme={systemTheme}
               onSelect={(value) => setTheme(value)}
             />
           ))}
@@ -113,7 +113,7 @@ function ThemePreviewCard({
   description,
   active,
   mode,
-  resolvedTheme,
+  systemTheme,
   onSelect,
 }: {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -121,12 +121,11 @@ function ThemePreviewCard({
   description: string;
   active: boolean;
   mode: "system" | "light" | "dark";
-  resolvedTheme?: string;
+  systemTheme?: string;
   onSelect: (mode: "system" | "light" | "dark") => void;
 }) {
   const previewMode =
-    mode === "system" ? (resolvedTheme === "dark" ? "dark" : "light") : mode;
-
+    mode === "system" ? (systemTheme === "dark" ? "dark" : "light") : mode;
   return (
     <button
       type="button"
