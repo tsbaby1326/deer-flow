@@ -18,15 +18,26 @@ def build_server_params(server_name: str, config: McpServerConfig) -> dict[str, 
     Returns:
         Dictionary of server parameters for langchain-mcp-adapters.
     """
-    params: dict[str, Any] = {
-        "command": config.command,
-        "args": config.args,
-        "transport": "stdio",  # Default to stdio transport
-    }
+    transport_type = config.type or "stdio"
+    params: dict[str, Any] = {"transport": transport_type}
 
-    # Add environment variables if present
-    if config.env:
-        params["env"] = config.env
+    if transport_type == "stdio":
+        if not config.command:
+            raise ValueError(f"MCP server '{server_name}' with stdio transport requires 'command' field")
+        params["command"] = config.command
+        params["args"] = config.args
+        # Add environment variables if present
+        if config.env:
+            params["env"] = config.env
+    elif transport_type in ("sse", "http"):
+        if not config.url:
+            raise ValueError(f"MCP server '{server_name}' with {transport_type} transport requires 'url' field")
+        params["url"] = config.url
+        # Add headers if present
+        if config.headers:
+            params["headers"] = config.headers
+    else:
+        raise ValueError(f"MCP server '{server_name}' has unsupported transport type: {transport_type}")
 
     return params
 

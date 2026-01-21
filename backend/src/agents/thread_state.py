@@ -18,3 +18,4 @@ class ThreadState(AgentState):
     thread_data: NotRequired[ThreadDataState | None]
     title: NotRequired[str | None]
     artifacts: NotRequired[list[str] | None]
+    todos: NotRequired[list | None]

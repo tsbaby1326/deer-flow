@@ -2,6 +2,7 @@
   "mcpServers": {
     "filesystem": {
       "enabled": true,
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/files"],
       "env": {},
@@ -9,6 +10,7 @@
     },
     "github": {
       "enabled": true,
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
@@ -18,11 +20,28 @@
     },
     "postgres": {
       "enabled": false,
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"],
       "env": {},
       "description": "PostgreSQL database access"
-    }
+    },
+    "my-sse-server": {                                                                                                                                       
+        "type": "sse",                                                                                                                                         
+        "url": "https://api.example.com/mcp",                                                                                                                  
+        "headers": {                                                                                                                                           
+          "Authorization": "Bearer $API_TOKEN",                                                                                                                
+          "X-Custom-Header": "value"                                                                                                                           
+        }                                                                                                                                                      
+    },
+    "my-http-server": {                                                                                                                                       
+        "type": "http",                                                                                                                                         
+        "url": "https://api.example.com/mcp",                                                                                                                  
+        "headers": {                                                                                                                                           
+          "Authorization": "Bearer $API_TOKEN",                                                                                                                
+          "X-Custom-Header": "value"                                                                                                                           
+        }                                                                                                                                                      
+    }  
   },
   "skills": {
     "pdf-processing": {

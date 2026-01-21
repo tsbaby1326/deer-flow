@@ -39,6 +39,7 @@ async def main():
         "configurable": {
             "thread_id": "debug-thread-001",
             "thinking_enabled": True,
+            "is_plan_mode": True,
             # Uncomment to use a specific model
             "model_name": "deepseek-v3.2",
         }
