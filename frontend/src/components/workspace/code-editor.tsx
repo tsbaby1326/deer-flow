@@ -48,10 +48,7 @@ export function CodeEditor({
   autoFocus?: boolean;
   settings?: any;
 }) {
-  const { theme = "system", systemTheme = "light" } = useTheme();
-
-  const currentTheme =
-    theme === "system" ? systemTheme : (theme as "dark" | "light");
+  const { resolvedTheme } = useTheme();
 
   const extensions = useMemo(() => {
     return [
@@ -81,7 +78,7 @@ export function CodeEditor({
           "h-full overflow-auto font-mono [&_.cm-editor]:h-full [&_.cm-focused]:outline-none!",
           "px-2 py-0! [&_.cm-line]:px-2! [&_.cm-line]:py-0!",
         )}
-        theme={currentTheme === "dark" ? customDarkTheme : customLightTheme}
+        theme={resolvedTheme === "dark" ? customDarkTheme : customLightTheme}
         extensions={extensions}
         basicSetup={{
           foldGutter: settings?.foldGutter ?? false,
