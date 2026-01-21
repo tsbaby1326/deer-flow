@@ -16,6 +16,8 @@ export interface Translations {
     download: string;
     thinking: string;
     artifacts: string;
+    public: string;
+    custom: string;
   };
 
   // Welcome
@@ -34,6 +36,7 @@ export interface Translations {
   // Input Box
   inputBox: {
     placeholder: string;
+    thinking: string;
     thinkingEnabled: string;
     thinkingDisabled: string;
     clickToDisableThinking: string;

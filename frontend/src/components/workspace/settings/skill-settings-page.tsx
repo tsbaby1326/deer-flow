@@ -1,8 +1,9 @@
 "use client";
 
 import { SparklesIcon } from "lucide-react";
+import { useMemo, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -44,7 +45,13 @@ export function SkillSettingsPage() {
 }
 
 function SkillSettingsList({ skills }: { skills: Skill[] }) {
+  const { t } = useI18n();
+  const [filter, setFilter] = useState<"public" | "custom">("public");
   const { mutate: enableSkill } = useEnableSkill();
+  const filteredSkills = useMemo(
+    () => skills.filter((skill) => skill.category === filter),
+    [skills, filter],
+  );
   if (skills.length === 0) {
     return (
       <Empty>
@@ -63,29 +70,59 @@ function SkillSettingsList({ skills }: { skills: Skill[] }) {
   }
   return (
     <div className="flex w-full flex-col gap-4">
-      {skills.map((skill) => (
-        <Item className="w-full" variant="outline" key={skill.name}>
-          <ItemContent>
-            <ItemTitle>
-              <div className="flex items-center gap-2">
-                <div>{skill.name}</div>
-                <Badge variant="outline">{skill.category}</Badge>
-              </div>
-            </ItemTitle>
-            <ItemDescription className="line-clamp-4">
-              {skill.description}
-            </ItemDescription>
-          </ItemContent>
-          <ItemActions>
-            <Switch
-              checked={skill.enabled}
-              onCheckedChange={(checked) =>
-                enableSkill({ skillName: skill.name, enabled: checked })
-              }
-            />
-          </ItemActions>
-        </Item>
-      ))}
+      <header className="flex gap-2">
+        <Button
+          className="rounded-xl"
+          size="sm"
+          variant={filter === "public" ? "default" : "outline"}
+          onClick={() => setFilter("public")}
+        >
+          {t.common.public}
+        </Button>
+        <Button
+          className="rounded-xl"
+          size="sm"
+          variant={filter === "custom" ? "default" : "outline"}
+          onClick={() => setFilter("custom")}
+        >
+          {t.common.custom}
+        </Button>
+      </header>
+      {filteredSkills.length === 0 && (
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <SparklesIcon />
+            </EmptyMedia>
+            <EmptyTitle>No skill yet</EmptyTitle>
+            <EmptyDescription>
+              Put your skill folders under the `/skills/{filter}` folder under
+              the root folder of DeerFlow.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
+      {filteredSkills.length > 0 &&
+        filteredSkills.map((skill) => (
+          <Item className="w-full" variant="outline" key={skill.name}>
+            <ItemContent>
+              <ItemTitle>
+                <div className="flex items-center gap-2">{skill.name}</div>
+              </ItemTitle>
+              <ItemDescription className="line-clamp-4">
+                {skill.description}
+              </ItemDescription>
+            </ItemContent>
+            <ItemActions>
+              <Switch
+                checked={skill.enabled}
+                onCheckedChange={(checked) =>
+                  enableSkill({ skillName: skill.name, enabled: checked })
+                }
+              />
+            </ItemActions>
+          </Item>
+        ))}
     </div>
   );
 }

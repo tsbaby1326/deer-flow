@@ -153,7 +153,7 @@ export function InputBox({
                         : "text-muted-foreground",
                     )}
                   >
-                    Thinking
+                    {t.inputBox.thinking}
                   </span>
                 </>
               </PromptInputButton>

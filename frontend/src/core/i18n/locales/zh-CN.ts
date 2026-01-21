@@ -18,6 +18,8 @@ export const zhCN: Translations = {
     download: "下载",
     thinking: "思考",
     artifacts: "文件",
+    public: "公共",
+    custom: "自定义",
   },
 
   // Welcome
@@ -37,6 +39,7 @@ export const zhCN: Translations = {
   // Input Box
   inputBox: {
     placeholder: "今天我能为你做些什么？",
+    thinking: "思考",
     thinkingEnabled: "思考功能已启用",
     thinkingDisabled: "思考功能已禁用",
     clickToDisableThinking: "点击禁用思考功能",

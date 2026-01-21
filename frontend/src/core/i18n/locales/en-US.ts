@@ -18,6 +18,8 @@ export const enUS: Translations = {
     download: "Download",
     thinking: "Thinking",
     artifacts: "Artifacts",
+    public: "Public",
+    custom: "Custom",
   },
 
   // Welcome
@@ -37,6 +39,7 @@ export const enUS: Translations = {
   // Input Box
   inputBox: {
     placeholder: "How can I assist you today?",
+    thinking: "Thinking",
     thinkingEnabled: "Thinking is enabled",
     thinkingDisabled: "Thinking is disabled",
     clickToDisableThinking: "Click to disable thinking",
