@@ -9,6 +9,7 @@ export interface ArtifactsContextType {
   selectedArtifact: string | null;
 
   open: boolean;
+  autoOpen: boolean;
   setOpen: (open: boolean) => void;
   deselect: () => void;
 
@@ -27,6 +28,7 @@ export function ArtifactsProvider({ children }: ArtifactsProviderProps) {
   const [artifacts, setArtifacts] = useState<string[]>([]);
   const [selectedArtifact, setSelectedArtifact] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [autoOpen, setAutoOpen] = useState(true);
   const { setOpen: setSidebarOpen } = useSidebar();
 
   const select = (artifact: string) => {
@@ -43,7 +45,13 @@ export function ArtifactsProvider({ children }: ArtifactsProviderProps) {
     setArtifacts,
 
     open,
-    setOpen,
+    autoOpen,
+    setOpen: (isOpen: boolean) => {
+      if (!isOpen && autoOpen) {
+        setAutoOpen(false);
+      }
+      setOpen(isOpen);
+    },
 
     selectedArtifact,
     select,

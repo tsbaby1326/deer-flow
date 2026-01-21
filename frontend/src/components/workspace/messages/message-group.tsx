@@ -181,7 +181,7 @@ function ToolCall({
   result?: string | Record<string, unknown>;
 }) {
   const { t } = useI18n();
-  const { select, setOpen } = useArtifacts();
+  const { setOpen, autoOpen, selectedArtifact, select } = useArtifacts();
   if (name === "web_search") {
     let label: React.ReactNode = t.toolCalls.searchForRelatedInfo;
     if (typeof args.query === "string") {
@@ -265,6 +265,18 @@ function ToolCall({
       description = t.toolCalls.writeFile;
     }
     const path: string | undefined = (args as { path: string })?.path;
+    if (autoOpen && path) {
+      setTimeout(() => {
+        const url = new URL(
+          `write-file:${path}?message_id=${messageId}&tool_call_id=${id}`,
+        ).toString();
+        if (selectedArtifact === url) {
+          return;
+        }
+        select(url);
+        setOpen(true);
+      }, 100);
+    }
     return (
       <ChainOfThoughtStep
         key={id}
