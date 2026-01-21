@@ -79,7 +79,7 @@ export function ArtifactFileDetail({
     }
   }, [previewable]);
   return (
-    <Artifact className={cn("rounded-none", className)}>
+    <Artifact className={cn(className)}>
       <ArtifactHeader className="px-2">
         <div className="flex items-center gap-2">
           <ArtifactTitle>

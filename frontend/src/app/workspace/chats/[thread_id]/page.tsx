@@ -98,7 +98,7 @@ export default function ChatPage() {
         <ResizablePanel
           className="relative"
           defaultSize={artifactsOpen ? 46 : 100}
-          minSize={30}
+          minSize={artifactsOpen ? 30 : 100}
         >
           <div className="relative flex size-full min-h-0 justify-between">
             <header className="bg-background/80 absolute top-0 right-0 left-0 z-30 flex h-12 shrink-0 items-center px-4 backdrop-blur">
@@ -168,7 +168,7 @@ export default function ChatPage() {
         </ResizablePanel>
         <ResizableHandle
           className={cn(
-            "transition-opacity duration-300",
+            "opacity-33 hover:opacity-100",
             !artifactsOpen && "pointer-events-none opacity-0",
           )}
         />
@@ -179,10 +179,11 @@ export default function ChatPage() {
           )}
           defaultSize={artifactsOpen ? 64 : 0}
           minSize={0}
+          maxSize={artifactsOpen ? undefined : 0}
         >
           <div
             className={cn(
-              "h-full transition-transform duration-300 ease-in-out",
+              "h-full p-4 transition-transform duration-300 ease-in-out",
               artifactsOpen ? "translate-x-0" : "translate-x-full",
             )}
           >
