@@ -8,6 +8,10 @@ This skill guides creation of distinctive, production-grade frontend interfaces 
 
 The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
 
+## Output Requirements
+
+**MANDATORY**: The entry HTML file MUST be named `index.html`. This is a strict requirement for all generated frontend projects to ensure compatibility with standard web hosting and deployment workflows.
+
 ## Design Thinking
 
 Before coding, understand the context and commit to a BOLD aesthetic direction:
