@@ -16,6 +16,7 @@ import {
   ArtifactHeader,
   ArtifactTitle,
 } from "@/components/ai-elements/artifact";
+import { CodeEditor } from "@/components/ai-elements/code-editor";
 import { Select, SelectItem } from "@/components/ui/select";
 import {
   SelectContent,
@@ -23,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
@@ -179,10 +179,10 @@ export function ArtifactFileDetail({
           />
         )}
         {isCodeFile && viewMode === "code" && (
-          <Textarea
+          <CodeEditor
             className="size-full resize-none rounded-none border-none"
-            readOnly
             value={content ?? ""}
+            readonly
           />
         )}
         {!isCodeFile && (
