@@ -42,7 +42,7 @@ export const enUS: Translations = {
     addAttachments: "Add attachments",
     mode: "Mode",
     flashMode: "Flash",
-    flashModeDescription: "Fast and efficient",
+    flashModeDescription: "Fast and efficient, but may not be accurate",
     reasoningMode: "Reasoning",
     reasoningModeDescription:
       "Reasoning before action, balance between time and accuracy",
