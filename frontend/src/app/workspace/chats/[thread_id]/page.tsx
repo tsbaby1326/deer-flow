@@ -163,7 +163,7 @@ export default function ChatPage() {
                     </div>
                   )}
                   <div className="absolute -top-4 right-0 left-0 z-0">
-                    <div className="absolute right-0 bottom-0 left-0 px-4">
+                    <div className="absolute right-0 bottom-0 left-0">
                       <TodoList
                         className="bg-background/5"
                         todos={thread.values.todos ?? []}
