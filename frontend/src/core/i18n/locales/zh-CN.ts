@@ -70,7 +70,7 @@ export const zhCN: Translations = {
     visitGithub: "在 Github 上查看 DeerFlow",
     reportIssue: "报告问题",
     contactUs: "联系我们",
-    about: "关于",
+    about: "关于 DeerFlow",
   },
 
   // Conversation

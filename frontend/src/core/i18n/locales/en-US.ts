@@ -72,7 +72,7 @@ export const enUS: Translations = {
     visitGithub: "Visit DeerFlow on GitHub",
     reportIssue: "Report a issue",
     contactUs: "Contact us",
-    about: "About",
+    about: "About DeerFlow",
   },
 
   // Conversation
