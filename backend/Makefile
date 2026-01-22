@@ -14,7 +14,9 @@ nginx:
 	@-pkill -9 nginx 2>/dev/null || true
 	@sleep 1
 	@echo "Starting nginx..."
-	nginx -c $(PWD)/../nginx.conf -p $(PWD)/..
+	@cleanup() { kill 0 2>/dev/null; exit 0; }; \
+	trap cleanup EXIT INT TERM; \
+	nginx -g 'daemon off;' -c $(PWD)/../nginx.conf -p $(PWD)/..
 
 serve:
 	@echo "Stopping existing services if any..."
@@ -25,10 +27,11 @@ serve:
 	@-pkill -9 nginx 2>/dev/null || true
 	@sleep 1
 	@echo "Starting services..."
-	@trap 'kill 0' EXIT; \
+	@cleanup() { kill 0 2>/dev/null; sleep 0.5; kill -9 0 2>/dev/null; exit 0; }; \
+	trap cleanup INT TERM; \
 	uv run langgraph dev --no-browser --allow-blocking --no-reload & \
 	sleep 3 && uv run uvicorn src.gateway.app:app --host 0.0.0.0 --port 8001 & \
-	sleep 1 && nginx -c $(PWD)/../nginx.conf -p $(PWD)/.. & \
+	sleep 1 && nginx -g 'daemon off;' -c $(PWD)/../nginx.conf -p $(PWD)/.. & \
 	wait
 
 lint:
