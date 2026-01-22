@@ -147,21 +147,12 @@ export default function ChatPage() {
                 <div
                   className={cn(
                     "relative w-full",
-                    isNewThread && "-translate-y-[calc(50vh-120px)]",
+                    isNewThread && "-translate-y-[calc(50vh-160px)]",
                     isNewThread
                       ? "max-w-(--container-width-sm)"
                       : "max-w-(--container-width-md)",
                   )}
                 >
-                  {isNewThread && (
-                    <div
-                      className={cn(
-                        "absolute right-0 bottom-[136px] left-0 flex",
-                      )}
-                    >
-                      <Welcome />
-                    </div>
-                  )}
                   <div className="absolute -top-4 right-0 left-0 z-0">
                     <div className="absolute right-0 bottom-0 left-0">
                       <TodoList
@@ -183,6 +174,7 @@ export default function ChatPage() {
                     autoFocus={isNewThread}
                     status={thread.isLoading ? "streaming" : "ready"}
                     context={settings.context}
+                    extraHeader={isNewThread && <Welcome />}
                     onContextChange={(context) =>
                       setSettings("context", context)
                     }

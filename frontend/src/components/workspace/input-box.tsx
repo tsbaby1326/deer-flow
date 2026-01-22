@@ -1,18 +1,36 @@
 "use client";
 
 import type { ChatStatus } from "ai";
-import { CheckIcon, LightbulbIcon, ListTodoIcon } from "lucide-react";
+import {
+  CheckIcon,
+  GraduationCapIcon,
+  LightbulbIcon,
+  ZapIcon,
+} from "lucide-react";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 
 import {
   PromptInput,
+  PromptInputActionAddAttachments,
+  PromptInputActionMenu,
+  PromptInputActionMenuContent,
+  PromptInputActionMenuItem,
+  PromptInputActionMenuTrigger,
+  PromptInputAttachment,
+  PromptInputAttachments,
   PromptInputBody,
   PromptInputButton,
   PromptInputFooter,
   PromptInputSubmit,
   PromptInputTextarea,
+  PromptInputTools,
   type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
+import {
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { useI18n } from "@/core/i18n/hooks";
 import { useModels } from "@/core/models/hooks";
 import type { AgentThreadContext } from "@/core/threads";
@@ -28,13 +46,12 @@ import {
   ModelSelectorTrigger,
 } from "../ai-elements/model-selector";
 
-import { Tooltip } from "./tooltip";
-
 export function InputBox({
   className,
   autoFocus,
   status = "ready",
   context,
+  extraHeader,
   onContextChange,
   onSubmit,
   onStop,
@@ -55,6 +72,19 @@ export function InputBox({
     () => models.find((m) => m.name === context.model_name),
     [context.model_name, models],
   );
+  const supportThinking = useMemo(
+    () => selectedModel?.supports_thinking ?? false,
+    [selectedModel],
+  );
+  const mode = useMemo(() => {
+    if (context.is_plan_mode) {
+      return "pro";
+    }
+    if (context.thinking_enabled) {
+      return "thinking";
+    }
+    return "flash";
+  }, [context.thinking_enabled, context.is_plan_mode]);
   const handleModelSelect = useCallback(
     (model_name: string) => {
       const supports_thinking = selectedModel?.supports_thinking ?? false;
@@ -67,18 +97,30 @@ export function InputBox({
     },
     [selectedModel?.supports_thinking, onContextChange, context],
   );
-  const handleThinkingToggle = useCallback(() => {
-    onContextChange?.({
-      ...context,
-      thinking_enabled: !context.thinking_enabled,
-    });
-  }, [onContextChange, context]);
-  const handlePlanModeToggle = useCallback(() => {
-    onContextChange?.({
-      ...context,
-      is_plan_mode: !context.is_plan_mode,
-    });
-  }, [onContextChange, context]);
+  const handleModeSelect = useCallback(
+    (mode: "flash" | "thinking" | "pro") => {
+      if (mode === "flash") {
+        onContextChange?.({
+          ...context,
+          thinking_enabled: false,
+          is_plan_mode: false,
+        });
+      } else if (mode === "thinking") {
+        onContextChange?.({
+          ...context,
+          thinking_enabled: true,
+          is_plan_mode: false,
+        });
+      } else if (mode === "pro") {
+        onContextChange?.({
+          ...context,
+          thinking_enabled: true,
+          is_plan_mode: true,
+        });
+      }
+    },
+    [onContextChange, context],
+  );
   const handleSubmit = useCallback(
     async (message: PromptInputMessage) => {
       if (status === "streaming") {
@@ -103,6 +145,16 @@ export function InputBox({
       onSubmit={handleSubmit}
       {...props}
     >
+      {extraHeader && (
+        <div className="absolute top-0 right-0 left-0 z-10">
+          <div className="absolute right-0 bottom-0 left-0 flex items-center justify-center">
+            {extraHeader}
+          </div>
+        </div>
+      )}
+      <PromptInputAttachments>
+        {(attachment) => <PromptInputAttachment data={attachment} />}
+      </PromptInputAttachments>
       <PromptInputBody className="absolute top-0 right-0 left-0 z-3">
         <PromptInputTextarea
           className={cn("size-full")}
@@ -111,91 +163,111 @@ export function InputBox({
         />
       </PromptInputBody>
       <PromptInputFooter className="flex">
-        <div className="flex items-center">
-          <Tooltip
-            content={
-              context.thinking_enabled ? (
-                <div className="tex-sm flex flex-col gap-1">
-                  <div>{t.inputBox.thinkingEnabled}</div>
-                  <div className="opacity-50">
-                    {t.inputBox.clickToDisableThinking}
-                  </div>
-                </div>
-              ) : (
-                <div className="tex-sm flex flex-col gap-1">
-                  <div>{t.inputBox.thinkingDisabled}</div>
-                  <div className="opacity-50">
-                    {t.inputBox.clickToEnableThinking}
-                  </div>
-                </div>
-              )
-            }
-          >
-            {selectedModel?.supports_thinking && (
-              <PromptInputButton onClick={handleThinkingToggle}>
-                <>
-                  {context.thinking_enabled ? (
-                    <LightbulbIcon className="text-primary size-4" />
-                  ) : (
-                    <LightbulbIcon className="size-4" />
-                  )}
-                  <span
+        <PromptInputTools>
+          <PromptInputActionMenu>
+            <PromptInputActionMenuTrigger />
+            <PromptInputActionMenuContent className="w-80">
+              <PromptInputActionAddAttachments
+                label={t.inputBox.addAttachments}
+              />
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-muted-foreground text-xs">
+                  {t.inputBox.mode}
+                </DropdownMenuLabel>
+                <PromptInputActionMenu>
+                  <PromptInputActionMenuItem
                     className={cn(
-                      "text-xs font-normal",
-                      context.thinking_enabled
-                        ? "text-primary"
-                        : "text-muted-foreground",
+                      mode === "flash"
+                        ? "text-accent-foreground"
+                        : "text-muted-foreground/65",
                     )}
+                    onSelect={() => handleModeSelect("flash")}
                   >
-                    {t.inputBox.thinking}
-                  </span>
-                </>
-              </PromptInputButton>
-            )}
-          </Tooltip>
-          <Tooltip
-            content={
-              context.is_plan_mode ? (
-                <div className="tex-sm flex flex-col gap-1">
-                  <div>{t.inputBox.planMode}</div>
-                  <div className="opacity-50">
-                    {t.inputBox.clickToDisablePlanMode}
-                  </div>
-                </div>
-              ) : (
-                <div className="tex-sm flex flex-col gap-1">
-                  <div>{t.inputBox.planMode}</div>
-                  <div className="opacity-50">
-                    {t.inputBox.clickToEnablePlanMode}
-                  </div>
-                </div>
-              )
-            }
-          >
-            {selectedModel?.supports_thinking && (
-              <PromptInputButton onClick={handlePlanModeToggle}>
-                <>
-                  {context.is_plan_mode ? (
-                    <ListTodoIcon className="text-primary size-4" />
-                  ) : (
-                    <ListTodoIcon className="size-4" />
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-1 font-bold">
+                        <ZapIcon
+                          className={cn(
+                            "mr-2 size-4",
+                            mode === "flash" && "text-accent-foreground",
+                          )}
+                        />
+                        {t.inputBox.flashMode}
+                      </div>
+                      <div className="pl-7 text-xs">
+                        {t.inputBox.flashModeDescription}
+                      </div>
+                    </div>
+                    {mode === "flash" ? (
+                      <CheckIcon className="ml-auto size-4" />
+                    ) : (
+                      <div className="ml-auto size-4" />
+                    )}
+                  </PromptInputActionMenuItem>
+                  {supportThinking && (
+                    <PromptInputActionMenuItem
+                      className={cn(
+                        mode === "thinking"
+                          ? "text-accent-foreground"
+                          : "text-muted-foreground/65",
+                      )}
+                      onSelect={() => handleModeSelect("thinking")}
+                    >
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-1 font-bold">
+                          <LightbulbIcon
+                            className={cn(
+                              "mr-2 size-4",
+                              mode === "thinking" && "text-accent-foreground",
+                            )}
+                          />
+                          {t.inputBox.reasoningMode}
+                        </div>
+                        <div className="pl-7 text-xs">
+                          {t.inputBox.reasoningModeDescription}
+                        </div>
+                      </div>
+                      {mode === "thinking" ? (
+                        <CheckIcon className="ml-auto size-4" />
+                      ) : (
+                        <div className="ml-auto size-4" />
+                      )}
+                    </PromptInputActionMenuItem>
                   )}
-                  <span
+                  <PromptInputActionMenuItem
                     className={cn(
-                      "text-xs font-normal",
-                      context.is_plan_mode
-                        ? "text-primary"
-                        : "text-muted-foreground",
+                      mode === "pro"
+                        ? "text-accent-foreground"
+                        : "text-muted-foreground/65",
                     )}
+                    onSelect={() => handleModeSelect("pro")}
                   >
-                    {t.inputBox.planMode}
-                  </span>
-                </>
-              </PromptInputButton>
-            )}
-          </Tooltip>
-        </div>
-        <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-1 font-bold">
+                        <GraduationCapIcon
+                          className={cn(
+                            "mr-2 size-4",
+                            mode === "pro" && "text-accent-foreground",
+                          )}
+                        />
+                        {t.inputBox.proMode}
+                      </div>
+                      <div className="pl-7 text-xs">
+                        {t.inputBox.proModeDescription}
+                      </div>
+                    </div>
+                    {mode === "pro" ? (
+                      <CheckIcon className="ml-auto size-4" />
+                    ) : (
+                      <div className="ml-auto size-4" />
+                    )}
+                  </PromptInputActionMenuItem>
+                </PromptInputActionMenu>
+              </DropdownMenuGroup>
+            </PromptInputActionMenuContent>
+          </PromptInputActionMenu>
+        </PromptInputTools>
+        <PromptInputTools>
           <ModelSelector
             open={modelDialogOpen}
             onOpenChange={setModelDialogOpen}
@@ -232,7 +304,7 @@ export function InputBox({
             variant="outline"
             status={status}
           />
-        </div>
+        </PromptInputTools>
       </PromptInputFooter>
     </PromptInput>
   );

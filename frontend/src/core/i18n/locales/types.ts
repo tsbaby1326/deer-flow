@@ -36,16 +36,14 @@ export interface Translations {
   // Input Box
   inputBox: {
     placeholder: string;
-    thinking: string;
-    thinkingEnabled: string;
-    thinkingDisabled: string;
-    clickToDisableThinking: string;
-    clickToEnableThinking: string;
-    planMode: string;
-    planModeEnabled: string;
-    planModeDisabled: string;
-    clickToDisablePlanMode: string;
-    clickToEnablePlanMode: string;
+    addAttachments: string;
+    mode: string;
+    flashMode: string;
+    flashModeDescription: string;
+    reasoningMode: string;
+    reasoningModeDescription: string;
+    proMode: string;
+    proModeDescription: string;
     searchModels: string;
   };
 

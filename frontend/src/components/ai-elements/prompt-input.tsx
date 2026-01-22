@@ -44,6 +44,7 @@ import {
   PaperclipIcon,
   PlusIcon,
   SquareIcon,
+  UploadIcon,
   XIcon,
 } from "lucide-react";
 import { nanoid } from "nanoid";
@@ -422,7 +423,7 @@ export const PromptInputActionAddAttachments = ({
         attachments.openFileDialog();
       }}
     >
-      <ImageIcon className="mr-2 size-4" /> {label}
+      <PaperclipIcon className="mr-2 size-4" /> {label}
     </DropdownMenuItem>
   );
 };

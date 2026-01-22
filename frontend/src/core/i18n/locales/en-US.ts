@@ -39,16 +39,16 @@ export const enUS: Translations = {
   // Input Box
   inputBox: {
     placeholder: "How can I assist you today?",
-    thinking: "Thinking",
-    thinkingEnabled: "Thinking is enabled",
-    thinkingDisabled: "Thinking is disabled",
-    clickToDisableThinking: "Click to disable thinking",
-    clickToEnableThinking: "Click to enable thinking",
-    planMode: "Plan mode",
-    planModeEnabled: "Plan mode is enabled",
-    planModeDisabled: "Plan mode is disabled",
-    clickToDisablePlanMode: "Click to disable plan mode",
-    clickToEnablePlanMode: "Click to enable plan mode",
+    addAttachments: "Add attachments",
+    mode: "Mode",
+    flashMode: "Flash",
+    flashModeDescription: "Fast and efficient",
+    reasoningMode: "Reasoning",
+    reasoningModeDescription:
+      "Reasoning before action, balance between time and accuracy",
+    proMode: "Pro",
+    proModeDescription:
+      "Reasoning, planning and executing, get more accurate results, may take more time",
     searchModels: "Search models...",
   },
 

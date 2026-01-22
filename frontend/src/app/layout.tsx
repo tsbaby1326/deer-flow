@@ -30,12 +30,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
           <I18nProvider initialLocale={locale}>{children}</I18nProvider>
         </ThemeProvider>
       </body>
