@@ -22,6 +22,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useI18n } from "@/core/i18n/hooks";
 
@@ -30,6 +31,7 @@ import { SettingsDialog } from "./settings";
 
 export function WorkspaceNavMenu() {
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { open: isSidebarOpen } = useSidebar();
   const { t } = useI18n();
   return (
     <>
@@ -42,13 +44,17 @@ export function WorkspaceNavMenu() {
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
-                <div className="flex w-full items-center gap-2">
-                  <div className="text-muted-foreground flex items-center gap-2 text-left text-sm leading-tight">
+                {isSidebarOpen ? (
+                  <div className="text-muted-foreground flex w-full items-center gap-2 text-left text-sm">
                     <SettingsIcon className="size-4" />
-                    {t.workspace.settingsAndMore}
+                    <span>{t.workspace.settingsAndMore}</span>
+                    <ChevronsUpDown className="text-muted-foreground ml-auto size-4" />
                   </div>
-                  <ChevronsUpDown className="text-muted-foreground ml-auto size-4" />
-                </div>
+                ) : (
+                  <div className="flex size-full items-center justify-center">
+                    <SettingsIcon className="text-muted-foreground size-4" />
+                  </div>
+                )}
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
