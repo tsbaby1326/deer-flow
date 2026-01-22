@@ -52,6 +52,7 @@ export function InputBox({
   status = "ready",
   context,
   extraHeader,
+  isNewThread,
   onContextChange,
   onSubmit,
   onStop,
@@ -61,6 +62,7 @@ export function InputBox({
   status?: ChatStatus;
   context: Omit<AgentThreadContext, "thread_id">;
   extraHeader?: React.ReactNode;
+  isNewThread?: boolean;
   onContextChange?: (context: Omit<AgentThreadContext, "thread_id">) => void;
   onSubmit?: (message: PromptInputMessage) => void;
   onStop?: () => void;
@@ -306,6 +308,9 @@ export function InputBox({
           />
         </PromptInputTools>
       </PromptInputFooter>
+      {!isNewThread && (
+        <div className="bg-background absolute right-0 -bottom-[17px] left-0 z-0 h-4"></div>
+      )}
     </PromptInput>
   );
 }
