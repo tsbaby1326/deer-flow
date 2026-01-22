@@ -14,22 +14,25 @@ export function TodoList({
   className,
   todos,
   collapsed = false,
+  hidden = false,
   onToggle,
 }: {
   className?: string;
   todos: Todo[];
   collapsed?: boolean;
+  hidden?: boolean;
   onToggle?: () => void;
 }) {
   return (
     <div
       className={cn(
-        "flex h-fit w-full flex-col overflow-hidden rounded-t-xl border bg-white backdrop-blur-sm",
+        "flex h-fit w-full origin-bottom flex-col overflow-hidden rounded-t-xl border border-b-0 bg-white backdrop-blur-sm transition-all duration-200 ease-out",
+        hidden ? "pointer-events-none translate-y-8 opacity-0" : "",
         className,
       )}
     >
       <header
-        className="bg-accent flex min-h-8 shrink-0 cursor-pointer items-center justify-between px-4 text-sm"
+        className="bg-accent flex min-h-8 shrink-0 cursor-pointer items-center justify-between px-4 text-sm transition-all duration-300 ease-out"
         onClick={() => {
           onToggle?.();
         }}

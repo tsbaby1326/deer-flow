@@ -35,7 +35,6 @@ export function InputBox({
   autoFocus,
   status = "ready",
   context,
-  extraHeader,
   onContextChange,
   onSubmit,
   onStop,
@@ -104,12 +103,7 @@ export function InputBox({
       onSubmit={handleSubmit}
       {...props}
     >
-      {extraHeader && (
-        <div className="absolute top-0 right-0 left-0 z-100">
-          <div className="absolute right-0 bottom-0 left-0">{extraHeader}</div>
-        </div>
-      )}
-      <PromptInputBody>
+      <PromptInputBody className="absolute top-0 right-0 left-0 z-3">
         <PromptInputTextarea
           className={cn("size-full")}
           placeholder={t.inputBox.placeholder}

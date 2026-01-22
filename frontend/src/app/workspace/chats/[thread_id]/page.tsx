@@ -162,25 +162,27 @@ export default function ChatPage() {
                       <Welcome />
                     </div>
                   )}
+                  <div className="absolute -top-4 right-0 left-0 z-0">
+                    <div className="absolute right-0 bottom-0 left-0 px-4">
+                      <TodoList
+                        className="bg-background/5"
+                        todos={thread.values.todos ?? []}
+                        collapsed={todoListCollapsed}
+                        hidden={
+                          !thread.values.todos ||
+                          thread.values.todos.length === 0
+                        }
+                        onToggle={() =>
+                          setTodoListCollapsed(!todoListCollapsed)
+                        }
+                      />
+                    </div>
+                  </div>
                   <InputBox
                     className={cn("bg-background/5 w-full -translate-y-4")}
                     autoFocus={isNewThread}
                     status={thread.isLoading ? "streaming" : "ready"}
                     context={settings.context}
-                    extraHeader={
-                      thread.values.todos?.length ? (
-                        <div className="mx-4">
-                          <TodoList
-                            className="bg-background/5"
-                            todos={thread.values.todos ?? []}
-                            collapsed={todoListCollapsed}
-                            onToggle={() =>
-                              setTodoListCollapsed(!todoListCollapsed)
-                            }
-                          />
-                        </div>
-                      ) : null
-                    }
                     onContextChange={(context) =>
                       setSettings("context", context)
                     }
