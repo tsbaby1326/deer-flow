@@ -96,7 +96,7 @@ function SkillSettingsList({ skills }: { skills: Skill[] }) {
             </EmptyMedia>
             <EmptyTitle>No skill yet</EmptyTitle>
             <EmptyDescription>
-              Put your skill folders under the `/skills/{filter}` folder under
+              Put your skill folders under the `skills/{filter}` folder under
               the root folder of DeerFlow.
             </EmptyDescription>
           </EmptyHeader>
