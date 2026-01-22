@@ -64,8 +64,18 @@ export function TodoList({
           {todos.map((todo, i) => (
             <QueueItem key={i + (todo.content ?? "")}>
               <div className="flex items-center gap-2">
-                <QueueItemIndicator completed={todo.status === "completed"} />
-                <QueueItemContent completed={todo.status === "completed"}>
+                <QueueItemIndicator
+                  className={
+                    todo.status === "in_progress" ? "bg-primary/70" : ""
+                  }
+                  completed={todo.status === "completed"}
+                />
+                <QueueItemContent
+                  className={
+                    todo.status === "in_progress" ? "text-primary/70" : ""
+                  }
+                  completed={todo.status === "completed"}
+                >
                   {todo.content}
                 </QueueItemContent>
               </div>
