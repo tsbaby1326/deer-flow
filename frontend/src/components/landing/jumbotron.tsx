@@ -1,0 +1,72 @@
+"use client";
+
+import { ChevronRightIcon } from "lucide-react";
+
+import Galaxy from "@/components/Galaxy";
+import { Button } from "@/components/ui/button";
+import { FlickeringGrid } from "@/components/ui/flickering-grid";
+import { WordRotate } from "@/components/ui/word-rotate";
+import { cn } from "@/lib/utils";
+
+export function Jumbotron({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "flex size-full flex-col items-center justify-center",
+        className,
+      )}
+    >
+      <div className="absolute inset-0 z-0 bg-black">
+        <Galaxy
+          mouseRepulsion={false}
+          starSpeed={0.2}
+          density={0.6}
+          glowIntensity={0.3}
+          twinkleIntensity={0.3}
+          speed={0.5}
+        />
+      </div>
+      <FlickeringGrid
+        className="absolute inset-0 z-0 translate-y-[2vh] mask-[url(/images/deer.svg)] mask-size-[100vw] mask-center mask-no-repeat md:mask-size-[72vh]"
+        squareSize={4}
+        gridGap={4}
+        color={"white"}
+        maxOpacity={0.2}
+        flickerChance={0.25}
+      />
+      <div className="container-md relative z-10 mx-auto flex h-screen flex-col items-center justify-center">
+        <h1 className="flex items-center gap-2 text-4xl font-bold md:text-6xl">
+          <WordRotate
+            words={[
+              "Do Anything",
+              "Learn Anything",
+              "Deep Research",
+              "Collect Data",
+              "Analyze Data",
+              "Generate Webpages",
+              "Vibe Coding",
+              "Generate Slides",
+              "Generate Images",
+              "Generate Podcasts",
+              "Generate Videos",
+              "Generate Songs",
+              "Organize Emails",
+            ]}
+          />{" "}
+          <div>with DeerFlow</div>
+        </h1>
+        <p className="mt-8 scale-105 text-center text-2xl opacity-70">
+          DeerFlow is an open-source SuperAgent that researches, codes, and
+          <br />
+          creates. With the help of sandboxes, tools and skills, it handles
+          <br />
+          different levels of tasks that could take minutes to hours.
+        </p>
+        <Button className="size-lg mt-8 scale-108" size="lg">
+          <span className="text-md">Get Started with 2.0</span>
+          <ChevronRightIcon className="size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
