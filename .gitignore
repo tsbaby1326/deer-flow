@@ -28,3 +28,4 @@ coverage/
 .deer-flow/
 .claude/
 skills/custom/*
+logs/

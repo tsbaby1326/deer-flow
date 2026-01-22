@@ -6,7 +6,17 @@ A LangGraph-based AI agent backend with sandbox execution capabilities.
 
 ## Quick Start
 
-1. **Configure the application**:
+1. **Check system requirements**:
+   ```bash
+   make check
+   ```
+   This will verify that you have all required tools installed:
+   - Node.js 22+
+   - pnpm
+   - uv (Python package manager)
+   - nginx
+
+2. **Configure the application**:
    ```bash
    # Copy example configuration
    cp config.example.yaml config.yaml
@@ -15,49 +25,58 @@ A LangGraph-based AI agent backend with sandbox execution capabilities.
    export OPENAI_API_KEY="your-key-here"
    # or edit config.yaml directly
 
-   # Optional: Enable MCP servers for additional tools
-   cp mcp_config.example.json mcp_config.json
-   # Edit mcp_config.json to enable desired servers
+   # Optional: Enable MCP servers and skills
+   cp extensions_config.example.json extensions_config.json
+   # Edit extensions_config.json to enable desired MCP servers and skills
    ```
 
-2. **Install dependencies**:
+3. **Install dependencies**:
    ```bash
-   cd backend
    make install
    ```
 
-3. **Run development server**:
+4. **Run development server** (starts frontend, backend, and nginx):
    ```bash
    make dev
    ```
 
-### Production Deployment
+5. **Access the application**:
+   - Web Interface: http://localhost:2026
+   - All API requests are automatically proxied through nginx
 
-For production environments, use nginx as a reverse proxy to route traffic between the gateway and LangGraph services:
+### Manual Deployment
+
+If you need to start services individually:
 
 1. **Start backend services**:
    ```bash
-   # Terminal 1: Start Gateway API (port 8001)
+   # Terminal 1: Start LangGraph Server (port 2024)
    cd backend
-   python -m src.gateway.app
+   make dev
 
-   # Terminal 2: Start LangGraph Server (port 2024)
+   # Terminal 2: Start Gateway API (port 8001)
    cd backend
-   langgraph up
+   make gateway
+
+   # Terminal 3: Start Frontend (port 3000)
+   cd frontend
+   pnpm dev
    ```
 
 2. **Start nginx**:
    ```bash
-   nginx -c $(pwd)/nginx.conf
+   make nginx
+   # or directly: nginx -c $(pwd)/nginx.conf -g 'daemon off;'
    ```
 
 3. **Access the application**:
-   - Main API: http://localhost:8000
+   - Web Interface: http://localhost:2026
 
 The nginx configuration provides:
-- Unified entry point on port 8000
-- Routes `/api/models`, `/api/threads/*/artifacts`, and `/health` to Gateway (8001)
-- Routes all other requests to LangGraph (2024)
+- Unified entry point on port 2026
+- Routes `/api/langgraph/*` to LangGraph Server (2024)
+- Routes other `/api/*` endpoints to Gateway API (8001)
+- Routes non-API requests to Frontend (3000)
 - Centralized CORS handling
 - SSE/streaming support for real-time agent responses
 - Optimized timeouts for long-running operations
@@ -82,11 +101,12 @@ deer-flow/
 ### Architecture
 
 ```
-Client
+Browser
   ↓
-Nginx (port 8000) ← Unified entry point
-  ├→ Gateway API (port 8001) ← /api/models, /api/threads/*/artifacts, /health
-  └→ LangGraph Server (port 2024) ← All other requests (agent interactions)
+Nginx (port 2026) ← Unified entry point
+  ├→ Frontend (port 3000) ← / (non-API requests)
+  ├→ Gateway API (port 8001) ← /api/models, /api/mcp, /api/skills, /api/threads/*/artifacts
+  └→ LangGraph Server (port 2024) ← /api/langgraph/* (agent interactions)
 ```
 
 ## Documentation

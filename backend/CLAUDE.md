@@ -4,16 +4,64 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-DeerFlow is a LangGraph-based AI agent backend that provides a "super agent" with sandbox execution capabilities. The agent can execute code, browse the web, and manage files in isolated sandbox environments.
+DeerFlow is a LangGraph-based AI agent system with a full-stack architecture. The backend provides a "super agent" with sandbox execution capabilities that can execute code, browse the web, and manage files in isolated environments.
+
+**Architecture**:
+- **LangGraph Server** (port 2024): Agent runtime and workflow execution
+- **Gateway API** (port 8001): REST API for models, MCP, skills, and artifacts
+- **Frontend** (port 3000): Next.js web interface
+- **Nginx** (port 2026): Unified reverse proxy entry point
+
+**Project Structure**:
+```
+deer-flow/
+├── Makefile                    # Root commands (check, install, dev, stop)
+├── nginx.conf                  # Nginx reverse proxy configuration
+├── config.yaml                 # Main application configuration
+├── extensions_config.json      # MCP servers and skills configuration
+├── backend/                    # Backend application (this directory)
+│   ├── Makefile               # Backend-only commands (dev, gateway, lint)
+│   ├── src/
+│   │   ├── agents/            # LangGraph agents and workflows
+│   │   ├── gateway/           # FastAPI Gateway API
+│   │   ├── sandbox/           # Sandbox execution system
+│   │   ├── tools/             # Agent tools
+│   │   ├── mcp/               # MCP integration
+│   │   └── skills/            # Skills loading and management
+│   └── langgraph.json         # LangGraph server configuration
+├── frontend/                   # Next.js frontend application
+└── skills/                     # Agent skills directory
+    ├── public/                # Public skills (committed)
+    └── custom/                # Custom skills (gitignored)
+```
 
 ## Commands
 
+**Root directory** (for full application):
 ```bash
-# Install dependencies
+# Check system requirements
+make check
+
+# Install all dependencies (frontend + backend)
 make install
 
-# Run development server (LangGraph Studio)
+# Start all services (LangGraph + Gateway + Frontend + Nginx)
 make dev
+
+# Stop all services
+make stop
+```
+
+**Backend directory** (for backend development only):
+```bash
+# Install backend dependencies
+make install
+
+# Run LangGraph server only (port 2024)
+make dev
+
+# Run Gateway API only (port 8001)
+make gateway
 
 # Lint
 make lint
@@ -44,6 +92,16 @@ Configuration priority:
 Config values starting with `$` are resolved as environment variables (e.g., `$OPENAI_API_KEY`).
 
 ### Core Components
+
+**Gateway API** (`src/gateway/`)
+- FastAPI application that provides REST endpoints for frontend integration
+- Endpoints:
+  - `/api/models` - List available LLM models from configuration
+  - `/api/mcp` - Manage MCP server configurations (GET, POST)
+  - `/api/skills` - Manage skill configurations (GET, POST)
+  - `/api/threads/{thread_id}/artifacts/*` - Serve agent-generated artifacts (files, images, etc.)
+- Works alongside LangGraph server, handling non-agent HTTP operations
+- Proxied through nginx under `/api/*` routes (except `/api/langgraph/*`)
 
 **Agent Graph** (`src/agents/`)
 - `lead_agent` is the main entry point registered in `langgraph.json`
@@ -146,6 +204,46 @@ Structure:
   - `enabled`: Whether the skill is enabled (boolean, default: true if not specified)
 
 Both MCP servers and skills can be modified at runtime via API endpoints.
+
+## Development Workflow
+
+### Running the Full Application
+
+From the **project root** directory:
+```bash
+make dev
+```
+
+This starts all services and makes the application available at `http://localhost:2026`.
+
+**Nginx routing**:
+- `/api/langgraph/*` → LangGraph Server (2024) - Agent interactions, threads, streaming
+- `/api/*` (other) → Gateway API (8001) - Models, MCP, skills, artifacts
+- `/` (non-API) → Frontend (3000) - Web interface
+
+### Running Backend Services Separately
+
+For backend-only development, from the **backend** directory:
+
+```bash
+# Terminal 1: LangGraph server
+make dev
+
+# Terminal 2: Gateway API
+make gateway
+```
+
+Direct access (without nginx):
+- LangGraph: `http://localhost:2024`
+- Gateway: `http://localhost:8001`
+
+### Frontend Configuration
+
+The frontend uses environment variables to connect to backend services:
+- `NEXT_PUBLIC_LANGGRAPH_BASE_URL` - Defaults to `/api/langgraph` (through nginx)
+- `NEXT_PUBLIC_BACKEND_BASE_URL` - Defaults to empty string (through nginx)
+
+When using `make dev` from root, the frontend automatically connects through nginx.
 
 ## Code Style
 
