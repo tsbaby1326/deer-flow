@@ -4,7 +4,7 @@ export const DEFAULT_LOCAL_SETTINGS: LocalSettings = {
   context: {
     model_name: "deepseek-v3.2",
     thinking_enabled: true,
-    is_plan_mode: true,
+    is_plan_mode: false,
   },
   layout: {
     sidebar_collapsed: false,
