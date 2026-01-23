@@ -72,7 +72,7 @@ class AppConfig(BaseModel):
         resolved_path = cls.resolve_config_path(config_path)
         with open(resolved_path) as f:
             config_data = yaml.safe_load(f)
-        cls.resolve_env_variables(config_data)
+        config_data = cls.resolve_env_variables(config_data)
 
         # Load title config if present
         if "title" in config_data:
