@@ -1,0 +1,28 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+
+import ProgressiveSkillsAnimation from "../components/progressive-skills-animation";
+import { Section } from "../section";
+
+export function SkillsSection({ className }: { className?: string }) {
+  return (
+    <Section
+      className={cn("h-[calc(100vh-64px)] w-full bg-white/7", className)}
+      title="Skill-based Architecture"
+      subtitle={
+        <div>
+          Skills are loaded progressively — only what&apos;s needed, when
+          it&apos;s needed.
+          <br />
+          Extend DeerFlow with your own skill files, or use our built-in
+          library.
+        </div>
+      }
+    >
+      <div className="relative overflow-hidden">
+        <ProgressiveSkillsAnimation />
+      </div>
+    </Section>
+  );
+}

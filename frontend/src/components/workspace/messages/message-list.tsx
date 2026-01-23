@@ -49,10 +49,11 @@ export function MessageList({
             );
           }
           if (group.type === "assistant:present-files") {
-            const files = [];
+            const files: string[] = [];
             for (const message of group.messages) {
               if (hasPresentFiles(message)) {
-                files.push(...extractPresentFilesFromMessage(message));
+                const presentFiles = extractPresentFilesFromMessage(message);
+                files.push(...presentFiles);
               }
             }
             return (

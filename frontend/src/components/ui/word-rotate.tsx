@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, MotionProps } from "motion/react";
+import { AnimatePresence, motion, type MotionProps } from "motion/react";
 
 import { cn } from "@/lib/utils";
 import { AuroraText } from "./aurora-text";
@@ -15,12 +15,12 @@ interface WordRotateProps {
 
 export function WordRotate({
   words,
-  duration = 2500,
+  duration = 2200,
   motionProps = {
     initial: { opacity: 0, y: -50, filter: "blur(16px)" },
     animate: { opacity: 1, y: 0, filter: "blur(0px)" },
     exit: { opacity: 0, y: 50, filter: "blur(16px)" },
-    transition: { duration: 0.25, ease: "easeOut" },
+    transition: { duration: 0.3, ease: "easeOut" },
   },
   className,
 }: WordRotateProps) {
@@ -37,7 +37,7 @@ export function WordRotate({
 
   return (
     <div className="overflow-hidden py-2">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.h1
           key={words[index]}
           className={cn(className)}
