@@ -19,3 +19,4 @@ class ThreadState(AgentState):
     title: NotRequired[str | None]
     artifacts: NotRequired[list[str] | None]
     todos: NotRequired[list | None]
+    uploaded_files: NotRequired[list[dict] | None]

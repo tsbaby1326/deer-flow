@@ -7,6 +7,7 @@ import { useCallback } from "react";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 
 import { getAPIClient } from "../api";
+import { uploadFiles } from "../uploads";
 
 import type {
   AgentThread,
@@ -72,6 +73,44 @@ export function useSubmitThread({
   const callback = useCallback(
     async (message: PromptInputMessage) => {
       const text = message.text.trim();
+
+      // Upload files first if any
+      if (message.files && message.files.length > 0) {
+        try {
+          // Convert FileUIPart to File objects by fetching blob URLs
+          const filePromises = message.files.map(async (fileUIPart) => {
+            if (fileUIPart.url && fileUIPart.filename) {
+              try {
+                // Fetch the blob URL to get the file data
+                const response = await fetch(fileUIPart.url);
+                const blob = await response.blob();
+
+                // Create a File object from the blob
+                return new File([blob], fileUIPart.filename, {
+                  type: fileUIPart.mediaType || blob.type,
+                });
+              } catch (error) {
+                console.error(`Failed to fetch file ${fileUIPart.filename}:`, error);
+                return null;
+              }
+            }
+            return null;
+          });
+
+          const files = (await Promise.all(filePromises)).filter(
+            (file): file is File => file !== null,
+          );
+
+          if (files.length > 0 && threadId) {
+            await uploadFiles(threadId, files);
+          }
+        } catch (error) {
+          console.error("Failed to upload files:", error);
+          // Continue with message submission even if upload fails
+          // You might want to show an error toast here
+        }
+      }
+
       await thread.submit(
         {
           messages: [

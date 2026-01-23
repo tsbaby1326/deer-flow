@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.gateway.config import get_gateway_config
-from src.gateway.routers import artifacts, mcp, models, skills
+from src.gateway.routers import artifacts, mcp, models, skills, uploads
 
 # Configure logging
 logging.basicConfig(
@@ -85,6 +85,10 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
                 "description": "Access and download thread artifacts and generated files",
             },
             {
+                "name": "uploads",
+                "description": "Upload and manage user files for threads",
+            },
+            {
                 "name": "health",
                 "description": "Health check and system status endpoints",
             },
@@ -105,6 +109,9 @@ This gateway provides custom endpoints for models, MCP configuration, skills, an
 
     # Artifacts API is mounted at /api/threads/{thread_id}/artifacts
     app.include_router(artifacts.router)
+
+    # Uploads API is mounted at /api/threads/{thread_id}/uploads
+    app.include_router(uploads.router)
 
     @app.get("/health", tags=["health"])
     async def health_check() -> dict:

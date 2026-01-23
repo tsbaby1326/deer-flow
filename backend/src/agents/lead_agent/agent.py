@@ -6,6 +6,7 @@ from src.agents.lead_agent.prompt import apply_prompt_template
 from src.agents.middlewares.clarification_middleware import ClarificationMiddleware
 from src.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
 from src.agents.middlewares.title_middleware import TitleMiddleware
+from src.agents.middlewares.uploads_middleware import UploadsMiddleware
 from src.agents.thread_state import ThreadState
 from src.config.summarization_config import get_summarization_config
 from src.models import create_chat_model
@@ -170,6 +171,7 @@ Being proactive with task management demonstrates thoroughness and ensures all r
 
 
 # ThreadDataMiddleware must be before SandboxMiddleware to ensure thread_id is available
+# UploadsMiddleware should be after ThreadDataMiddleware to access thread_id
 # SummarizationMiddleware should be early to reduce context before other processing
 # TodoListMiddleware should be before ClarificationMiddleware to allow todo management
 # ClarificationMiddleware should be last to intercept clarification requests after model calls
@@ -182,7 +184,7 @@ def _build_middlewares(config: RunnableConfig):
     Returns:
         List of middleware instances.
     """
-    middlewares = [ThreadDataMiddleware(), SandboxMiddleware()]
+    middlewares = [ThreadDataMiddleware(), UploadsMiddleware(), SandboxMiddleware()]
 
     # Add summarization middleware if enabled
     summarization_middleware = _create_summarization_middleware()

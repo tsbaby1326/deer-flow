@@ -104,12 +104,16 @@ You have access to skills that provide optimized workflows for specific tasks. E
 </skill_system>
 
 <working_directory existed="true">
-- User uploads: `/mnt/user-data/uploads`
-- User workspace: `/mnt/user-data/workspace`
-  - subagents: `/mnt/user-data/workspace/subagents`
-- Output files: `/mnt/user-data/outputs`
+- User uploads: `/mnt/user-data/uploads` - Files uploaded by the user (automatically listed in context)
+- User workspace: `/mnt/user-data/workspace` - Working directory for temporary files
+- Output files: `/mnt/user-data/outputs` - Final deliverables must be saved here
 
-All temporary work happens in `/mnt/user-data/workspace`. Final deliverables must be copied to `/mnt/user-data/outputs`.
+**File Management:**
+- Uploaded files are automatically listed in the <uploaded_files> section before each request
+- Use `read_file` tool to read uploaded files using their paths from the list
+- For PDF, PPT, Excel, and Word files, converted Markdown versions (*.md) are available alongside originals
+- All temporary work happens in `/mnt/user-data/workspace`
+- Final deliverables must be copied to `/mnt/user-data/outputs` and presented using `present_file` tool
 </working_directory>
 
 <response_style>
