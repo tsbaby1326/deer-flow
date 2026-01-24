@@ -1,10 +1,11 @@
+import argparse
 import base64
 import os
 
 import requests
 
 
-def generate_image(prompt: str) -> str:
+def generate_image(prompt: str, output_path: str) -> str:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         return "GEMINI_API_KEY is not set"
@@ -24,22 +25,25 @@ def generate_image(prompt: str) -> str:
     if len(image_parts) == 1:
         base64_image = image_parts[0]["inlineData"]["data"]
         # Save the image to a file
-        with open("/mnt/user-data/outputs/doraemon.png", "wb") as f:
+        with open(output_path, "wb") as f:
             f.write(base64.b64decode(base64_image))
-        return "Successfully generated image to /mnt/user-data/outputs/doraemon.png"
+        return f"Successfully generated image to {output_path}"
     else:
         return "Failed to generate image"
 
 
-def main():
+def main(input_path: str, output_path: str):
     with open(
-        "/mnt/user-data/outputs/prompt.json",
+        input_path,
         "r",
     ) as f:
         raw = f.read()
-        print(generate_image(raw))
+        print(generate_image(raw, output_path))
 
 
 if __name__ == "__main__":
-    main()
-    main()
+    parser = argparse.ArgumentParser(description="Generate Doraemon comic image")
+    parser.add_argument("--input_path", required=True, help="Path to the input prompt JSON file")
+    parser.add_argument("--output_path", required=True, help="Path to save the output image")
+    args = parser.parse_args()
+    main(args.input_path, args.output_path)

@@ -12,7 +12,7 @@ Generate JSON spec for 8 panels arranged on ONE 9:16 vertical canvas (1080x1920)
 1. Extract story context (theme, gadget, conflict, punchline)
 2. Map to 8 narrative beats
 3. Output JSON to `/mnt/user-data/outputs/prompt.json`
-4. Run `python /mnt/skills/custom/doraemon-comic-aigc/scripts/generate.py`
+4. Run `python /mnt/skills/custom/doraemon-comic-aigc/scripts/generate.py --input_path /mnt/user-data/outputs/prompt.json --output_path /mnt/user-data/outputs/doraemon.png `
 5. Directly present the output image as well as the `prompt.json` using the `present_files` tool without checking the file existence
 
 ## Panel Layout
