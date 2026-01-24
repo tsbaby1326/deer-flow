@@ -74,14 +74,24 @@ export default function ChatPage() {
     return result;
   }, [thread, isNewThread]);
 
+  const [autoSelectFirstArtifact, setAutoSelectFirstArtifact] = useState(true);
   useEffect(() => {
     setArtifacts(thread.values.artifacts);
-    if (env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true") {
+    if (
+      env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true" &&
+      autoSelectFirstArtifact
+    ) {
       if (thread?.values?.artifacts?.length > 0) {
+        setAutoSelectFirstArtifact(false);
         selectArtifact(thread.values.artifacts[0]!);
       }
     }
-  }, [selectArtifact, setArtifacts, thread.values.artifacts]);
+  }, [
+    autoSelectFirstArtifact,
+    selectArtifact,
+    setArtifacts,
+    thread.values.artifacts,
+  ]);
 
   const [todoListCollapsed, setTodoListCollapsed] = useState(
     env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY !== "true",
