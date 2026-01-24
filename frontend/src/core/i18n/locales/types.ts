@@ -20,6 +20,8 @@ export interface Translations {
     custom: string;
     notAvailableInDemoMode: string;
     loading: string;
+    code: string;
+    preview: string;
   };
 
   // Welcome

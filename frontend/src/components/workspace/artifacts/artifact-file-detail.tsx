@@ -1,6 +1,8 @@
 import {
+  Code2Icon,
   CopyIcon,
   DownloadIcon,
+  EyeIcon,
   SquareArrowOutUpRightIcon,
   XIcon,
 } from "lucide-react";
@@ -30,6 +32,8 @@ import { urlOfArtifact } from "@/core/artifacts/utils";
 import { useI18n } from "@/core/i18n/hooks";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
+
+import { Tooltip } from "../tooltip";
 
 import { useArtifacts } from "./context";
 
@@ -115,8 +119,16 @@ export function ArtifactFileDetail({
                 setViewMode(value as "code" | "preview")
               }
             >
-              <ToggleGroupItem value="code">Code</ToggleGroupItem>
-              <ToggleGroupItem value="preview">Preview</ToggleGroupItem>
+              <Tooltip content={t.common.code}>
+                <ToggleGroupItem value="code">
+                  <Code2Icon />
+                </ToggleGroupItem>
+              </Tooltip>
+              <Tooltip content={t.common.preview}>
+                <ToggleGroupItem value="preview">
+                  <EyeIcon />
+                </ToggleGroupItem>
+              </Tooltip>
             </ToggleGroup>
           )}
         </div>

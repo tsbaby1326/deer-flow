@@ -22,6 +22,8 @@ export const enUS: Translations = {
     custom: "Custom",
     notAvailableInDemoMode: "Not available in demo mode",
     loading: "Loading...",
+    code: "Code",
+    preview: "Preview",
   },
 
   // Welcome

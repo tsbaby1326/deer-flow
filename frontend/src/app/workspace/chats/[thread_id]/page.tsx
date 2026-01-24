@@ -43,6 +43,7 @@ export default function ChatPage() {
     open: artifactsOpen,
     setOpen: setArtifactsOpen,
     setArtifacts,
+    select: selectArtifact,
     selectedArtifact,
   } = useArtifacts();
   const { thread_id: threadIdFromPath } = useParams<{ thread_id: string }>();
@@ -75,9 +76,16 @@ export default function ChatPage() {
 
   useEffect(() => {
     setArtifacts(thread.values.artifacts);
-  }, [setArtifacts, thread.values.artifacts]);
+    if (env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true") {
+      if (thread?.values?.artifacts?.length > 0) {
+        selectArtifact(thread.values.artifacts[0]!);
+      }
+    }
+  }, [selectArtifact, setArtifacts, thread.values.artifacts]);
 
-  const [todoListCollapsed, setTodoListCollapsed] = useState(true);
+  const [todoListCollapsed, setTodoListCollapsed] = useState(
+    env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY !== "true",
+  );
 
   const handleSubmit = useSubmitThread({
     isNewThread,
