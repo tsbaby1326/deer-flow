@@ -2,13 +2,13 @@
 
 import { cn } from "@/lib/utils";
 
-import ProgressiveSkillsAnimation from "../components/progressive-skills-animation";
+import ProgressiveSkillsAnimation from "../progressive-skills-animation";
 import { Section } from "../section";
 
 export function SkillsSection({ className }: { className?: string }) {
   return (
     <Section
-      className={cn("h-[calc(100vh-64px)] w-full bg-white/7", className)}
+      className={cn("h-[calc(100vh-64px)] w-full bg-white/2", className)}
       title="Skill-based Architecture"
       subtitle={
         <div>

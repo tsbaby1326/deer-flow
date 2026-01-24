@@ -20,6 +20,7 @@ export const zhCN: Translations = {
     artifacts: "文件",
     public: "公共",
     custom: "自定义",
+    notAvailableInDemoMode: "在演示模式下不可用",
   },
 
   // Welcome
@@ -54,7 +55,8 @@ export const zhCN: Translations = {
   sidebar: {
     newChat: "新对话",
     chats: "对话",
-    recentChats: "最近的聊天",
+    recentChats: "最近的对话",
+    demoChats: "演示对话",
   },
 
   // Breadcrumb

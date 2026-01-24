@@ -30,6 +30,7 @@ import { type AgentThread } from "@/core/threads";
 import { useSubmitThread, useThreadStream } from "@/core/threads/hooks";
 import { pathOfThread, titleOfThread } from "@/core/threads/utils";
 import { uuid } from "@/core/utils/uuid";
+import { env } from "@/env";
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
@@ -176,12 +177,18 @@ export default function ChatPage() {
                     status={thread.isLoading ? "streaming" : "ready"}
                     context={settings.context}
                     extraHeader={isNewThread && <Welcome />}
+                    disabled={env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true"}
                     onContextChange={(context) =>
                       setSettings("context", context)
                     }
                     onSubmit={handleSubmit}
                     onStop={handleStop}
                   />
+                  {env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true" && (
+                    <div className="text-muted-foreground/67 w-full -translate-y-2 text-center text-xs">
+                      {t.common.notAvailableInDemoMode}
+                    </div>
+                  )}
                 </div>
               </div>
             </main>

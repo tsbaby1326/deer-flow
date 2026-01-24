@@ -22,6 +22,7 @@ import { Switch } from "@/components/ui/switch";
 import { useI18n } from "@/core/i18n/hooks";
 import { useEnableSkill, useSkills } from "@/core/skills/hooks";
 import type { Skill } from "@/core/skills/type";
+import { env } from "@/env";
 
 import { SettingsSection } from "./settings-section";
 
@@ -116,6 +117,7 @@ function SkillSettingsList({ skills }: { skills: Skill[] }) {
             <ItemActions>
               <Switch
                 checked={skill.enabled}
+                disabled={env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true"}
                 onCheckedChange={(checked) =>
                   enableSkill({ skillName: skill.name, enabled: checked })
                 }

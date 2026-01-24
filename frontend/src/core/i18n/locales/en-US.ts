@@ -20,6 +20,7 @@ export const enUS: Translations = {
     artifacts: "Artifacts",
     public: "Public",
     custom: "Custom",
+    notAvailableInDemoMode: "Not available in demo mode",
   },
 
   // Welcome
@@ -57,6 +58,7 @@ export const enUS: Translations = {
     newChat: "New chat",
     chats: "Chats",
     recentChats: "Recent chats",
+    demoChats: "Demo chats",
   },
 
   // Breadcrumb

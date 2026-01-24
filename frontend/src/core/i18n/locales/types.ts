@@ -18,6 +18,7 @@ export interface Translations {
     artifacts: string;
     public: string;
     custom: string;
+    notAvailableInDemoMode: string;
   };
 
   // Welcome
@@ -52,6 +53,7 @@ export interface Translations {
     recentChats: string;
     newChat: string;
     chats: string;
+    demoChats: string;
   };
 
   // Breadcrumb
