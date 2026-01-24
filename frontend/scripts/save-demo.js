@@ -43,13 +43,18 @@ export async function main() {
     "../backend/.deer-flow/threads",
     threadId,
   );
-  const outputsPath = path.resolve(backendRootPath, "user-data/outputs");
+  copyFolder("user-data/outputs", rootPath, backendRootPath);
+  copyFolder("user-data/uploads", rootPath, backendRootPath);
+  console.info(`Saved demo "${title}" to ${rootPath}`);
+}
+
+function copyFolder(relPath, rootPath, backendRootPath) {
+  const outputsPath = path.resolve(backendRootPath, relPath);
   if (fs.existsSync(outputsPath)) {
-    fs.cpSync(outputsPath, path.resolve(rootPath, "user-data/outputs"), {
+    fs.cpSync(outputsPath, path.resolve(rootPath, relPath), {
       recursive: true,
     });
   }
-  console.info(`Saved demo "${title}" to ${rootPath}`);
 }
 
 config();
