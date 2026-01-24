@@ -67,7 +67,8 @@ export const zhCN: Translations = {
 
   // Workspace
   workspace: {
-    githubTooltip: "DeerFlow 在 Github",
+    officialWebsite: "访问 DeerFlow 官方网站",
+    githubTooltip: "访问 DeerFlow 的 Github 仓库",
     settingsAndMore: "设置和更多",
     visitGithub: "在 Github 上查看 DeerFlow",
     reportIssue: "报告问题",

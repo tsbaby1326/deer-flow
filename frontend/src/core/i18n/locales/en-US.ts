@@ -69,6 +69,7 @@ export const enUS: Translations = {
 
   // Workspace
   workspace: {
+    officialWebsite: "DeerFlow's official website",
     githubTooltip: "DeerFlow on Github",
     settingsAndMore: "Settings and more",
     visitGithub: "Visit DeerFlow on GitHub",
