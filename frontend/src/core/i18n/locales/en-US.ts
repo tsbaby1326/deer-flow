@@ -21,6 +21,7 @@ export const enUS: Translations = {
     public: "Public",
     custom: "Custom",
     notAvailableInDemoMode: "Not available in demo mode",
+    loading: "Loading...",
   },
 
   // Welcome

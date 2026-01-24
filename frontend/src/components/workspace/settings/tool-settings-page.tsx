@@ -24,7 +24,7 @@ export function ToolSettingsPage() {
       description={t.settings.tools.description}
     >
       {isLoading ? (
-        <div>Loading...</div>
+        <div className="text-muted-foreground text-sm">{t.common.loading}</div>
       ) : error ? (
         <div>Error: {error.message}</div>
       ) : (

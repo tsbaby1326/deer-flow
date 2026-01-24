@@ -35,7 +35,7 @@ export function SkillSettingsPage() {
       description={t.settings.skills.description}
     >
       {isLoading ? (
-        <div>Loading...</div>
+        <div className="text-muted-foreground text-sm">{t.common.loading}</div>
       ) : error ? (
         <div>Error: {error.message}</div>
       ) : (

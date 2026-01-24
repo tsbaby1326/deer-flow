@@ -21,6 +21,7 @@ export const zhCN: Translations = {
     public: "公共",
     custom: "自定义",
     notAvailableInDemoMode: "在演示模式下不可用",
+    loading: "加载中...",
   },
 
   // Welcome

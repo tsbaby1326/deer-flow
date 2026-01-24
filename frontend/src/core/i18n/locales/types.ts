@@ -19,6 +19,7 @@ export interface Translations {
     public: string;
     custom: string;
     notAvailableInDemoMode: string;
+    loading: string;
   };
 
   // Welcome
