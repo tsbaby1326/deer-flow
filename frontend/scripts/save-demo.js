@@ -4,11 +4,14 @@ import path from "path";
 import { env } from "process";
 
 export async function main() {
-  const threadId = process.argv[2];
-  const url = new URL(
-    `http://localhost:2026/api/langgraph/threads/${threadId}/history`,
+  const url = new URL(process.argv[2]);
+  const threadId = url.pathname.split("/").pop();
+  const host = url.host;
+  const apiURL = new URL(
+    `/api/langgraph/threads/${threadId}/history`,
+    `${url.protocol}//${host}`,
   );
-  const response = await fetch(url, {
+  const response = await fetch(apiURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
