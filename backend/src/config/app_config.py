@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Self
+from typing import Any, Self
 
 import yaml
 from dotenv import load_dotenv
@@ -72,7 +72,7 @@ class AppConfig(BaseModel):
         resolved_path = cls.resolve_config_path(config_path)
         with open(resolved_path) as f:
             config_data = yaml.safe_load(f)
-        cls.resolve_env_variables(config_data)
+        config_data = cls.resolve_env_variables(config_data)
 
         # Load title config if present
         if "title" in config_data:
@@ -90,7 +90,7 @@ class AppConfig(BaseModel):
         return result
 
     @classmethod
-    def resolve_env_variables(cls, config: dict) -> dict:
+    def resolve_env_variables(cls, config: Any) -> Any:
         """Recursively resolve environment variables in the config.
 
         Environment variables are resolved using the `os.getenv` function. Example: $OPENAI_API_KEY
@@ -101,18 +101,14 @@ class AppConfig(BaseModel):
         Returns:
             The config with environment variables resolved.
         """
-        for key, value in config.items():
-            if isinstance(value, str):
-                if value.startswith("$"):
-                    env_value = os.getenv(value[1:], None)
-                    if env_value is not None:
-                        config[key] = env_value
-                else:
-                    config[key] = value
-            elif isinstance(value, dict):
-                config[key] = cls.resolve_env_variables(value)
-            elif isinstance(value, list):
-                config[key] = [cls.resolve_env_variables(item) for item in value]
+        if isinstance(config, str):
+            if config.startswith("$"):
+                return os.getenv(config[1:], config)
+            return config
+        elif isinstance(config, dict):
+            return {k: cls.resolve_env_variables(v) for k, v in config.items()}
+        elif isinstance(config, list):
+            return [cls.resolve_env_variables(item) for item in config]
         return config
 
     def get_model_config(self, name: str) -> ModelConfig | None:

@@ -27,7 +27,7 @@ class Sandbox(ABC):
 
     @abstractmethod
     def read_file(self, path: str) -> str:
-        """Read tge content of a file.
+        """Read the content of a file.
 
         Args:
             path: The absolute path of the file to read.
