@@ -73,7 +73,7 @@ export const enUS: Translations = {
     officialWebsite: "DeerFlow's official website",
     githubTooltip: "DeerFlow on Github",
     settingsAndMore: "Settings and more",
-    visitGithub: "Visit DeerFlow on GitHub",
+    visitGithub: "DeerFlow on GitHub",
     reportIssue: "Report a issue",
     contactUs: "Contact us",
     about: "About DeerFlow",
