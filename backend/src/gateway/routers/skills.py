@@ -207,10 +207,10 @@ async def update_skill(skill_name: str, request: SkillUpdateRequest) -> SkillRes
 
         logger.info(f"Skills configuration updated and saved to: {config_path}")
 
-        # Reload the configuration to update the cache
+        # Reload the extensions config to update the global cache
         reload_extensions_config()
 
-        # Reload the skills to get the updated status
+        # Reload the skills to get the updated status (for API response)
         skills = load_skills(enabled_only=False)
         updated_skill = next((s for s in skills if s.name == skill_name), None)
 

@@ -31,14 +31,21 @@ def get_available_tools(groups: list[str] | None = None, include_mcp: bool = Tru
     loaded_tools = [resolve_variable(tool.use, BaseTool) for tool in config.tools if groups is None or tool.group in groups]
 
     # Get cached MCP tools if enabled
+    # NOTE: We use ExtensionsConfig.from_file() instead of config.extensions
+    # to always read the latest configuration from disk. This ensures that changes
+    # made through the Gateway API (which runs in a separate process) are immediately
+    # reflected when loading MCP tools.
     mcp_tools = []
-    if include_mcp and config.extensions and config.extensions.get_enabled_mcp_servers():
+    if include_mcp:
         try:
+            from src.config.extensions_config import ExtensionsConfig
             from src.mcp.cache import get_cached_mcp_tools
 
-            mcp_tools = get_cached_mcp_tools()
-            if mcp_tools:
-                logger.info(f"Using {len(mcp_tools)} cached MCP tool(s)")
+            extensions_config = ExtensionsConfig.from_file()
+            if extensions_config.get_enabled_mcp_servers():
+                mcp_tools = get_cached_mcp_tools()
+                if mcp_tools:
+                    logger.info(f"Using {len(mcp_tools)} cached MCP tool(s)")
         except ImportError:
             logger.warning("MCP module not available. Install 'langchain-mcp-adapters' package to enable MCP tools.")
         except Exception as e:
