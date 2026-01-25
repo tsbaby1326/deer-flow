@@ -93,6 +93,13 @@ export default function ChatPage() {
     thread.values.artifacts,
   ]);
 
+  const artifactPanelOpen = useMemo(() => {
+    if (env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true") {
+      return artifactsOpen && artifacts?.length > 0;
+    }
+    return artifactsOpen;
+  }, [artifactsOpen, artifacts]);
+
   const [todoListCollapsed, setTodoListCollapsed] = useState(
     env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY !== "true",
   );
@@ -119,8 +126,8 @@ export default function ChatPage() {
       <ResizablePanelGroup orientation="horizontal">
         <ResizablePanel
           className="relative"
-          defaultSize={artifactsOpen && artifacts?.length > 0 ? 46 : 100}
-          minSize={artifactsOpen && artifacts?.length > 0 ? 30 : 100}
+          defaultSize={artifactPanelOpen ? 46 : 100}
+          minSize={artifactPanelOpen ? 30 : 100}
         >
           <div className="relative flex size-full min-h-0 justify-between">
             <header
@@ -215,9 +222,7 @@ export default function ChatPage() {
         <ResizableHandle
           className={cn(
             "opacity-33 hover:opacity-100",
-            !artifactsOpen &&
-              artifacts?.length > 0 &&
-              "pointer-events-none opacity-0",
+            !artifactPanelOpen && "pointer-events-none opacity-0",
           )}
         />
         <ResizablePanel
@@ -225,16 +230,14 @@ export default function ChatPage() {
             "transition-all duration-300 ease-in-out",
             !artifactsOpen && "opacity-0",
           )}
-          defaultSize={artifactsOpen && artifacts?.length > 0 ? 64 : 0}
+          defaultSize={artifactPanelOpen ? 64 : 0}
           minSize={0}
-          maxSize={artifactsOpen && artifacts?.length > 0 ? undefined : 0}
+          maxSize={artifactPanelOpen ? undefined : 0}
         >
           <div
             className={cn(
               "h-full p-4 transition-transform duration-300 ease-in-out",
-              artifactsOpen && artifacts?.length > 0
-                ? "translate-x-0"
-                : "translate-x-full",
+              artifactPanelOpen ? "translate-x-0" : "translate-x-full",
             )}
           >
             {selectedArtifact ? (
