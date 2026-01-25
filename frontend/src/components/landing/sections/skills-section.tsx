@@ -9,10 +9,10 @@ export function SkillsSection({ className }: { className?: string }) {
   return (
     <Section
       className={cn("h-[calc(100vh-64px)] w-full bg-white/2", className)}
-      title="Skill-based Architecture"
+      title="Agent Skills"
       subtitle={
         <div>
-          Skills are loaded progressively — only what&apos;s needed, when
+          Agent Skills are loaded progressively — only what&apos;s needed, when
           it&apos;s needed.
           <br />
           Extend DeerFlow with your own skill files, or use our built-in

@@ -137,8 +137,9 @@ export const enUS: Translations = {
       description: "Manage the configuration and enabled status of MCP tools.",
     },
     skills: {
-      title: "Skills",
-      description: "Manage the configuration and enabled status of the skills.",
+      title: "Agent Skills",
+      description:
+        "Manage the configuration and enabled status of the agent skills.",
     },
     acknowledge: {
       emptyTitle: "Acknowledgements",

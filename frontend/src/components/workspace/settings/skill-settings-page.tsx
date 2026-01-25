@@ -60,10 +60,10 @@ function SkillSettingsList({ skills }: { skills: Skill[] }) {
           <EmptyMedia variant="icon">
             <SparklesIcon />
           </EmptyMedia>
-          <EmptyTitle>No skill yet</EmptyTitle>
+          <EmptyTitle>No agent skill yet</EmptyTitle>
           <EmptyDescription>
-            Put your skill folders under the `/skills/custom` folder under the
-            root folder of DeerFlow.
+            Put your agent skill folders under the `/skills/custom` folder under
+            the root folder of DeerFlow.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
