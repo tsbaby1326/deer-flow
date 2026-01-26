@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Literal, Optional
 
 import requests
@@ -98,25 +99,46 @@ def text_to_speech(text: str, voice_type: str) -> Optional[bytes]:
     return None
 
 
-def tts_node(script: Script) -> list[bytes]:
-    """Convert script lines to audio chunks using TTS."""
-    logger.info("Converting script to audio...")
+def _process_line(args: tuple[int, ScriptLine, int]) -> tuple[int, Optional[bytes]]:
+    """Process a single script line for TTS. Returns (index, audio_bytes)."""
+    i, line, total = args
+
+    # Select voice based on speaker gender
+    if line.speaker == "male":
+        voice_type = "zh_male_yangguangqingnian_moon_bigtts"  # Male voice
+    else:
+        voice_type = "zh_female_sajiaonvyou_moon_bigtts"  # Female voice
+
+    logger.info(f"Processing line {i + 1}/{total} ({line.speaker})")
+    audio = text_to_speech(line.paragraph, voice_type)
+
+    if not audio:
+        logger.warning(f"Failed to generate audio for line {i + 1}")
+
+    return (i, audio)
+
+
+def tts_node(script: Script, max_workers: int = 4) -> list[bytes]:
+    """Convert script lines to audio chunks using TTS with multi-threading."""
+    logger.info(f"Converting script to audio using {max_workers} workers...")
+
+    total = len(script.lines)
+    tasks = [(i, line, total) for i, line in enumerate(script.lines)]
+
+    # Use ThreadPoolExecutor for parallel TTS generation
+    results: dict[int, Optional[bytes]] = {}
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(_process_line, task): task[0] for task in tasks}
+        for future in as_completed(futures):
+            idx, audio = future.result()
+            results[idx] = audio
+
+    # Collect results in order, skipping failed ones
     audio_chunks = []
-
-    for i, line in enumerate(script.lines):
-        # Select voice based on speaker gender
-        if line.speaker == "male":
-            voice_type = "zh_male_yangguangqingnian_moon_bigtts"  # Male voice
-        else:
-            voice_type = "zh_female_sajiaonvyou_moon_bigtts"  # Female voice
-
-        logger.info(f"Processing line {i + 1}/{len(script.lines)} ({line.speaker})")
-        audio = text_to_speech(line.paragraph, voice_type)
-
+    for i in range(total):
+        audio = results.get(i)
         if audio:
             audio_chunks.append(audio)
-        else:
-            logger.warning(f"Failed to generate audio for line {i + 1}")
 
     logger.info(f"Generated {len(audio_chunks)} audio chunks")
     return audio_chunks
