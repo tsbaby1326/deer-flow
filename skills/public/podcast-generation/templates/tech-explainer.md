@@ -49,9 +49,9 @@ This is commonly used in signup flows, admin dashboards, or when importing users
 
 ```bash
 python /mnt/skills/public/podcast-generation/scripts/generate.py \
-  --input-file /mnt/user-data/workspace/tech-content.md \
+  --script-file /mnt/user-data/workspace/tech-explainer-script.json \
   --output-file /mnt/user-data/outputs/tech-explainer-podcast.mp3 \
-  --locale en
+  --transcript-file /mnt/user-data/outputs/tech-explainer-transcript.md
 ```
 
 ## Tips for Technical Podcasts
