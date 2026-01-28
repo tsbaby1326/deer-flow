@@ -28,7 +28,7 @@ def present_file_tool(
 
     Notes:
     - You should call this tool after creating files and moving them to the `/mnt/user-data/outputs` directory.
-    - Use non-parallel tool calling to present files in a single step.
+    - IMPORTANT: Do NOT call this tool in parallel with other tools. Call it separately.
 
     Args:
         filepaths: List of absolute file paths to present to the user. **Only** files in `/mnt/user-data/outputs` can be presented.
