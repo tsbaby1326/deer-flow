@@ -6,7 +6,7 @@ from typing import NotRequired, override
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage
 from langgraph.runtime import Runtime
 
 from src.agents.middlewares.thread_data_middleware import THREAD_DATA_BASE_DIR
@@ -124,17 +124,19 @@ class UploadsMiddleware(AgentMiddleware[UploadsMiddlewareState]):
         # List uploaded files
         files = self._list_uploaded_files(thread_id)
 
+        if not files:
+            return None
+
         # Create system message with file list
         files_message = self._create_files_message(files)
-        system_message = SystemMessage(content=files_message)
+        files_human_message = HumanMessage(content=files_message)
 
         # Inject the message into the message history
-        # This will be added after the system prompt but before user messages
+        # This will be added before user messages
         messages = list(state.get("messages", []))
 
-        # Insert after the first system message (the main prompt)
-        insert_index = 1 if messages and hasattr(messages[0], "type") and messages[0].type == "system" else 0
-        messages.insert(insert_index, system_message)
+        insert_index = 0
+        messages.insert(insert_index, files_human_message)
 
         return {
             "uploaded_files": files,

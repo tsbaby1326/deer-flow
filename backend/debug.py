@@ -41,7 +41,7 @@ async def main():
             "thinking_enabled": True,
             "is_plan_mode": True,
             # Uncomment to use a specific model
-            "model_name": "deepseek-v3.2",
+            "model_name": "kimi-k2.5",
         }
     }
 
