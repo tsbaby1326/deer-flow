@@ -65,9 +65,10 @@ models:
   #   api_key: $MOONSHOT_API_KEY
   #   max_tokens: 32768
   #   supports_thinking: true
-  #   extra_body:
-  #     thinking:
-  #       type: enabled
+  #   when_thinking_enabled:
+  #     extra_body:
+  #       thinking:
+  #         type: enabled
 
 # ============================================================================
 # Tool Groups Configuration
