@@ -21,26 +21,29 @@ def web_search_tool(query: str) -> str:
     Args:
         query: The query to search for.
     """
-    config = get_app_config().get_tool_config("web_search")
-    max_results = 5
-    if config is not None:
-        max_results = config.model_extra.get("max_results", max_results)
+    try:
+        config = get_app_config().get_tool_config("web_search")
+        max_results = 5
+        if config is not None:
+            max_results = config.model_extra.get("max_results", max_results)
 
-    client = _get_firecrawl_client()
-    result = client.search(query, limit=max_results)
+        client = _get_firecrawl_client()
+        result = client.search(query, limit=max_results)
 
-    # result.web contains list of SearchResultWeb objects
-    web_results = result.web or []
-    normalized_results = [
-        {
-            "title": getattr(item, "title", "") or "",
-            "url": getattr(item, "url", "") or "",
-            "snippet": getattr(item, "description", "") or "",
-        }
-        for item in web_results
-    ]
-    json_results = json.dumps(normalized_results, indent=2, ensure_ascii=False)
-    return json_results
+        # result.web contains list of SearchResultWeb objects
+        web_results = result.web or []
+        normalized_results = [
+            {
+                "title": getattr(item, "title", "") or "",
+                "url": getattr(item, "url", "") or "",
+                "snippet": getattr(item, "description", "") or "",
+            }
+            for item in web_results
+        ]
+        json_results = json.dumps(normalized_results, indent=2, ensure_ascii=False)
+        return json_results
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 
 @tool("web_fetch", parse_docstring=True)
@@ -54,14 +57,17 @@ def web_fetch_tool(url: str) -> str:
     Args:
         url: The URL to fetch the contents of.
     """
-    client = _get_firecrawl_client()
-    result = client.scrape(url, formats=["markdown"])
+    try:
+        client = _get_firecrawl_client()
+        result = client.scrape(url, formats=["markdown"])
 
-    markdown_content = result.markdown or ""
-    metadata = result.metadata
-    title = metadata.title if metadata and metadata.title else "Untitled"
+        markdown_content = result.markdown or ""
+        metadata = result.metadata
+        title = metadata.title if metadata and metadata.title else "Untitled"
 
-    if not markdown_content:
-        return "Error: No content found"
+        if not markdown_content:
+            return "Error: No content found"
+    except Exception as e:
+        return f"Error: {str(e)}"
 
     return f"# {title}\n\n{markdown_content}"
