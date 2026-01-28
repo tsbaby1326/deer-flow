@@ -186,3 +186,43 @@ export function useDeleteThread() {
     },
   });
 }
+
+export function useRenameThread() {
+  const queryClient = useQueryClient();
+  const apiClient = getAPIClient();
+  return useMutation({
+    mutationFn: async ({
+      threadId,
+      title,
+    }: {
+      threadId: string;
+      title: string;
+    }) => {
+      await apiClient.threads.update(threadId, {
+        metadata: { title },
+      });
+    },
+    onSuccess(_, { threadId, title }) {
+      queryClient.setQueriesData(
+        {
+          queryKey: ["threads", "search"],
+          exact: false,
+        },
+        (oldData: Array<AgentThread>) => {
+          return oldData.map((t) => {
+            if (t.thread_id === threadId) {
+              return {
+                ...t,
+                metadata: {
+                  ...t.metadata,
+                  title,
+                },
+              };
+            }
+            return t;
+          });
+        },
+      );
+    },
+  });
+}

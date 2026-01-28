@@ -2,6 +2,7 @@ import {
   Code2Icon,
   CopyIcon,
   DownloadIcon,
+  ExternalLinkIcon,
   EyeIcon,
   SquareArrowOutUpRightIcon,
   XIcon,
@@ -18,6 +19,13 @@ import {
   ArtifactHeader,
   ArtifactTitle,
 } from "@/components/ai-elements/artifact";
+import {
+  InlineCitationCard,
+  InlineCitationCardBody,
+  InlineCitationSource,
+} from "@/components/ai-elements/inline-citation";
+import { Badge } from "@/components/ui/badge";
+import { HoverCardTrigger } from "@/components/ui/hover-card";
 import { Select, SelectItem } from "@/components/ui/select";
 import {
   SelectContent,
@@ -29,6 +37,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CodeEditor } from "@/components/workspace/code-editor";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
+import { extractDomainFromUrl } from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
@@ -216,7 +225,38 @@ export function ArtifactFilePreview({
   if (language === "markdown") {
     return (
       <div className="size-full px-4">
-        <Streamdown className="size-full">{content ?? ""}</Streamdown>
+        <Streamdown
+          className="size-full"
+          components={{
+            a: ({
+              href,
+              children,
+            }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+              if (!href) {
+                return <span>{children}</span>;
+              }
+
+              // Check if it's an external link (http/https)
+              const isExternalLink =
+                href.startsWith("http://") || href.startsWith("https://");
+
+              if (isExternalLink) {
+                return (
+                  <ExternalLinkBadge href={href}>{children}</ExternalLinkBadge>
+                );
+              }
+
+              // Internal/anchor link
+              return (
+                <a href={href} className="text-primary hover:underline">
+                  {children}
+                </a>
+              );
+            },
+          }}
+        >
+          {content ?? ""}
+        </Streamdown>
       </div>
     );
   }
@@ -229,4 +269,52 @@ export function ArtifactFilePreview({
     );
   }
   return null;
+}
+
+/**
+ * External link badge component for artifact preview
+ */
+function ExternalLinkBadge({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  const domain = extractDomainFromUrl(href);
+
+  return (
+    <InlineCitationCard>
+      <HoverCardTrigger asChild>
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center"
+        >
+          <Badge
+            variant="secondary"
+            className="mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal hover:bg-secondary/80"
+          >
+            {children ?? domain}
+            <ExternalLinkIcon className="size-3" />
+          </Badge>
+        </a>
+      </HoverCardTrigger>
+      <InlineCitationCardBody>
+        <div className="p-3">
+          <InlineCitationSource title={domain} url={href} />
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary mt-2 inline-flex items-center gap-1 text-xs hover:underline"
+          >
+            Visit source
+            <ExternalLinkIcon className="size-3" />
+          </a>
+        </div>
+      </InlineCitationCardBody>
+    </InlineCitationCard>
+  );
 }
