@@ -207,7 +207,8 @@ export function hasToolCalls(message: Message) {
 
 export function hasPresentFiles(message: Message) {
   return (
-    message.type === "ai" && message.tool_calls?.[0]?.name === "present_files"
+    message.type === "ai" &&
+    message.tool_calls?.some((toolCall) => toolCall.name === "present_files")
   );
 }
 
