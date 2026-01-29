@@ -87,7 +87,7 @@ function MessageContent_({
             if (typeof src !== "string") {
               return (
                 <img
-                  className="max-w-full overflow-hidden rounded-lg"
+                  className="max-w-[90%] overflow-hidden rounded-lg"
                   src={src}
                   alt={alt}
                 />
@@ -100,7 +100,7 @@ function MessageContent_({
             return (
               <a href={url} target="_blank" rel="noopener noreferrer">
                 <img
-                  className="max-w-full overflow-hidden rounded-lg"
+                  className="max-w-[90%] overflow-hidden rounded-lg"
                   src={url}
                   alt={alt}
                 />

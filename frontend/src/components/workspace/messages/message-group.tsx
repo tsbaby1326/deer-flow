@@ -233,7 +233,6 @@ function ToolCall({
         }[];
       }
     )?.results;
-    console.info("image_search", results);
     return (
       <ChainOfThoughtStep key={id} label={label} icon={SearchIcon}>
         {Array.isArray(results) && (
