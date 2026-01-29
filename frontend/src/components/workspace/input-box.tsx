@@ -5,13 +5,13 @@ import {
   CheckIcon,
   GraduationCapIcon,
   LightbulbIcon,
+  PaperclipIcon,
   ZapIcon,
 } from "lucide-react";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 
 import {
   PromptInput,
-  PromptInputActionAddAttachments,
   PromptInputActionMenu,
   PromptInputActionMenuContent,
   PromptInputActionMenuItem,
@@ -24,12 +24,12 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
+  usePromptInputAttachments,
   type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
 import {
   DropdownMenuGroup,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useI18n } from "@/core/i18n/hooks";
 import { useModels } from "@/core/models/hooks";
@@ -45,6 +45,8 @@ import {
   ModelSelectorName,
   ModelSelectorTrigger,
 } from "../ai-elements/model-selector";
+
+import { Tooltip } from "./tooltip";
 
 export function InputBox({
   className,
@@ -166,13 +168,25 @@ export function InputBox({
       </PromptInputBody>
       <PromptInputFooter className="flex">
         <PromptInputTools>
+          <AddAttachmentsButton className="px-2!" />
           <PromptInputActionMenu>
-            <PromptInputActionMenuTrigger />
+            <PromptInputActionMenuTrigger className="px-2!">
+              <div>
+                {context.mode === "flash" && <ZapIcon className="size-3" />}
+                {context.mode === "thinking" && (
+                  <LightbulbIcon className="size-3" />
+                )}
+                {context.mode === "pro" && (
+                  <GraduationCapIcon className="size-3" />
+                )}
+              </div>
+              <div className="text-xs font-normal">
+                {(context.mode === "flash" && t.inputBox.flashMode) ||
+                  (context.mode === "thinking" && t.inputBox.reasoningMode) ||
+                  (context.mode === "pro" && t.inputBox.proMode)}
+              </div>
+            </PromptInputActionMenuTrigger>
             <PromptInputActionMenuContent className="w-80">
-              <PromptInputActionAddAttachments
-                label={t.inputBox.addAttachments}
-              />
-              <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-muted-foreground text-xs">
                   {t.inputBox.mode}
@@ -270,22 +284,6 @@ export function InputBox({
               </DropdownMenuGroup>
             </PromptInputActionMenuContent>
           </PromptInputActionMenu>
-          <div className="border-accent flex items-center gap-1 rounded-md border px-1 py-0.5 text-xs font-normal first-letter:uppercase">
-            <div>
-              {context.mode === "flash" && <ZapIcon className="size-3" />}
-              {context.mode === "thinking" && (
-                <LightbulbIcon className="size-3" />
-              )}
-              {context.mode === "pro" && (
-                <GraduationCapIcon className="size-3" />
-              )}
-            </div>
-            <div>
-              {(context.mode === "flash" && t.inputBox.flashMode) ||
-                (context.mode === "thinking" && t.inputBox.reasoningMode) ||
-                (context.mode === "pro" && t.inputBox.proMode)}
-            </div>
-          </div>
         </PromptInputTools>
         <PromptInputTools>
           <ModelSelector
@@ -331,5 +329,20 @@ export function InputBox({
         <div className="bg-background absolute right-0 -bottom-[17px] left-0 z-0 h-4"></div>
       )}
     </PromptInput>
+  );
+}
+
+function AddAttachmentsButton({ className }: { className?: string }) {
+  const { t } = useI18n();
+  const attachments = usePromptInputAttachments();
+  return (
+    <Tooltip content={t.inputBox.addAttachments}>
+      <PromptInputButton
+        className={cn("px-2!", className)}
+        onClick={() => attachments.openFileDialog()}
+      >
+        <PaperclipIcon className="size-3" />
+      </PromptInputButton>
+    </Tooltip>
   );
 }
