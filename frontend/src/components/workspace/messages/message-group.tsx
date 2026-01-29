@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 
 import { useArtifacts } from "../artifacts";
 import { FlipDisplay } from "../flip-display";
+import { Tooltip } from "../tooltip";
 
 export function MessageGroup({
   className,
@@ -232,27 +233,29 @@ function ToolCall({
         }[];
       }
     )?.results;
+    console.info("image_search", results);
     return (
       <ChainOfThoughtStep key={id} label={label} icon={SearchIcon}>
         {Array.isArray(results) && (
           <ChainOfThoughtSearchResults>
             {Array.isArray(results) &&
               results.map((item) => (
-                <a
-                  className="size-24 overflow-hidden rounded-lg object-cover"
-                  key={item.image_url}
-                  href={item.source_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img
-                    className="size-24 object-cover"
-                    src={item.thumbnail_url}
-                    alt={item.title}
-                    width={100}
-                    height={100}
-                  />
-                </a>
+                <Tooltip key={item.image_url} content={item.title}>
+                  <a
+                    className="size-24 overflow-hidden rounded-lg object-cover"
+                    href={item.source_url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <img
+                      className="size-24 object-cover"
+                      src={item.thumbnail_url}
+                      alt={item.title}
+                      width={100}
+                      height={100}
+                    />
+                  </a>
+                </Tooltip>
               ))}
           </ChainOfThoughtSearchResults>
         )}
