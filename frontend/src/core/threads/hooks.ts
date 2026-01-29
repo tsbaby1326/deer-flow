@@ -73,12 +73,6 @@ export function useSubmitThread({
   const callback = useCallback(
     async (message: PromptInputMessage) => {
       const text = message.text.trim();
-      
-      console.log('[useSubmitThread] Submitting message:', { 
-        text, 
-        hasFiles: !!message.files?.length,
-        filesCount: message.files?.length || 0 
-      });
 
       // Upload files first if any
       if (message.files && message.files.length > 0) {
@@ -204,11 +198,17 @@ export function useRenameThread() {
       threadId: string;
       title: string;
     }) => {
-      await apiClient.threads.update(threadId, {
-        metadata: { title },
+      await apiClient.threads.updateState(threadId, {
+        values: { title },
       });
     },
     onSuccess(_, { threadId, title }) {
+      queryClient.setQueryData(
+        ["thread", "state", threadId],
+        (oldData: Array<AgentThread>) => {
+          console.info("oldData", oldData);
+        },
+      );
       queryClient.setQueriesData(
         {
           queryKey: ["threads", "search"],
@@ -219,8 +219,8 @@ export function useRenameThread() {
             if (t.thread_id === threadId) {
               return {
                 ...t,
-                metadata: {
-                  ...t.metadata,
+                values: {
+                  ...t.values,
                   title,
                 },
               };
