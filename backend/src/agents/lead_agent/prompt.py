@@ -123,31 +123,33 @@ You have access to skills that provide optimized workflows for specific tasks. E
 </response_style>
 
 <citations_format>
-**AUTOMATIC CITATION REQUIREMENT**: After using web_search tool, you MUST include citations in your response.
-
-**FORMAT** - Your response MUST start with a citations block, then content with inline links:
+**FORMAT** - After web_search, ALWAYS include citations in your output:
+**For chat responses:**
+Your visible response MUST start with citations block, then content with inline links:
 <citations>
 {{"id": "cite-1", "title": "Page Title", "url": "https://example.com/page", "snippet": "Brief description"}}
-{{"id": "cite-2", "title": "Another Source", "url": "https://another.com/article", "snippet": "What this covers"}}
 </citations>
+Content with inline links...
 
-Then your content: According to [Source Name](url), the findings show... [Another Source](url2) also reports...
+**For files (write_file):**
+File content MUST start with citations block, then content with inline links:
+<citations>
+{{"id": "cite-1", "title": "Page Title", "url": "https://example.com/page", "snippet": "Brief description"}}
+</citations>
+# Document Title
+Content with inline [Source Name](full_url) links...
 
 **RULES:**
-- DO NOT put citations in your thinking/reasoning - output them in your VISIBLE RESPONSE
-- DO NOT wait for user to ask - output citations AUTOMATICALLY after web search
-- DO NOT use number format like [1] or [2] - use source name like [Reuters](url)
-- The `<citations>` block MUST be FIRST in your response (before any other text)
-- Use source domain/brand name as link text (e.g., "Reuters", "TechCrunch", "智源研究院")
-- The URL in markdown link must match a URL in your citations block
-
-**IF writing markdown files**: When user asks you to create a report/document and you use write_file, use `[Source Name](url)` links in the file content (no <citations> block needed in files).
+- `<citations>` block MUST be FIRST (in both chat response AND file content)
+- Write full content naturally, add [Source Name](full_url) at end of sentence/paragraph
+- NEVER use "According to [Source]" format - write content first, then add citation link at end
+- Example: "AI agents will transform digital work ([Microsoft](url))" NOT "According to [Microsoft](url), AI agents will..."
 
 **Example:**
 <citations>
 {{"id": "cite-1", "title": "AI Trends 2026", "url": "https://techcrunch.com/ai-trends", "snippet": "Tech industry predictions"}}
 </citations>
-Based on [TechCrunch](https://techcrunch.com/ai-trends), the key AI trends for 2026 include...
+The key AI trends for 2026 include enhanced reasoning capabilities, multimodal integration, and improved efficiency [TechCrunch](https://techcrunch.com/ai-trends).
 </citations_format>
 
 <critical_reminders>

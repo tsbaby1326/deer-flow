@@ -33,41 +33,42 @@ export function parseCitations(content: string): ParseCitationsResult {
     return { citations: [], cleanContent: content };
   }
 
-  // Match the citations block at the start of content (with possible leading whitespace)
-  const citationsRegex = /^\s*<citations>([\s\S]*?)<\/citations>/;
-  const match = citationsRegex.exec(content);
-
-  if (!match) {
-    return { citations: [], cleanContent: content };
-  }
-
-  const citationsBlock = match[1] ?? "";
+  // Match ALL citations blocks anywhere in content (not just at the start)
+  const citationsRegex = /<citations>([\s\S]*?)<\/citations>/g;
   const citations: Citation[] = [];
+  const seenUrls = new Set<string>(); // Deduplicate by URL
+  let cleanContent = content;
 
-  // Parse each line as JSON
-  const lines = citationsBlock.split("\n");
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed?.startsWith("{")) {
-      try {
-        const citation = JSON.parse(trimmed) as Citation;
-        // Validate required fields
-        if (citation.id && citation.url) {
-          citations.push({
-            id: citation.id,
-            title: citation.title || "",
-            url: citation.url,
-            snippet: citation.snippet || "",
-          });
+  let match;
+  while ((match = citationsRegex.exec(content)) !== null) {
+    const citationsBlock = match[1] ?? "";
+
+    // Parse each line as JSON
+    const lines = citationsBlock.split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed?.startsWith("{")) {
+        try {
+          const citation = JSON.parse(trimmed) as Citation;
+          // Validate required fields and deduplicate
+          if (citation.id && citation.url && !seenUrls.has(citation.url)) {
+            seenUrls.add(citation.url);
+            citations.push({
+              id: citation.id,
+              title: citation.title || "",
+              url: citation.url,
+              snippet: citation.snippet || "",
+            });
+          }
+        } catch {
+          // Skip invalid JSON lines - this can happen during streaming
         }
-      } catch {
-        // Skip invalid JSON lines - this can happen during streaming
       }
     }
   }
 
-  // Remove the citations block from content
-  const cleanContent = content.replace(citationsRegex, "").trim();
+  // Remove ALL citations blocks from content
+  cleanContent = content.replace(/<citations>[\s\S]*?<\/citations>/g, "").trim();
 
   return { citations, cleanContent };
 }

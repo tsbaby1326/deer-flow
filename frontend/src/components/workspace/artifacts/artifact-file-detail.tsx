@@ -7,7 +7,10 @@ import {
   SquareArrowOutUpRightIcon,
   XIcon,
 } from "lucide-react";
+import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 
@@ -26,6 +29,12 @@ import {
 } from "@/components/ai-elements/inline-citation";
 import { Badge } from "@/components/ui/badge";
 import { HoverCardTrigger } from "@/components/ui/hover-card";
+import {
+  buildCitationMap,
+  extractDomainFromUrl,
+  parseCitations,
+  type Citation,
+} from "@/core/citations";
 import { Select, SelectItem } from "@/components/ui/select";
 import {
   SelectContent,
@@ -37,7 +46,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CodeEditor } from "@/components/workspace/code-editor";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
-import { extractDomainFromUrl } from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
@@ -81,6 +89,15 @@ export function ArtifactFileDetail({
     filepath: filepathFromProps,
     enabled: isCodeFile && !isWriteFile,
   });
+  
+  // Parse citations and get clean content for code editor
+  const cleanContent = useMemo(() => {
+    if (language === "markdown" && content) {
+      return parseCitations(content).cleanContent;
+    }
+    return content;
+  }, [content, language]);
+  
   const [viewMode, setViewMode] = useState<"code" | "preview">("code");
   useEffect(() => {
     if (previewable) {
@@ -196,7 +213,7 @@ export function ArtifactFileDetail({
         {isCodeFile && viewMode === "code" && (
           <CodeEditor
             className="size-full resize-none rounded-none border-none"
-            value={content ?? ""}
+            value={cleanContent ?? ""}
             readonly
           />
         )}
@@ -222,11 +239,23 @@ export function ArtifactFilePreview({
   content: string;
   language: string;
 }) {
+  const { citations, cleanContent, citationMap } = React.useMemo(() => {
+    const parsed = parseCitations(content ?? "");
+    const map = buildCitationMap(parsed.citations);
+    return {
+      citations: parsed.citations,
+      cleanContent: parsed.cleanContent,
+      citationMap: map,
+    };
+  }, [content]);
+
   if (language === "markdown") {
     return (
       <div className="size-full px-4">
         <Streamdown
           className="size-full"
+          remarkPlugins={[[remarkMath, { singleDollarTextMath: true }]]}
+          rehypePlugins={[[rehypeKatex, { output: "html" }]]}
           components={{
             a: ({
               href,
@@ -234,6 +263,16 @@ export function ArtifactFilePreview({
             }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
               if (!href) {
                 return <span>{children}</span>;
+              }
+
+              // Check if it's a citation link
+              const citation = citationMap.get(href);
+              if (citation) {
+                return (
+                  <ArtifactCitationLink citation={citation} href={href}>
+                    {children}
+                  </ArtifactCitationLink>
+                );
               }
 
               // Check if it's an external link (http/https)
@@ -255,7 +294,7 @@ export function ArtifactFilePreview({
             },
           }}
         >
-          {content ?? ""}
+          {cleanContent ?? ""}
         </Streamdown>
       </div>
     );
@@ -269,6 +308,61 @@ export function ArtifactFilePreview({
     );
   }
   return null;
+}
+
+/**
+ * Citation link component for artifact preview (with full citation data)
+ */
+function ArtifactCitationLink({
+  citation,
+  href,
+  children,
+}: {
+  citation: Citation;
+  href: string;
+  children: React.ReactNode;
+}) {
+  const domain = extractDomainFromUrl(href);
+
+  return (
+    <InlineCitationCard>
+      <HoverCardTrigger asChild>
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Badge
+            variant="secondary"
+            className="mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal hover:bg-secondary/80"
+          >
+            {children ?? domain}
+            <ExternalLinkIcon className="size-3" />
+          </Badge>
+        </a>
+      </HoverCardTrigger>
+      <InlineCitationCardBody>
+        <div className="p-3">
+          <InlineCitationSource
+            title={citation.title}
+            url={href}
+            description={citation.snippet}
+          />
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary mt-2 inline-flex items-center gap-1 text-xs hover:underline"
+          >
+            Visit source
+            <ExternalLinkIcon className="size-3" />
+          </a>
+        </div>
+      </InlineCitationCardBody>
+    </InlineCitationCard>
+  );
 }
 
 /**

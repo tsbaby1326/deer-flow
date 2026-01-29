@@ -1,7 +1,9 @@
 import type { Message } from "@langchain/langgraph-sdk";
-import { ExternalLinkIcon, LinkIcon } from "lucide-react";
+import { ExternalLinkIcon, FileIcon, LinkIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { memo, useMemo } from "react";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 
 import {
   InlineCitationCard,
@@ -26,6 +28,8 @@ import {
 import {
   extractContentFromMessage,
   extractReasoningContentFromMessage,
+  parseUploadedFiles,
+  type UploadedFile,
 } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { cn } from "@/lib/utils";
@@ -82,16 +86,26 @@ function MessageContent_({
   isLoading?: boolean;
 }) {
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
+  const isHuman = message.type === "human";
 
-  // Extract and parse citations from message content
-  const { citations, cleanContent } = useMemo(() => {
+  // Extract and parse citations and uploaded files from message content
+  const { citations, cleanContent, uploadedFiles } = useMemo(() => {
     const reasoningContent = extractReasoningContentFromMessage(message);
     const rawContent = extractContentFromMessage(message);
     if (!isLoading && reasoningContent && !rawContent) {
-      return { citations: [], cleanContent: reasoningContent };
+      return { citations: [], cleanContent: reasoningContent, uploadedFiles: [] };
     }
-    return parseCitations(rawContent ?? "");
-  }, [isLoading, message]);
+
+    // For human messages, first parse uploaded files
+    if (isHuman && rawContent) {
+      const { files, cleanContent: contentWithoutFiles } = parseUploadedFiles(rawContent);
+      const { citations, cleanContent: finalContent } = parseCitations(contentWithoutFiles);
+      return { citations, cleanContent: finalContent, uploadedFiles: files };
+    }
+
+    const { citations, cleanContent } = parseCitations(rawContent ?? "");
+    return { citations, cleanContent, uploadedFiles: [] };
+  }, [isLoading, message, isHuman]);
 
   // Build citation map for quick URL lookup
   const citationMap = useMemo(
@@ -103,72 +117,209 @@ function MessageContent_({
 
   return (
     <AIElementMessageContent className={className}>
-      {/* Citations list at the top */}
-      {citations.length > 0 && <CitationsList citations={citations} />}
+      {/* Uploaded files for human messages - show first */}
+      {uploadedFiles.length > 0 && thread_id && (
+        <UploadedFilesList files={uploadedFiles} threadId={thread_id} />
+      )}
 
-      <AIElementMessageResponse
-        rehypePlugins={rehypePlugins}
-        components={{
-          a: ({
-            href,
-            children,
-          }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
-            if (!href) {
-              return <span>{children}</span>;
-            }
+      {/* Message content - always show if present */}
+      {cleanContent && (
+        <AIElementMessageResponse
+          remarkPlugins={[[remarkMath, { singleDollarTextMath: true }]]}
+          rehypePlugins={[...rehypePlugins, [rehypeKatex, { output: "html" }]]}
+          components={{
+            a: ({
+              href,
+              children,
+            }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+              if (!href) {
+                return <span>{children}</span>;
+              }
 
-            // Check if this link matches a citation
-            const citation = citationMap.get(href);
-            if (citation) {
+              // Check if this link matches a citation
+              const citation = citationMap.get(href);
+              if (citation) {
+                return (
+                  <CitationLink citation={citation} href={href}>
+                    {children}
+                  </CitationLink>
+                );
+              }
+
+              // Regular external link
               return (
-                <CitationLink citation={citation} href={href}>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline underline-offset-2 hover:no-underline"
+                >
                   {children}
-                </CitationLink>
+                </a>
               );
-            }
-
-            // Regular external link
-            return (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline underline-offset-2 hover:no-underline"
-              >
-                {children}
-              </a>
-            );
-          },
-          img: ({ src, alt }: React.ImgHTMLAttributes<HTMLImageElement>) => {
-            if (!src) return null;
-            if (typeof src !== "string") {
+            },
+            img: ({ src, alt }: React.ImgHTMLAttributes<HTMLImageElement>) => {
+              if (!src) return null;
+              if (typeof src !== "string") {
+                return (
+                  <img
+                    className="max-w-full overflow-hidden rounded-lg"
+                    src={src}
+                    alt={alt}
+                  />
+                );
+              }
+              let url = src;
+              if (src.startsWith("/mnt/")) {
+                url = resolveArtifactURL(src, thread_id);
+              }
               return (
-                <img
-                  className="max-w-full overflow-hidden rounded-lg"
-                  src={src}
-                  alt={alt}
-                />
+                <a href={url} target="_blank" rel="noopener noreferrer">
+                  <img
+                    className="max-w-full overflow-hidden rounded-lg"
+                    src={url}
+                    alt={alt}
+                  />
+                </a>
               );
-            }
-            let url = src;
-            if (src.startsWith("/mnt/")) {
-              url = resolveArtifactURL(src, thread_id);
-            }
-            return (
-              <a href={url} target="_blank" rel="noopener noreferrer">
-                <img
-                  className="max-w-full overflow-hidden rounded-lg"
-                  src={url}
-                  alt={alt}
-                />
-              </a>
-            );
-          },
-        }}
-      >
-        {cleanContent}
-      </AIElementMessageResponse>
+            },
+          }}
+        >
+          {cleanContent}
+        </AIElementMessageResponse>
+      )}
     </AIElementMessageContent>
+  );
+}
+
+/**
+ * Get file type label from filename extension
+ */
+function getFileTypeLabel(filename: string): string {
+  const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+  const typeMap: Record<string, string> = {
+    json: "JSON",
+    csv: "CSV",
+    txt: "TXT",
+    md: "Markdown",
+    py: "Python",
+    js: "JavaScript",
+    ts: "TypeScript",
+    tsx: "TSX",
+    jsx: "JSX",
+    html: "HTML",
+    css: "CSS",
+    xml: "XML",
+    yaml: "YAML",
+    yml: "YAML",
+    pdf: "PDF",
+    png: "PNG",
+    jpg: "JPG",
+    jpeg: "JPEG",
+    gif: "GIF",
+    svg: "SVG",
+    zip: "ZIP",
+    tar: "TAR",
+    gz: "GZ",
+  };
+  return typeMap[ext] || ext.toUpperCase() || "FILE";
+}
+
+/**
+ * Check if a file is an image based on extension
+ */
+function isImageFile(filename: string): boolean {
+  const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+  return ["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"].includes(ext);
+}
+
+/**
+ * Uploaded files list component that displays files as cards or image thumbnails (Claude-style)
+ */
+function UploadedFilesList({
+  files,
+  threadId,
+}: {
+  files: UploadedFile[];
+  threadId: string;
+}) {
+  if (files.length === 0) return null;
+
+  return (
+    <div className="mb-2 flex flex-wrap gap-2">
+      {files.map((file, index) => (
+        <UploadedFileCard
+          key={`${file.path}-${index}`}
+          file={file}
+          threadId={threadId}
+        />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Single uploaded file card component (Claude-style)
+ * Shows image thumbnail for image files, file card for others
+ */
+function UploadedFileCard({
+  file,
+  threadId,
+}: {
+  file: UploadedFile;
+  threadId: string;
+}) {
+  const typeLabel = getFileTypeLabel(file.filename);
+  const isImage = isImageFile(file.filename);
+
+  // Don't render if threadId is invalid
+  if (!threadId) {
+    return null;
+  }
+
+  // Build URL - browser will handle encoding automatically
+  const imageUrl = resolveArtifactURL(file.path, threadId);
+
+  // For image files, show thumbnail
+  if (isImage) {
+    return (
+      <a
+        href={imageUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group relative block overflow-hidden rounded-lg border"
+      >
+        <img
+          src={imageUrl}
+          alt={file.filename}
+          className="h-32 w-auto max-w-[240px] object-cover transition-transform group-hover:scale-105"
+        />
+      </a>
+    );
+  }
+
+  // For non-image files, show file card
+  return (
+    <div className="bg-background flex min-w-[120px] max-w-[200px] flex-col gap-1 rounded-lg border p-3 shadow-sm">
+      <div className="flex items-start gap-2">
+        <FileIcon className="text-muted-foreground mt-0.5 size-4 shrink-0" />
+        <span
+          className="text-foreground truncate text-sm font-medium"
+          title={file.filename}
+        >
+          {file.filename}
+        </span>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <Badge
+          variant="secondary"
+          className="rounded px-1.5 py-0.5 text-[10px] font-normal"
+        >
+          {typeLabel}
+        </Badge>
+        <span className="text-muted-foreground text-[10px]">{file.size}</span>
+      </div>
+    </div>
   );
 }
 
