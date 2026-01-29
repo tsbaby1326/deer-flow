@@ -67,8 +67,14 @@ export function parseCitations(content: string): ParseCitationsResult {
     }
   }
 
-  // Remove ALL citations blocks from content
+  // Remove ALL citations blocks from content (both complete and incomplete)
   cleanContent = content.replace(/<citations>[\s\S]*?<\/citations>/g, "").trim();
+  
+  // Also remove incomplete citations blocks (during streaming)
+  // Match <citations> without closing tag or <citations> followed by anything until end of string
+  if (cleanContent.includes("<citations>")) {
+    cleanContent = cleanContent.replace(/<citations>[\s\S]*$/g, "").trim();
+  }
 
   return { citations, cleanContent };
 }
