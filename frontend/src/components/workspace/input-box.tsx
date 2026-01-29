@@ -270,6 +270,22 @@ export function InputBox({
               </DropdownMenuGroup>
             </PromptInputActionMenuContent>
           </PromptInputActionMenu>
+          <div className="border-accent flex items-center gap-1 rounded-md border px-1 py-0.5 text-xs font-normal first-letter:uppercase">
+            <div>
+              {context.mode === "flash" && <ZapIcon className="size-3" />}
+              {context.mode === "thinking" && (
+                <LightbulbIcon className="size-3" />
+              )}
+              {context.mode === "pro" && (
+                <GraduationCapIcon className="size-3" />
+              )}
+            </div>
+            <div>
+              {(context.mode === "flash" && t.inputBox.flashMode) ||
+                (context.mode === "thinking" && t.inputBox.reasoningMode) ||
+                (context.mode === "pro" && t.inputBox.proMode)}
+            </div>
+          </div>
         </PromptInputTools>
         <PromptInputTools>
           <ModelSelector
