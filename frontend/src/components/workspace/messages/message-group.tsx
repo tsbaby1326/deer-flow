@@ -217,6 +217,32 @@ function ToolCall({
         )}
       </ChainOfThoughtStep>
     );
+  } else if (name === "image_search") {
+    let label: React.ReactNode = t.toolCalls.searchForRelatedImages;
+    if (typeof args.query === "string") {
+      label = t.toolCalls.searchForRelatedImagesFor(args.query);
+    }
+    return (
+      <ChainOfThoughtStep key={id} label={label} icon={SearchIcon}>
+        {Array.isArray(result) && (
+          <ChainOfThoughtSearchResults>
+            {result.map((item) => (
+              <ChainOfThoughtSearchResult key={item.url}>
+                <a href={item.url} target="_blank" rel="noreferrer">
+                  <img
+                    className="size-24 rounded-md object-cover"
+                    src={item.url}
+                    alt={item.title}
+                    width={100}
+                    height={100}
+                  />
+                </a>
+              </ChainOfThoughtSearchResult>
+            ))}
+          </ChainOfThoughtSearchResults>
+        )}
+      </ChainOfThoughtStep>
+    );
   } else if (name === "web_fetch") {
     const url = (args as { url: string })?.url;
     let title = url;
