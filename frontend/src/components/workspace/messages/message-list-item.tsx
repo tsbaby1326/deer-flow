@@ -32,6 +32,7 @@ import {
   type UploadedFile,
 } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
+import { streamdownPlugins } from "@/core/streamdown";
 import { cn } from "@/lib/utils";
 
 import { CopyButton } from "../copy-button";
@@ -93,13 +94,19 @@ function MessageContent_({
     const reasoningContent = extractReasoningContentFromMessage(message);
     const rawContent = extractContentFromMessage(message);
     if (!isLoading && reasoningContent && !rawContent) {
-      return { citations: [], cleanContent: reasoningContent, uploadedFiles: [] };
+      return {
+        citations: [],
+        cleanContent: reasoningContent,
+        uploadedFiles: [],
+      };
     }
 
     // For human messages, first parse uploaded files
     if (isHuman && rawContent) {
-      const { files, cleanContent: contentWithoutFiles } = parseUploadedFiles(rawContent);
-      const { citations, cleanContent: finalContent } = parseCitations(contentWithoutFiles);
+      const { files, cleanContent: contentWithoutFiles } =
+        parseUploadedFiles(rawContent);
+      const { citations, cleanContent: finalContent } =
+        parseCitations(contentWithoutFiles);
       return { citations, cleanContent: finalContent, uploadedFiles: files };
     }
 
@@ -108,10 +115,7 @@ function MessageContent_({
   }, [isLoading, message, isHuman]);
 
   // Build citation map for quick URL lookup
-  const citationMap = useMemo(
-    () => buildCitationMap(citations),
-    [citations],
-  );
+  const citationMap = useMemo(() => buildCitationMap(citations), [citations]);
 
   const { thread_id } = useParams<{ thread_id: string }>();
 
@@ -121,13 +125,12 @@ function MessageContent_({
       <div className={cn("ml-auto flex flex-col gap-2", className)}>
         {/* Uploaded files outside the message bubble */}
         <UploadedFilesList files={uploadedFiles} threadId={thread_id} />
-        
+
         {/* Message content inside the bubble (only if there's text) */}
         {cleanContent && (
           <AIElementMessageContent className="w-fit">
             <AIElementMessageResponse
-              remarkPlugins={[[remarkMath, { singleDollarTextMath: true }]]}
-              rehypePlugins={[...rehypePlugins, [rehypeKatex, { output: "html" }]]}
+              {...streamdownPlugins}
               components={{
                 a: ({
                   href,
@@ -159,7 +162,10 @@ function MessageContent_({
                     </a>
                   );
                 },
-                img: ({ src, alt }: React.ImgHTMLAttributes<HTMLImageElement>) => {
+                img: ({
+                  src,
+                  alt,
+                }: React.ImgHTMLAttributes<HTMLImageElement>) => {
                   if (!src) return null;
                   if (typeof src !== "string") {
                     return (
@@ -302,7 +308,7 @@ function getFileTypeLabel(filename: string): string {
     tar: "TAR",
     gz: "GZ",
   };
-  return typeMap[ext] || ext.toUpperCase() || "FILE";
+  return (typeMap[ext] ?? ext.toUpperCase()) || "FILE";
 }
 
 /**
@@ -367,7 +373,7 @@ function UploadedFileCard({
         href={imageUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="group relative block overflow-hidden rounded-lg border border-border/40"
+        className="group border-border/40 relative block overflow-hidden rounded-lg border"
       >
         <img
           src={imageUrl}
@@ -380,7 +386,7 @@ function UploadedFileCard({
 
   // For non-image files, show file card
   return (
-    <div className="bg-background flex min-w-[120px] max-w-[200px] flex-col gap-1 rounded-lg border border-border/40 p-3 shadow-sm">
+    <div className="bg-background border-border/40 flex max-w-[200px] min-w-[120px] flex-col gap-1 rounded-lg border p-3 shadow-sm">
       <div className="flex items-start gap-2">
         <FileIcon className="text-muted-foreground mt-0.5 size-4 shrink-0" />
         <span
@@ -410,8 +416,8 @@ function CitationsList({ citations }: { citations: Citation[] }) {
   if (citations.length === 0) return null;
 
   return (
-    <div className="mb-4 rounded-lg border bg-muted/30 p-3">
-      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+    <div className="bg-muted/30 mb-4 rounded-lg border p-3">
+      <div className="text-muted-foreground mb-2 flex items-center gap-2 text-sm font-medium">
         <LinkIcon className="size-4" />
         <span>Sources ({citations.length})</span>
       </div>
@@ -441,7 +447,7 @@ function CitationBadge({ citation }: { citation: Citation }) {
         >
           <Badge
             variant="secondary"
-            className="cursor-pointer gap-1 rounded-full px-2.5 py-1 text-xs font-normal hover:bg-secondary/80"
+            className="hover:bg-secondary/80 cursor-pointer gap-1 rounded-full px-2.5 py-1 text-xs font-normal"
           >
             {domain}
             <ExternalLinkIcon className="size-3" />
@@ -496,7 +502,7 @@ function CitationLink({
         >
           <Badge
             variant="secondary"
-            className="mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal hover:bg-secondary/80"
+            className="hover:bg-secondary/80 mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal"
           >
             {children ?? domain}
             <ExternalLinkIcon className="size-3" />

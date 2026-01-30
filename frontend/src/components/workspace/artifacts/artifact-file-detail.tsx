@@ -10,6 +10,7 @@ import {
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
 import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -29,12 +30,6 @@ import {
 } from "@/components/ai-elements/inline-citation";
 import { Badge } from "@/components/ui/badge";
 import { HoverCardTrigger } from "@/components/ui/hover-card";
-import {
-  buildCitationMap,
-  extractDomainFromUrl,
-  parseCitations,
-  type Citation,
-} from "@/core/citations";
 import { Select, SelectItem } from "@/components/ui/select";
 import {
   SelectContent,
@@ -46,7 +41,14 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CodeEditor } from "@/components/workspace/code-editor";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
+import {
+  buildCitationMap,
+  extractDomainFromUrl,
+  parseCitations,
+  type Citation,
+} from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
+import { streamdownPlugins } from "@/core/streamdown";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
 
@@ -89,7 +91,7 @@ export function ArtifactFileDetail({
     filepath: filepathFromProps,
     enabled: isCodeFile && !isWriteFile,
   });
-  
+
   // Parse citations and get clean content for code editor
   const cleanContent = useMemo(() => {
     if (language === "markdown" && content) {
@@ -97,7 +99,7 @@ export function ArtifactFileDetail({
     }
     return content;
   }, [content, language]);
-  
+
   const [viewMode, setViewMode] = useState<"code" | "preview">("code");
   useEffect(() => {
     if (previewable) {
@@ -254,8 +256,7 @@ export function ArtifactFilePreview({
       <div className="size-full px-4">
         <Streamdown
           className="size-full"
-          remarkPlugins={[[remarkMath, { singleDollarTextMath: true }]]}
-          rehypePlugins={[[rehypeKatex, { output: "html" }]]}
+          {...streamdownPlugins}
           components={{
             a: ({
               href,
@@ -336,7 +337,7 @@ function ArtifactCitationLink({
         >
           <Badge
             variant="secondary"
-            className="mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal hover:bg-secondary/80"
+            className="hover:bg-secondary/80 mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal"
           >
             {children ?? domain}
             <ExternalLinkIcon className="size-3" />
@@ -388,7 +389,7 @@ function ExternalLinkBadge({
         >
           <Badge
             variant="secondary"
-            className="mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal hover:bg-secondary/80"
+            className="hover:bg-secondary/80 mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal"
           >
             {children ?? domain}
             <ExternalLinkIcon className="size-3" />
