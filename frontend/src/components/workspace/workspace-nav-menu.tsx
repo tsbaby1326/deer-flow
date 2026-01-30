@@ -100,7 +100,7 @@ export function WorkspaceNavMenu() {
                     {t.workspace.reportIssue}
                   </DropdownMenuItem>
                 </a>
-                <a href="mailto:lixin.henry@bytedance.com">
+                <a href="mailto:support@deerflow.tech">
                   <DropdownMenuItem>
                     <MailIcon />
                     {t.workspace.contactUs}
