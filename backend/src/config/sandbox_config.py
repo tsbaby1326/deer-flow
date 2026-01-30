@@ -21,6 +21,7 @@ class SandboxConfig(BaseModel):
         base_url: If set, uses existing sandbox instead of starting new container
         auto_start: Whether to automatically start Docker container (default: true)
         container_prefix: Prefix for container names (default: deer-flow-sandbox)
+        idle_timeout: Idle timeout in seconds before sandbox is released (default: 600 = 10 minutes). Set to 0 to disable.
         mounts: List of volume mounts to share directories with the container
         environment: Environment variables to inject into the container (values starting with $ are resolved from host env)
     """
@@ -48,6 +49,10 @@ class SandboxConfig(BaseModel):
     container_prefix: str | None = Field(
         default=None,
         description="Prefix for container names",
+    )
+    idle_timeout: int | None = Field(
+        default=None,
+        description="Idle timeout in seconds before sandbox is released (default: 600 = 10 minutes). Set to 0 to disable.",
     )
     mounts: list[VolumeMountConfig] = Field(
         default_factory=list,
