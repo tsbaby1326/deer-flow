@@ -148,7 +148,7 @@ export default function ChatPage() {
                 )}
               </div>
               <div>
-                {artifacts?.length && !artifactsOpen && (
+                {artifacts?.length > 0 && !artifactsOpen && (
                   <Tooltip content="Show artifacts of this conversation">
                     <Button
                       variant="ghost"
