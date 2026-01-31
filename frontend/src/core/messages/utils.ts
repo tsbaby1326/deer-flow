@@ -268,6 +268,7 @@ export interface ParsedUploadedFiles {
 export function parseUploadedFiles(content: string): ParsedUploadedFiles {
   // Match <uploaded_files>...</uploaded_files> tag
   const uploadedFilesRegex = /<uploaded_files>([\s\S]*?)<\/uploaded_files>/;
+  // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
   const match = content.match(uploadedFilesRegex);
 
   if (!match) {
@@ -278,7 +279,7 @@ export function parseUploadedFiles(content: string): ParsedUploadedFiles {
   const cleanContent = content.replace(uploadedFilesRegex, "").trim();
 
   // Check if it's "No files have been uploaded yet."
-  if (uploadedFilesContent.includes("No files have been uploaded yet.")) {
+  if (uploadedFilesContent?.includes("No files have been uploaded yet.")) {
     return { files: [], cleanContent };
   }
 
@@ -288,7 +289,7 @@ export function parseUploadedFiles(content: string): ParsedUploadedFiles {
   const files: UploadedFile[] = [];
   let fileMatch;
 
-  while ((fileMatch = fileRegex.exec(uploadedFilesContent)) !== null) {
+  while ((fileMatch = fileRegex.exec(uploadedFilesContent ?? "")) !== null) {
     files.push({
       filename: fileMatch[1].trim(),
       size: fileMatch[2].trim(),
