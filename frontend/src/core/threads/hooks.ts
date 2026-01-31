@@ -18,9 +18,11 @@ import type {
 export function useThreadStream({
   threadId,
   isNewThread,
+  onFinish,
 }: {
   isNewThread: boolean;
   threadId: string | null | undefined;
+  onFinish?: (state: AgentThreadState) => void;
 }) {
   const queryClient = useQueryClient();
   const thread = useStream<AgentThreadState>({
@@ -30,6 +32,7 @@ export function useThreadStream({
     reconnectOnMount: true,
     fetchStateHistory: true,
     onFinish(state) {
+      onFinish?.(state.values);
       // void queryClient.invalidateQueries({ queryKey: ["threads", "search"] });
       queryClient.setQueriesData(
         {

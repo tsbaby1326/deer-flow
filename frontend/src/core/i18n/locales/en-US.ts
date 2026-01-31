@@ -28,6 +28,7 @@ export const enUS: Translations = {
     preview: "Preview",
     cancel: "Cancel",
     save: "Save",
+    install: "Install",
   },
 
   // Welcome
@@ -125,6 +126,7 @@ export const enUS: Translations = {
       appearance: "Appearance",
       tools: "Tools",
       skills: "Skills",
+      notification: "Notification",
       acknowledge: "Acknowledge",
     },
     appearance: {
@@ -148,6 +150,19 @@ export const enUS: Translations = {
       title: "Agent Skills",
       description:
         "Manage the configuration and enabled status of the agent skills.",
+    },
+    notification: {
+      title: "Notification",
+      description:
+        "DeerFlow only sends a completion notification when the window is not active. This is especially useful for long-running tasks so you can switch to other work and get notified when done.",
+      requestPermission: "Request notification permission",
+      deniedHint:
+        "Notification permission was denied. You can enable it in your browser's site settings to receive completion alerts.",
+      testButton: "Send test notification",
+      testTitle: "DeerFlow",
+      testBody: "This is a test notification.",
+      notSupported: "Your browser does not support notifications.",
+      disableNotification: "Disable notification",
     },
     acknowledge: {
       emptyTitle: "Acknowledgements",

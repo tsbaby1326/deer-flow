@@ -1,6 +1,6 @@
 "use client";
 
-import { PaletteIcon, SparklesIcon, WrenchIcon } from "lucide-react";
+import { BellIcon, PaletteIcon, SparklesIcon, WrenchIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import {
@@ -12,12 +12,18 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AcknowledgePage } from "@/components/workspace/settings/acknowledge-page";
 import { AppearanceSettingsPage } from "@/components/workspace/settings/appearance-settings-page";
+import { NotificationSettingsPage } from "@/components/workspace/settings/notification-settings-page";
 import { SkillSettingsPage } from "@/components/workspace/settings/skill-settings-page";
 import { ToolSettingsPage } from "@/components/workspace/settings/tool-settings-page";
 import { useI18n } from "@/core/i18n/hooks";
 import { cn } from "@/lib/utils";
 
-type SettingsSection = "appearance" | "tools" | "skills" | "acknowledge";
+type SettingsSection =
+  | "appearance"
+  | "tools"
+  | "skills"
+  | "notification"
+  | "acknowledge";
 
 type SettingsDialogProps = React.ComponentProps<typeof Dialog> & {
   defaultSection?: SettingsSection;
@@ -38,6 +44,11 @@ export function SettingsDialog({
         label: t.settings.sections.appearance,
         icon: PaletteIcon,
       },
+      {
+        id: "notification",
+        label: t.settings.sections.notification,
+        icon: BellIcon,
+      },
       { id: "tools", label: t.settings.sections.tools, icon: WrenchIcon },
       { id: "skills", label: t.settings.sections.skills, icon: SparklesIcon },
     ],
@@ -45,6 +56,7 @@ export function SettingsDialog({
       t.settings.sections.appearance,
       t.settings.sections.tools,
       t.settings.sections.skills,
+      t.settings.sections.notification,
     ],
   );
   return (
@@ -89,6 +101,7 @@ export function SettingsDialog({
               {activeSection === "appearance" && <AppearanceSettingsPage />}
               {activeSection === "tools" && <ToolSettingsPage />}
               {activeSection === "skills" && <SkillSettingsPage />}
+              {activeSection === "notification" && <NotificationSettingsPage />}
               {activeSection === "acknowledge" && <AcknowledgePage />}
             </div>
           </ScrollArea>

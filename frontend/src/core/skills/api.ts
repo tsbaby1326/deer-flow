@@ -23,3 +23,13 @@ export async function enableSkill(skillName: string, enabled: boolean) {
   );
   return response.json();
 }
+
+export async function installSkill(skillName: string) {
+  const response = await fetch(
+    `${getBackendBaseURL()}/api/skills/${skillName}/install`,
+    {
+      method: "POST",
+    },
+  );
+  return response.json();
+}

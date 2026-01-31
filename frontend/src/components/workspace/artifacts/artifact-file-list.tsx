@@ -1,4 +1,4 @@
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, PackageIcon } from "lucide-react";
 import { useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,22 @@ export function ArtifactFileList({
               {getFileExtensionDisplayName(file)} file
             </CardDescription>
             <CardAction>
+              {file.endsWith(".skill") && (
+                <a
+                  href={urlOfArtifact({
+                    filepath: file,
+                    threadId: threadId,
+                    download: true,
+                  })}
+                  target="_blank"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Button variant="ghost">
+                    <PackageIcon className="size-4" />
+                    {t.common.install}
+                  </Button>
+                </a>
+              )}
               <a
                 href={urlOfArtifact({
                   filepath: file,

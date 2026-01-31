@@ -25,6 +25,7 @@ import { TodoList } from "@/components/workspace/todo-list";
 import { Tooltip } from "@/components/workspace/tooltip";
 import { Welcome } from "@/components/workspace/welcome";
 import { useI18n } from "@/core/i18n/hooks";
+import { useNotification } from "@/core/notification/hooks";
 import { useLocalSettings } from "@/core/settings";
 import { type AgentThread } from "@/core/threads";
 import { useSubmitThread, useThreadStream } from "@/core/threads/hooks";
@@ -60,10 +61,19 @@ export default function ChatPage() {
     }
   }, [threadIdFromPath]);
 
+  const { showNotification } = useNotification();
   const thread = useThreadStream({
     isNewThread,
     threadId,
+    onFinish: (state) => {
+      if (document.hidden || !document.hasFocus()) {
+        showNotification(state.title, {
+          body: `Conversation finished`,
+        });
+      }
+    },
   });
+
   const title = useMemo(() => {
     let result = isNewThread
       ? ""

@@ -4,14 +4,12 @@ import {
   DownloadIcon,
   ExternalLinkIcon,
   EyeIcon,
+  PackageIcon,
   SquareArrowOutUpRightIcon,
   XIcon,
 } from "lucide-react";
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
-import rehypeKatex from "rehype-katex";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 
@@ -156,6 +154,15 @@ export function ArtifactFileDetail({
         </div>
         <div className="flex items-center gap-2">
           <ArtifactActions>
+            {!isWriteFile && filepath.endsWith(".skill") && (
+              <a href={urlOfArtifact({ filepath, threadId })} target="_blank">
+                <ArtifactAction
+                  icon={PackageIcon}
+                  label={t.common.install}
+                  tooltip={t.common.openInNewWindow}
+                />
+              </a>
+            )}
             {!isWriteFile && (
               <a href={urlOfArtifact({ filepath, threadId })} target="_blank">
                 <ArtifactAction
@@ -241,7 +248,7 @@ export function ArtifactFilePreview({
   content: string;
   language: string;
 }) {
-  const { citations, cleanContent, citationMap } = React.useMemo(() => {
+  const { cleanContent, citationMap } = React.useMemo(() => {
     const parsed = parseCitations(content ?? "");
     const map = buildCitationMap(parsed.citations);
     return {

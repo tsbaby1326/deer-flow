@@ -26,6 +26,7 @@ export interface Translations {
     preview: string;
     cancel: string;
     save: string;
+    install: string;
   };
 
   // Welcome
@@ -119,6 +120,7 @@ export interface Translations {
       appearance: string;
       tools: string;
       skills: string;
+      notification: string;
       acknowledge: string;
     };
     appearance: {
@@ -140,6 +142,17 @@ export interface Translations {
     skills: {
       title: string;
       description: string;
+    };
+    notification: {
+      title: string;
+      description: string;
+      requestPermission: string;
+      deniedHint: string;
+      testButton: string;
+      testTitle: string;
+      testBody: string;
+      notSupported: string;
+      disableNotification: string;
     };
     acknowledge: {
       emptyTitle: string;

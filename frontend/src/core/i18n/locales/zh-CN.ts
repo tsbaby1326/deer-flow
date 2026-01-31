@@ -28,6 +28,7 @@ export const zhCN: Translations = {
     preview: "预览",
     cancel: "取消",
     save: "保存",
+    install: "安装",
   },
 
   // Welcome
@@ -122,6 +123,7 @@ export const zhCN: Translations = {
       appearance: "外观",
       tools: "工具",
       skills: "技能",
+      notification: "通知",
       acknowledge: "致谢",
     },
     appearance: {
@@ -143,6 +145,19 @@ export const zhCN: Translations = {
     skills: {
       title: "技能",
       description: "管理 Agent Skill 配置和启用状态。",
+    },
+    notification: {
+      title: "通知",
+      description:
+        "DeerFlow 只会在窗口不活跃时发送完成通知，特别适合长时间任务：你可以先去做别的事，完成后会收到提醒。",
+      requestPermission: "请求通知权限",
+      deniedHint:
+        "通知权限已被拒绝。可在浏览器的网站设置中重新开启，以接收完成提醒。",
+      testButton: "发送测试通知",
+      testTitle: "DeerFlow",
+      testBody: "这是一条测试通知。",
+      notSupported: "当前浏览器不支持通知功能。",
+      disableNotification: "关闭通知",
     },
     acknowledge: {
       emptyTitle: "致谢",
