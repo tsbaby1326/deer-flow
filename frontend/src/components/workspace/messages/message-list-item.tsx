@@ -1,5 +1,5 @@
 import type { Message } from "@langchain/langgraph-sdk";
-import { ExternalLinkIcon, FileIcon, LinkIcon } from "lucide-react";
+import { ExternalLinkIcon, FileIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { memo, useMemo } from "react";
 import rehypeKatex from "rehype-katex";
@@ -406,73 +406,6 @@ function UploadedFileCard({
         <span className="text-muted-foreground text-[10px]">{file.size}</span>
       </div>
     </div>
-  );
-}
-
-/**
- * Citations list component that displays all sources at the top
- */
-function CitationsList({ citations }: { citations: Citation[] }) {
-  if (citations.length === 0) return null;
-
-  return (
-    <div className="bg-muted/30 mb-4 rounded-lg border p-3">
-      <div className="text-muted-foreground mb-2 flex items-center gap-2 text-sm font-medium">
-        <LinkIcon className="size-4" />
-        <span>Sources ({citations.length})</span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {citations.map((citation) => (
-          <CitationBadge key={citation.id} citation={citation} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Single citation badge in the citations list
- */
-function CitationBadge({ citation }: { citation: Citation }) {
-  const domain = extractDomainFromUrl(citation.url);
-
-  return (
-    <InlineCitationCard>
-      <HoverCardTrigger asChild>
-        <a
-          href={citation.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex"
-        >
-          <Badge
-            variant="secondary"
-            className="hover:bg-secondary/80 cursor-pointer gap-1 rounded-full px-2.5 py-1 text-xs font-normal"
-          >
-            {domain}
-            <ExternalLinkIcon className="size-3" />
-          </Badge>
-        </a>
-      </HoverCardTrigger>
-      <InlineCitationCardBody>
-        <div className="p-3">
-          <InlineCitationSource
-            title={citation.title}
-            url={citation.url}
-            description={citation.snippet}
-          />
-          <a
-            href={citation.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary mt-2 inline-flex items-center gap-1 text-xs hover:underline"
-          >
-            Visit source
-            <ExternalLinkIcon className="size-3" />
-          </a>
-        </div>
-      </InlineCitationCardBody>
-    </InlineCitationCard>
   );
 }
 
