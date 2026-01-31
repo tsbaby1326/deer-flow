@@ -75,14 +75,21 @@ export function ArtifactFileDetail({
     }
     return filepathFromProps;
   }, [filepathFromProps, isWriteFile]);
+  const isSkillFile = useMemo(() => {
+    return filepath.endsWith(".skill");
+  }, [filepath]);
   const { isCodeFile, language } = useMemo(() => {
     if (isWriteFile) {
       let language = checkCodeFile(filepath).language;
       language ??= "text";
       return { isCodeFile: true, language };
     }
+    // Treat .skill files as markdown (they contain SKILL.md)
+    if (isSkillFile) {
+      return { isCodeFile: true, language: "markdown" };
+    }
     return checkCodeFile(filepath);
-  }, [filepath, isWriteFile]);
+  }, [filepath, isWriteFile, isSkillFile]);
   const previewable = useMemo(() => {
     return (language === "html" && !isWriteFile) || language === "markdown";
   }, [isWriteFile, language]);

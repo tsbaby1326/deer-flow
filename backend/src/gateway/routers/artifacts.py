@@ -1,5 +1,6 @@
 import mimetypes
 import os
+import zipfile
 from pathlib import Path
 from urllib.parse import quote
 
@@ -60,6 +61,39 @@ def is_text_file_by_content(path: Path, sample_size: int = 8192) -> bool:
         return False
 
 
+def _extract_file_from_skill_archive(zip_path: Path, internal_path: str) -> bytes | None:
+    """Extract a file from a .skill ZIP archive.
+
+    Args:
+        zip_path: Path to the .skill file (ZIP archive).
+        internal_path: Path to the file inside the archive (e.g., "SKILL.md").
+
+    Returns:
+        The file content as bytes, or None if not found.
+    """
+    if not zipfile.is_zipfile(zip_path):
+        return None
+
+    try:
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            # List all files in the archive
+            namelist = zip_ref.namelist()
+
+            # Try direct path first
+            if internal_path in namelist:
+                return zip_ref.read(internal_path)
+
+            # Try with any top-level directory prefix (e.g., "skill-name/SKILL.md")
+            for name in namelist:
+                if name.endswith("/" + internal_path) or name == internal_path:
+                    return zip_ref.read(name)
+
+            # Not found
+            return None
+    except (zipfile.BadZipFile, KeyError):
+        return None
+
+
 @router.get(
     "/threads/{thread_id}/artifacts/{path:path}",
     summary="Get Artifact File",
@@ -95,6 +129,40 @@ async def get_artifact(thread_id: str, path: str, request: Request) -> FileRespo
         - Get HTML file: `/api/threads/abc123/artifacts/mnt/user-data/outputs/index.html`
         - Download file: `/api/threads/abc123/artifacts/mnt/user-data/outputs/data.csv?download=true`
     """
+    # Check if this is a request for a file inside a .skill archive (e.g., xxx.skill/SKILL.md)
+    if ".skill/" in path:
+        # Split the path at ".skill/" to get the ZIP file path and internal path
+        skill_marker = ".skill/"
+        marker_pos = path.find(skill_marker)
+        skill_file_path = path[: marker_pos + len(".skill")]  # e.g., "mnt/user-data/outputs/my-skill.skill"
+        internal_path = path[marker_pos + len(skill_marker) :]  # e.g., "SKILL.md"
+
+        actual_skill_path = _resolve_artifact_path(thread_id, skill_file_path)
+
+        if not actual_skill_path.exists():
+            raise HTTPException(status_code=404, detail=f"Skill file not found: {skill_file_path}")
+
+        if not actual_skill_path.is_file():
+            raise HTTPException(status_code=400, detail=f"Path is not a file: {skill_file_path}")
+
+        # Extract the file from the .skill archive
+        content = _extract_file_from_skill_archive(actual_skill_path, internal_path)
+        if content is None:
+            raise HTTPException(status_code=404, detail=f"File '{internal_path}' not found in skill archive")
+
+        # Determine MIME type based on the internal file
+        mime_type, _ = mimetypes.guess_type(internal_path)
+        # Add cache headers to avoid repeated ZIP extraction (cache for 5 minutes)
+        cache_headers = {"Cache-Control": "private, max-age=300"}
+        if mime_type and mime_type.startswith("text/"):
+            return PlainTextResponse(content=content.decode("utf-8"), media_type=mime_type, headers=cache_headers)
+
+        # Default to plain text for unknown types that look like text
+        try:
+            return PlainTextResponse(content=content.decode("utf-8"), media_type="text/plain", headers=cache_headers)
+        except UnicodeDecodeError:
+            return Response(content=content, media_type=mime_type or "application/octet-stream", headers=cache_headers)
+
     actual_path = _resolve_artifact_path(thread_id, path)
 
     if not actual_path.exists():

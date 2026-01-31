@@ -13,7 +13,7 @@ export async function loadArtifactContent({
 }) {
   let enhancedFilepath = filepath;
   if (filepath.endsWith(".skill")) {
-    enhancedFilepath = filepath.replace(".md", ".skill/SKILL.md");
+    enhancedFilepath = filepath + "/SKILL.md";
   }
   const url = urlOfArtifact({ filepath: enhancedFilepath, threadId });
   const response = await fetch(url);
