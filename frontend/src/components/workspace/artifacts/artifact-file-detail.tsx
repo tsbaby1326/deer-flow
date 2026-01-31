@@ -4,12 +4,13 @@ import {
   DownloadIcon,
   ExternalLinkIcon,
   EyeIcon,
+  LoaderIcon,
   PackageIcon,
   SquareArrowOutUpRightIcon,
   XIcon,
 } from "lucide-react";
 import * as React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 
@@ -46,6 +47,7 @@ import {
   type Citation,
 } from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
+import { installSkill } from "@/core/skills/api";
 import { streamdownPlugins } from "@/core/streamdown";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { cn } from "@/lib/utils";
@@ -99,6 +101,8 @@ export function ArtifactFileDetail({
   }, [content, language]);
 
   const [viewMode, setViewMode] = useState<"code" | "preview">("code");
+  const [isInstalling, setIsInstalling] = useState(false);
+
   useEffect(() => {
     if (previewable) {
       setViewMode("preview");
@@ -106,6 +110,28 @@ export function ArtifactFileDetail({
       setViewMode("code");
     }
   }, [previewable]);
+
+  const handleInstallSkill = useCallback(async () => {
+    if (isInstalling) return;
+
+    setIsInstalling(true);
+    try {
+      const result = await installSkill({
+        thread_id: threadId,
+        path: filepath,
+      });
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message || "Failed to install skill");
+      }
+    } catch (error) {
+      console.error("Failed to install skill:", error);
+      toast.error("Failed to install skill");
+    } finally {
+      setIsInstalling(false);
+    }
+  }, [threadId, filepath, isInstalling]);
   return (
     <Artifact className={cn(className)}>
       <ArtifactHeader className="px-2">
@@ -155,13 +181,13 @@ export function ArtifactFileDetail({
         <div className="flex items-center gap-2">
           <ArtifactActions>
             {!isWriteFile && filepath.endsWith(".skill") && (
-              <a href={urlOfArtifact({ filepath, threadId })} target="_blank">
-                <ArtifactAction
-                  icon={PackageIcon}
-                  label={t.common.install}
-                  tooltip={t.common.openInNewWindow}
-                />
-              </a>
+              <ArtifactAction
+                icon={isInstalling ? LoaderIcon : PackageIcon}
+                label={t.common.install}
+                tooltip={t.common.install}
+                disabled={isInstalling}
+                onClick={handleInstallSkill}
+              />
             )}
             {!isWriteFile && (
               <a href={urlOfArtifact({ filepath, threadId })} target="_blank">
