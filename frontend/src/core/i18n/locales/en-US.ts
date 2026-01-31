@@ -152,6 +152,7 @@ export const enUS: Translations = {
       title: "Agent Skills",
       description:
         "Manage the configuration and enabled status of the agent skills.",
+      createSkill: "Create skill",
     },
     notification: {
       title: "Notification",

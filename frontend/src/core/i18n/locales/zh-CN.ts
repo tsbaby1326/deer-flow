@@ -147,6 +147,7 @@ export const zhCN: Translations = {
     skills: {
       title: "技能",
       description: "管理 Agent Skill 配置和启用状态。",
+      createSkill: "新建技能",
     },
     notification: {
       title: "通知",

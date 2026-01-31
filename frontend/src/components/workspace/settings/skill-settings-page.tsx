@@ -80,7 +80,7 @@ function SkillSettingsList({
         </div>
         <div>
           <Button variant="outline" size="sm" onClick={handleCreateSkill}>
-            Create Skill
+            {t.settings.skills.createSkill}
           </Button>
         </div>
       </header>

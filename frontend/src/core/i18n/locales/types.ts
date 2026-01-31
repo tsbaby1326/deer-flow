@@ -143,6 +143,7 @@ export interface Translations {
     skills: {
       title: string;
       description: string;
+      createSkill: string;
     };
     notification: {
       title: string;
