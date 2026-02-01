@@ -1,26 +1,28 @@
+[!NOTE] Generate this report in user's own language.
+
 # {TITLE}
 
-**Research Date:** {DATE}
-**Timestamp:** {TIMESTAMP}
-**Confidence Level:** {CONFIDENCE_LEVEL}
-**Subject:** {SUBJECT_DESCRIPTION}
+- **Research Date:** {DATE}
+- **Timestamp:** {TIMESTAMP}
+- **Confidence Level:** {CONFIDENCE_LEVEL}
+- **Subject:** {SUBJECT_DESCRIPTION}
 
 ---
 
 ## Repository Information
 
-**Name:** {REPOSITORY_NAME}
-**Description:** {REPOSITORY_DESCRIPTION}
-**URL:** {REPOSITORY_URL}
-**Stars:** {REPOSITORY_STARS}
-**Forks:** {REPOSITORY_FORKS}
-**Open Issues:** {REPOSITORY_OPEN_ISSUES}
-**Language(s):** {REPOSITORY_LANGUAGES}
-**License:** {REPOSITORY_LICENSE}
-**Created At:** {REPOSITORY_CREATED_AT}
-**Updated At:** {REPOSITORY_UPDATED_AT}
-**Pushed At:** {REPOSITORY_PUSHED_AT}
-**Topics:** {REPOSITORY_TOPICS}
+- **Name:** {REPOSITORY_NAME}
+- **Description:** {REPOSITORY_DESCRIPTION}
+- **URL:** {REPOSITORY_URL}
+- **Stars:** {REPOSITORY_STARS}
+- **Forks:** {REPOSITORY_FORKS}
+- **Open Issues:** {REPOSITORY_OPEN_ISSUES}
+- **Language(s):** {REPOSITORY_LANGUAGES}
+- **License:** {REPOSITORY_LICENSE}
+- **Created At:** {REPOSITORY_CREATED_AT}
+- **Updated At:** {REPOSITORY_UPDATED_AT}
+- **Pushed At:** {REPOSITORY_PUSHED_AT}
+- **Topics:** {REPOSITORY_TOPICS}
 
 ---
 
@@ -179,7 +181,7 @@ This report was compiled using:
 
 ---
 
-**Report Prepared By:** Claude Deep Research
+**Report Prepared By:** Github Deep Research by DeerFlow
 **Date:** {REPORT_DATE}
 **Report Version:** 1.0
 **Status:** Complete

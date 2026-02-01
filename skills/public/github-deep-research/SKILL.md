@@ -9,26 +9,10 @@ Multi-round research combining GitHub API, web_search, web_fetch to produce comp
 
 ## Research Workflow
 
-```
-Round 1: GitHub API
-├── Get repository basic information
-└── Get repository README
-
-Round 2: Discovery
-├── Identify key entities and terms
-├── Web search for overview (3-5 queries)
-└── Fetch official sources
-
-Round 3: Deep Dive
-├── GitHub analysis
-├── Targeted searches for specifics
-└── Fetch detailed articles, docs, PRs
-
-Round 4: Synthesis
-├── Construct timeline
-├── Analyze metrics
-└── Generate report
-```
+- Round 1: GitHub API
+- Round 2: Discovery
+- Round 3: Deep Investigation
+- Round 4: Deep Dive
 
 ## Core Methodology
 
@@ -55,8 +39,22 @@ Round 4: "{topic} issues", "{topic} roadmap", "site:github.com {topic}"
 **Round 1 - GitHub API**
 Directly execute `scripts/github_api.py` without `read_file()`:
 ```bash
-cd path/to/skill && python scripts/github_api.py <owner> <repo> summary
+python /path/to/skill/scripts/github_api.py <owner> <repo> summary
+python /path/to/skill/scripts/github_api.py <owner> <repo> readme
+python /path/to/skill/scripts/github_api.py <owner> <repo> tree
 ```
+
+**Available commands (the last argument of `github_api.py`):**
+- summary
+- info
+- readme
+- tree
+- languages
+- contributors
+- commits
+- issues
+- prs
+- releases
 
 **Round 2 - Discovery (3-5 web_search)**
 - Get overview and identify key terms
@@ -69,7 +67,7 @@ cd path/to/skill && python scripts/github_api.py <owner> <repo> summary
 - Community sentiment
 - Use web_fetch on valuable URLs for full content
 
-**Round 4 - GitHub Deep Dive**
+**Round 4 - Deep Dive**
 - Analyze commit history for timeline
 - Review issues/PRs for feature evolution
 - Check contributor activity
