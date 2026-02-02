@@ -1,3 +1,14 @@
+import {
+  CompassIcon,
+  GraduationCapIcon,
+  ImageIcon,
+  MicroscopeIcon,
+  PenLineIcon,
+  ShapesIcon,
+  SparklesIcon,
+  VideoIcon,
+} from "lucide-react";
+
 import type { Translations } from "./types";
 
 export const zhCN: Translations = {
@@ -29,6 +40,7 @@ export const zhCN: Translations = {
     cancel: "取消",
     save: "保存",
     install: "安装",
+    create: "创建",
   },
 
   // Welcome
@@ -60,6 +72,54 @@ export const zhCN: Translations = {
     proMode: "专业",
     proModeDescription: "思考、计划再执行，获得更精准的结果，可能需要更多时间",
     searchModels: "搜索模型...",
+    suggestions: [
+      {
+        suggestion: "写作",
+        prompt: "撰写一篇关于[主题]的博客文章",
+        icon: PenLineIcon,
+      },
+      {
+        suggestion: "研究",
+        prompt: "深入浅出的研究一下[主题]，并总结发现。",
+        icon: MicroscopeIcon,
+      },
+      {
+        suggestion: "收集",
+        prompt: "从[来源]收集数据并创建报告。",
+        icon: ShapesIcon,
+      },
+      {
+        suggestion: "学习",
+        prompt: "学习关于[主题]并创建教程。",
+        icon: GraduationCapIcon,
+      },
+    ],
+    suggestionsCreate: [
+      {
+        suggestion: "网页",
+        prompt: "生成一个关于[主题]的网页",
+        icon: CompassIcon,
+      },
+      {
+        suggestion: "图片",
+        prompt: "生成一个关于[主题]的图片",
+        icon: ImageIcon,
+      },
+      {
+        suggestion: "视频",
+        prompt: "生成一个关于[主题]的视频",
+        icon: VideoIcon,
+      },
+      {
+        type: "separator",
+      },
+      {
+        suggestion: "技能",
+        prompt:
+          "我们一起用 skill-creator 技能来创建一个技能吧。先问问我希望这个技能能做什么。",
+        icon: SparklesIcon,
+      },
+    ],
   },
 
   // Sidebar

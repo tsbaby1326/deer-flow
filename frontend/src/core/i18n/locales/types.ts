@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+
 export interface Translations {
   // Locale meta
   locale: {
@@ -27,6 +29,7 @@ export interface Translations {
     cancel: string;
     save: string;
     install: string;
+    create: string;
   };
 
   // Welcome
@@ -56,6 +59,21 @@ export interface Translations {
     proMode: string;
     proModeDescription: string;
     searchModels: string;
+    suggestions: {
+      suggestion: string;
+      prompt: string;
+      icon: LucideIcon;
+    }[];
+    suggestionsCreate: (
+      | {
+          suggestion: string;
+          prompt: string;
+          icon: LucideIcon;
+        }
+      | {
+          type: "separator";
+        }
+    )[];
   };
 
   // Sidebar
