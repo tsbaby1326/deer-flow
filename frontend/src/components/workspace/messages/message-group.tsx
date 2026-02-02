@@ -283,9 +283,11 @@ function ToolCall({
       >
         <ChainOfThoughtSearchResult>
           {url && (
-            <a href={url} target="_blank" rel="noreferrer">
-              {title}
-            </a>
+            <Tooltip content={<pre>{result as string}</pre>}>
+              <a href={url} target="_blank" rel="noreferrer">
+                {title}
+              </a>
+            </Tooltip>
           )}
         </ChainOfThoughtSearchResult>
       </ChainOfThoughtStep>
@@ -300,7 +302,11 @@ function ToolCall({
     return (
       <ChainOfThoughtStep key={id} label={description} icon={FolderOpenIcon}>
         {path && (
-          <ChainOfThoughtSearchResult>{path}</ChainOfThoughtSearchResult>
+          <Tooltip content={<pre>{result as string}</pre>}>
+            <ChainOfThoughtSearchResult className="cursor-pointer">
+              {path}
+            </ChainOfThoughtSearchResult>
+          </Tooltip>
         )}
       </ChainOfThoughtStep>
     );
@@ -310,11 +316,15 @@ function ToolCall({
     if (!description) {
       description = t.toolCalls.readFile;
     }
-    const path: string | undefined = (args as { path: string })?.path;
+    const { path } = args as { path: string; content: string };
     return (
       <ChainOfThoughtStep key={id} label={description} icon={BookOpenTextIcon}>
         {path && (
-          <ChainOfThoughtSearchResult>{path}</ChainOfThoughtSearchResult>
+          <Tooltip content={<pre>{result as string}</pre>}>
+            <ChainOfThoughtSearchResult className="cursor-pointer">
+              {path}
+            </ChainOfThoughtSearchResult>
+          </Tooltip>
         )}
       </ChainOfThoughtStep>
     );
@@ -371,12 +381,14 @@ function ToolCall({
         icon={SquareTerminalIcon}
       >
         {command && (
-          <CodeBlock
-            className="mx-0 border-none px-0"
-            showLineNumbers={false}
-            language="bash"
-            code={command}
-          />
+          <Tooltip content={<pre>{result as string}</pre>}>
+            <CodeBlock
+              className="mx-0 cursor-pointer border-none px-0"
+              showLineNumbers={false}
+              language="bash"
+              code={command}
+            />
+          </Tooltip>
         )}
       </ChainOfThoughtStep>
     );
