@@ -219,6 +219,7 @@ export default function ChatPage() {
                 {artifacts?.length > 0 && !artifactsOpen && (
                   <Tooltip content="Show artifacts of this conversation">
                     <Button
+                      className="text-muted-foreground hover:text-foreground"
                       variant="ghost"
                       onClick={() => {
                         setArtifactsOpen(true);
