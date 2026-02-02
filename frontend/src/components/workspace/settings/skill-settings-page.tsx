@@ -79,7 +79,8 @@ function SkillSettingsList({
           </Tabs>
         </div>
         <div>
-          <Button variant="outline" size="sm" onClick={handleCreateSkill}>
+          <Button size="sm" onClick={handleCreateSkill}>
+            <SparklesIcon className="size-4" />
             {t.settings.skills.createSkill}
           </Button>
         </div>
