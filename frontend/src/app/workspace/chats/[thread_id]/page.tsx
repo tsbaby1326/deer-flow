@@ -168,9 +168,7 @@ export default function ChatPage() {
     return artifactsOpen;
   }, [artifactsOpen, artifacts]);
 
-  const [todoListCollapsed, setTodoListCollapsed] = useState(
-    env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY !== "true",
-  );
+  const [todoListCollapsed, setTodoListCollapsed] = useState(false);
 
   const handleSubmit = useSubmitThread({
     isNewThread,
