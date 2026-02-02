@@ -122,6 +122,7 @@ export const zhCN: Translations = {
     listFolder: "列出文件夹",
     readFile: "读取文件",
     writeFile: "写入文件",
+    clickToViewContent: "点击查看文件内容",
     writeTodos: "更新 To-do 列表",
     skillInstallTooltip: "安装技能并使其可在 DeerFlow 中使用",
   },

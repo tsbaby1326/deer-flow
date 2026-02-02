@@ -125,6 +125,7 @@ export const enUS: Translations = {
     listFolder: "List folder",
     readFile: "Read file",
     writeFile: "Write file",
+    clickToViewContent: "Click to view file content",
     writeTodos: "Update to-do list",
     skillInstallTooltip: "Install skill and make it available to DeerFlow",
   },

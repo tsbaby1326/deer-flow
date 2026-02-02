@@ -118,6 +118,7 @@ export interface Translations {
     listFolder: string;
     readFile: string;
     writeFile: string;
+    clickToViewContent: string;
     writeTodos: string;
     skillInstallTooltip: string;
   };

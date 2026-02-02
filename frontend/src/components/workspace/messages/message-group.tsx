@@ -320,7 +320,13 @@ function ToolCall({
     return (
       <ChainOfThoughtStep key={id} label={description} icon={BookOpenTextIcon}>
         {path && (
-          <Tooltip content={<pre>{result as string}</pre>}>
+          <Tooltip
+            content={
+              <pre className="max-w-[95vw] whitespace-pre-wrap">
+                {result as string}
+              </pre>
+            }
+          >
             <ChainOfThoughtSearchResult className="cursor-pointer">
               {path}
             </ChainOfThoughtSearchResult>
@@ -363,7 +369,11 @@ function ToolCall({
         }}
       >
         {path && (
-          <ChainOfThoughtSearchResult>{path}</ChainOfThoughtSearchResult>
+          <Tooltip content={t.toolCalls.clickToViewContent}>
+            <ChainOfThoughtSearchResult className="cursor-pointer">
+              {path}
+            </ChainOfThoughtSearchResult>
+          </Tooltip>
         )}
       </ChainOfThoughtStep>
     );
