@@ -36,6 +36,8 @@ export interface Translations {
   welcome: {
     greeting: string;
     description: string;
+    createYourOwnSkill: string;
+    createYourOwnSkillDescription: string;
   };
 
   // Clipboard

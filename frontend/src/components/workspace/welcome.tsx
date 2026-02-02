@@ -17,16 +17,28 @@ export function Welcome({ className }: { className?: string }) {
     >
       <div className="text-2xl font-bold">
         {searchParams.get("mode") === "skill"
-          ? `🚀 ${t.settings.skills.createSkill}`
+          ? `✨ ${t.welcome.createYourOwnSkill} ✨`
           : t.welcome.greeting}
       </div>
-      <div className="text-muted-foreground text-sm">
-        {t.welcome.description.includes("\n") ? (
-          <pre className="whitespace-pre">{t.welcome.description}</pre>
-        ) : (
-          <p>{t.welcome.description}</p>
-        )}
-      </div>
+      {searchParams.get("mode") === "skill" ? (
+        <div className="text-muted-foreground text-sm">
+          {t.welcome.createYourOwnSkillDescription.includes("\n") ? (
+            <pre className="font-sans whitespace-pre">
+              {t.welcome.createYourOwnSkillDescription}
+            </pre>
+          ) : (
+            <p>{t.welcome.createYourOwnSkillDescription}</p>
+          )}
+        </div>
+      ) : (
+        <div className="text-muted-foreground text-sm">
+          {t.welcome.description.includes("\n") ? (
+            <pre className="whitespace-pre">{t.welcome.description}</pre>
+          ) : (
+            <p>{t.welcome.description}</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

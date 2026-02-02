@@ -9,6 +9,7 @@ import {
   PlusIcon,
   ZapIcon,
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 
 import {
@@ -96,6 +97,7 @@ export function InputBox({
   onStop?: () => void;
 }) {
   const { t } = useI18n();
+  const searchParams = useSearchParams();
   const [modelDialogOpen, setModelDialogOpen] = useState(false);
   const { models } = useModels();
   const selectedModel = useMemo(() => {
@@ -347,7 +349,7 @@ export function InputBox({
           />
         </PromptInputTools>
       </PromptInputFooter>
-      {isNewThread && (
+      {isNewThread && searchParams.get("mode") !== "skill" && (
         <div className="absolute right-0 -bottom-12 left-0 z-0 flex items-center justify-center">
           <SuggestionList />
         </div>
