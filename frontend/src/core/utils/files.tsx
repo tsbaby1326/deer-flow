@@ -1,3 +1,12 @@
+import {
+  BookOpenTextIcon,
+  CompassIcon,
+  FileCodeIcon,
+  FileCogIcon,
+  FilePlayIcon,
+  FileTextIcon,
+} from "lucide-react";
+
 const extensionMap: Record<string, string> = {
   // Text
   txt: "text",
@@ -179,5 +188,37 @@ export function getFileExtensionDisplayName(filepath: string) {
       return "Excel";
     default:
       return extension.toUpperCase();
+  }
+}
+
+export function getFileIcon(filepath: string) {
+  const extension = getFileExtension(filepath);
+  const { isCodeFile } = checkCodeFile(filepath);
+  const className = "size-6";
+  switch (extension) {
+    case "skill":
+      return <FileCogIcon className={className} />;
+    case "html":
+      return <CompassIcon className={className} />;
+    case "md":
+      return <BookOpenTextIcon className={className} />;
+    case "mp3":
+    case "wav":
+    case "ogg":
+    case "aac":
+    case "m4a":
+    case "flac":
+    case "wma":
+    case "aiff":
+    case "ape":
+    case "mp4":
+    case "mov":
+    case "m4v":
+      return <FilePlayIcon className={className} />;
+    default:
+      if (isCodeFile) {
+        return <FileCodeIcon className={className} />;
+      }
+      return <FileTextIcon className={className} />;
   }
 }

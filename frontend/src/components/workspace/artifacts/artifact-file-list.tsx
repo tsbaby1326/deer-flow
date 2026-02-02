@@ -13,7 +13,11 @@ import {
 import { urlOfArtifact } from "@/core/artifacts/utils";
 import { useI18n } from "@/core/i18n/hooks";
 import { installSkill } from "@/core/skills/api";
-import { getFileExtensionDisplayName, getFileName } from "@/core/utils/files";
+import {
+  getFileExtensionDisplayName,
+  getFileIcon,
+  getFileName,
+} from "@/core/utils/files";
 import { cn } from "@/lib/utils";
 
 import { useArtifacts } from "./context";
@@ -76,8 +80,13 @@ export function ArtifactFileList({
           onClick={() => handleClick(file)}
         >
           <CardHeader className="pr-2 pl-1">
-            <CardTitle>{getFileName(file)}</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className="relative pl-8">
+              <div>{getFileName(file)}</div>
+              <div className="absolute top-2 -left-0.5">
+                {getFileIcon(file)}
+              </div>
+            </CardTitle>
+            <CardDescription className="pl-8 text-xs">
               {getFileExtensionDisplayName(file)} file
             </CardDescription>
             <CardAction>
