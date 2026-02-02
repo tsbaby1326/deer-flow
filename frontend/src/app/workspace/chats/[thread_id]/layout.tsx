@@ -1,5 +1,6 @@
 "use client";
 
+import { PromptInputProvider } from "@/components/ai-elements/prompt-input";
 import { ArtifactsProvider } from "@/components/workspace/artifacts";
 
 export default function ChatLayout({
@@ -7,5 +8,9 @@ export default function ChatLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <ArtifactsProvider>{children}</ArtifactsProvider>;
+  return (
+    <ArtifactsProvider>
+      <PromptInputProvider>{children}</PromptInputProvider>
+    </ArtifactsProvider>
+  );
 }

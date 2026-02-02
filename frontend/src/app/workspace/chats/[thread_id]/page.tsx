@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ConversationEmptyState } from "@/components/ai-elements/conversation";
+import { usePromptInputController } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
 import {
   ResizableHandle,
@@ -53,6 +54,7 @@ export default function ChatPage() {
   } = useArtifacts();
   const { thread_id: threadIdFromPath } = useParams<{ thread_id: string }>();
   const searchParams = useSearchParams();
+  const promptInputController = usePromptInputController();
   const inputInitialValue = useMemo(() => {
     if (threadIdFromPath !== "new" || searchParams.get("mode") !== "skill") {
       return undefined;
@@ -62,6 +64,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (inputInitialValue) {
       setTimeout(() => {
+        promptInputController.textInput.setInput(inputInitialValue);
         const textarea = document.querySelector("textarea");
         if (textarea) {
           textarea.focus();
@@ -70,7 +73,7 @@ export default function ChatPage() {
         }
       }, 100);
     }
-  }, [inputInitialValue]);
+  }, [inputInitialValue, promptInputController.textInput]);
   const isNewThread = useMemo(
     () => threadIdFromPath === "new",
     [threadIdFromPath],
@@ -272,7 +275,6 @@ export default function ChatPage() {
                     context={settings.context}
                     extraHeader={isNewThread && <Welcome />}
                     disabled={env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true"}
-                    initialValue={inputInitialValue}
                     onContextChange={(context) =>
                       setSettings("context", context)
                     }
