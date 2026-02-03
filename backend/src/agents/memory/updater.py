@@ -43,28 +43,54 @@ def _create_empty_memory() -> dict[str, Any]:
 
 # Global memory data cache
 _memory_data: dict[str, Any] | None = None
+# Track file modification time for cache invalidation
+_memory_file_mtime: float | None = None
 
 
 def get_memory_data() -> dict[str, Any]:
-    """Get the current memory data (cached singleton).
+    """Get the current memory data (cached with file modification time check).
+
+    The cache is automatically invalidated if the memory file has been modified
+    since the last load, ensuring fresh data is always returned.
 
     Returns:
         The memory data dictionary.
     """
-    global _memory_data
-    if _memory_data is None:
+    global _memory_data, _memory_file_mtime
+
+    file_path = _get_memory_file_path()
+
+    # Get current file modification time
+    try:
+        current_mtime = file_path.stat().st_mtime if file_path.exists() else None
+    except OSError:
+        current_mtime = None
+
+    # Invalidate cache if file has been modified or doesn't exist
+    if _memory_data is None or _memory_file_mtime != current_mtime:
         _memory_data = _load_memory_from_file()
+        _memory_file_mtime = current_mtime
+
     return _memory_data
 
 
 def reload_memory_data() -> dict[str, Any]:
-    """Reload memory data from file.
+    """Reload memory data from file, forcing cache invalidation.
 
     Returns:
         The reloaded memory data dictionary.
     """
-    global _memory_data
+    global _memory_data, _memory_file_mtime
+
+    file_path = _get_memory_file_path()
     _memory_data = _load_memory_from_file()
+
+    # Update file modification time after reload
+    try:
+        _memory_file_mtime = file_path.stat().st_mtime if file_path.exists() else None
+    except OSError:
+        _memory_file_mtime = None
+
     return _memory_data
 
 
@@ -89,7 +115,7 @@ def _load_memory_from_file() -> dict[str, Any]:
 
 
 def _save_memory_to_file(memory_data: dict[str, Any]) -> bool:
-    """Save memory data to file.
+    """Save memory data to file and update cache.
 
     Args:
         memory_data: The memory data to save.
@@ -97,7 +123,7 @@ def _save_memory_to_file(memory_data: dict[str, Any]) -> bool:
     Returns:
         True if successful, False otherwise.
     """
-    global _memory_data
+    global _memory_data, _memory_file_mtime
     file_path = _get_memory_file_path()
 
     try:
@@ -115,8 +141,12 @@ def _save_memory_to_file(memory_data: dict[str, Any]) -> bool:
         # Rename temp file to actual file (atomic on most systems)
         temp_path.replace(file_path)
 
-        # Update cache
+        # Update cache and file modification time
         _memory_data = memory_data
+        try:
+            _memory_file_mtime = file_path.stat().st_mtime
+        except OSError:
+            _memory_file_mtime = None
 
         print(f"Memory saved to {file_path}")
         return True
