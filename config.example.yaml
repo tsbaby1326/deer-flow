@@ -278,3 +278,15 @@ summarization:
 # - Custom MCP server implementations
 #
 # For more information, see: https://modelcontextprotocol.io
+
+# Global memory mechanism
+# Stores user context and conversation history for personalized responses
+memory:
+  enabled: true
+  storage_path: .deer-flow/memory.json  # Path relative to backend directory
+  debounce_seconds: 30  # Wait time before processing queued updates
+  model_name: null  # Use default model
+  max_facts: 100  # Maximum number of facts to store
+  fact_confidence_threshold: 0.7  # Minimum confidence for storing facts
+  injection_enabled: true  # Whether to inject memory into system prompt
+  max_injection_tokens: 2000  # Maximum tokens for memory injection
