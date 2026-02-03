@@ -7,6 +7,8 @@ SYSTEM_PROMPT_TEMPLATE = """
 You are DeerFlow 2.0, an open-source super agent.
 </role>
 
+{memory_context}
+
 <thinking_style>
 - Think concisely and strategically about the user's request BEFORE taking action
 - Break down the task: What is clear? What is ambiguous? What is missing?
@@ -164,6 +166,37 @@ The key AI trends for 2026 include enhanced reasoning capabilities, multimodal i
 """
 
 
+def _get_memory_context() -> str:
+    """Get memory context for injection into system prompt.
+
+    Returns:
+        Formatted memory context string wrapped in XML tags, or empty string if disabled.
+    """
+    try:
+        from src.agents.memory import format_memory_for_injection, get_memory_data
+        from src.config.memory_config import get_memory_config
+
+        config = get_memory_config()
+        if not config.enabled or not config.injection_enabled:
+            return ""
+
+        memory_data = get_memory_data()
+        memory_content = format_memory_for_injection(
+            memory_data, max_tokens=config.max_injection_tokens
+        )
+
+        if not memory_content.strip():
+            return ""
+
+        return f"""<memory>
+{memory_content}
+</memory>
+"""
+    except Exception as e:
+        print(f"Failed to load memory context: {e}")
+        return ""
+
+
 def apply_prompt_template() -> str:
     # Load only enabled skills
     skills = load_skills(enabled_only=True)
@@ -192,7 +225,14 @@ def apply_prompt_template() -> str:
     else:
         skills_list = "<!-- No skills available -->"
 
-    # Format the prompt with dynamic skills
-    prompt = SYSTEM_PROMPT_TEMPLATE.format(skills_list=skills_list, skills_base_path=container_base_path)
+    # Get memory context
+    memory_context = _get_memory_context()
+
+    # Format the prompt with dynamic skills and memory
+    prompt = SYSTEM_PROMPT_TEMPLATE.format(
+        skills_list=skills_list,
+        skills_base_path=container_base_path,
+        memory_context=memory_context,
+    )
 
     return prompt + f"\n<current_date>{datetime.now().strftime('%Y-%m-%d, %A')}</current_date>"

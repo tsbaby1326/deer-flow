@@ -4,6 +4,7 @@ from langchain_core.runnables import RunnableConfig
 
 from src.agents.lead_agent.prompt import apply_prompt_template
 from src.agents.middlewares.clarification_middleware import ClarificationMiddleware
+from src.agents.middlewares.memory_middleware import MemoryMiddleware
 from src.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
 from src.agents.middlewares.title_middleware import TitleMiddleware
 from src.agents.middlewares.uploads_middleware import UploadsMiddleware
@@ -175,6 +176,8 @@ Being proactive with task management demonstrates thoroughness and ensures all r
 # UploadsMiddleware should be after ThreadDataMiddleware to access thread_id
 # SummarizationMiddleware should be early to reduce context before other processing
 # TodoListMiddleware should be before ClarificationMiddleware to allow todo management
+# TitleMiddleware generates title after first exchange
+# MemoryMiddleware queues conversation for memory update (after TitleMiddleware)
 # ViewImageMiddleware should be before ClarificationMiddleware to inject image details before LLM
 # ClarificationMiddleware should be last to intercept clarification requests after model calls
 def _build_middlewares(config: RunnableConfig):
@@ -201,6 +204,9 @@ def _build_middlewares(config: RunnableConfig):
 
     # Add TitleMiddleware
     middlewares.append(TitleMiddleware())
+
+    # Add MemoryMiddleware (after TitleMiddleware)
+    middlewares.append(MemoryMiddleware())
 
     # Add ViewImageMiddleware only if the current model supports vision
     model_name = config.get("configurable", {}).get("model_name") or config.get("configurable", {}).get("model")
