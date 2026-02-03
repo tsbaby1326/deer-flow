@@ -32,14 +32,17 @@ IDLE_CHECK_INTERVAL = 60  # Check every 60 seconds
 
 
 class AioSandboxProvider(SandboxProvider):
-    """Sandbox provider that manages Docker containers running the AIO sandbox.
+    """Sandbox provider that manages containers running the AIO sandbox.
+
+    On macOS, automatically prefers Apple Container if available, otherwise falls back to Docker.
+    On other platforms, uses Docker.
 
     Configuration options in config.yaml under sandbox:
         use: src.community.aio_sandbox:AioSandboxProvider
-        image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest  # Docker image to use
+        image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest  # Container image to use (works with both runtimes)
         port: 8080  # Base port for sandbox containers
         base_url: http://localhost:8080  # If set, uses existing sandbox instead of starting new container
-        auto_start: true  # Whether to automatically start Docker container
+        auto_start: true  # Whether to automatically start container
         container_prefix: deer-flow-sandbox  # Prefix for container names
         idle_timeout: 600  # Idle timeout in seconds (default: 600 = 10 minutes). Set to 0 to disable.
         mounts:  # List of volume mounts
@@ -62,6 +65,7 @@ class AioSandboxProvider(SandboxProvider):
         self._shutdown_called = False
         self._idle_checker_stop = threading.Event()
         self._idle_checker_thread: threading.Thread | None = None
+        self._container_runtime = self._detect_container_runtime()
 
         # Register shutdown handler to clean up containers on exit
         atexit.register(self.shutdown)
@@ -184,6 +188,35 @@ class AioSandboxProvider(SandboxProvider):
                 resolved[key] = str(value)
         return resolved
 
+    def _detect_container_runtime(self) -> str:
+        """Detect which container runtime to use.
+
+        On macOS, prefer Apple Container if available, otherwise fall back to Docker.
+        On other platforms, use Docker.
+
+        Returns:
+            "container" for Apple Container, "docker" for Docker.
+        """
+        import platform
+
+        # Only try Apple Container on macOS
+        if platform.system() == "Darwin":
+            try:
+                result = subprocess.run(
+                    ["container", "--version"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                    timeout=5,
+                )
+                logger.info(f"Detected Apple Container: {result.stdout.strip()}")
+                return "container"
+            except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+                logger.info("Apple Container not available, falling back to Docker")
+
+        # Default to Docker
+        return "docker"
+
     def _is_sandbox_ready(self, base_url: str, timeout: int = 30) -> bool:
         """Check if sandbox is ready to accept connections.
 
@@ -253,7 +286,10 @@ class AioSandboxProvider(SandboxProvider):
         return None
 
     def _start_container(self, sandbox_id: str, port: int, extra_mounts: list[tuple[str, str, bool]] | None = None) -> str:
-        """Start a new Docker container for the sandbox.
+        """Start a new container for the sandbox.
+
+        On macOS, prefers Apple Container if available, otherwise uses Docker.
+        On other platforms, uses Docker.
 
         Args:
             sandbox_id: Unique identifier for the sandbox.
@@ -267,17 +303,22 @@ class AioSandboxProvider(SandboxProvider):
         container_name = f"{self._config['container_prefix']}-{sandbox_id}"
 
         cmd = [
-            "docker",
+            self._container_runtime,
             "run",
-            "--security-opt",
-            "seccomp=unconfined",
+        ]
+
+        # Add Docker-specific security options
+        if self._container_runtime == "docker":
+            cmd.extend(["--security-opt", "seccomp=unconfined"])
+
+        cmd.extend([
             "--rm",
             "-d",
             "-p",
             f"{port}:8080",
             "--name",
             container_name,
-        ]
+        ])
 
         # Add configured environment variables
         for key, value in self._config["environment"].items():
@@ -303,26 +344,28 @@ class AioSandboxProvider(SandboxProvider):
 
         cmd.append(image)
 
-        logger.info(f"Starting sandbox container: {' '.join(cmd)}")
+        logger.info(f"Starting sandbox container using {self._container_runtime}: {' '.join(cmd)}")
 
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             container_id = result.stdout.strip()
-            logger.info(f"Started sandbox container {container_name} with ID {container_id}")
+            logger.info(f"Started sandbox container {container_name} with ID {container_id} using {self._container_runtime}")
             return container_id
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to start sandbox container: {e.stderr}")
+            logger.error(f"Failed to start sandbox container using {self._container_runtime}: {e.stderr}")
             raise RuntimeError(f"Failed to start sandbox container: {e.stderr}")
 
     def _stop_container(self, container_id: str) -> None:
-        """Stop and remove a Docker container.
+        """Stop and remove a container.
+
+        Since we use --rm flag, the container is automatically removed after stopping.
 
         Args:
             container_id: The container ID to stop.
         """
         try:
-            subprocess.run(["docker", "stop", container_id], capture_output=True, text=True, check=True)
-            logger.info(f"Stopped sandbox container {container_id}")
+            subprocess.run([self._container_runtime, "stop", container_id], capture_output=True, text=True, check=True)
+            logger.info(f"Stopped sandbox container {container_id} using {self._container_runtime} (--rm will auto-remove)")
         except subprocess.CalledProcessError as e:
             logger.warning(f"Failed to stop sandbox container {container_id}: {e.stderr}")
 
