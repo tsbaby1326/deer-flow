@@ -309,6 +309,11 @@ export const CitationLink = ({
   children,
 }: CitationLinkProps) => {
   const domain = extractDomainFromUrl(href);
+  
+  // Priority: citation.title > domain
+  // When citation has title, use it for consistent display
+  // This ensures correct title shows even during streaming when children might be generic
+  const displayText = citation?.title || domain;
 
   return (
     <InlineCitationCard>
@@ -324,7 +329,7 @@ export const CitationLink = ({
             variant="secondary"
             className="hover:bg-secondary/80 mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal"
           >
-            {children ?? domain}
+            {displayText}
             <ExternalLinkIcon className="size-3" />
           </Badge>
         </a>

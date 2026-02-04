@@ -21,6 +21,7 @@ import {
   buildCitationMap,
   isCitationsBlockIncomplete,
   parseCitations,
+  removeAllCitations,
 } from "@/core/citations";
 import {
   extractContentFromMessage,
@@ -62,11 +63,11 @@ export function MessageListItem({
       >
         <div className="flex gap-1">
           <CopyButton
-            clipboardData={
+            clipboardData={removeAllCitations(
               extractContentFromMessage(message) ??
               extractReasoningContentFromMessage(message) ??
               ""
-            }
+            )}
           />
         </div>
       </MessageToolbar>
@@ -76,19 +77,25 @@ export function MessageListItem({
 
 /**
  * Custom link component that handles citations and external links
+ * All external links (http/https) are rendered as CitationLink badges
+ * to ensure consistent styling during streaming
  */
 function MessageLink({
   href,
   children,
   citationMap,
-  ...props
 }: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   citationMap: Map<string, Citation>;
 }) {
   if (!href) return <span>{children}</span>;
 
   const citation = citationMap.get(href);
-  if (citation) {
+  
+  // Check if it's an external link (http/https)
+  const isExternalLink = href.startsWith("http://") || href.startsWith("https://");
+  
+  // All external links use CitationLink for consistent styling during streaming
+  if (isExternalLink) {
     return (
       <CitationLink citation={citation} href={href}>
         {children}
@@ -96,13 +103,11 @@ function MessageLink({
     );
   }
 
+  // Internal/anchor links use simple anchor tag
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
       className="text-primary underline underline-offset-2 hover:no-underline"
-      {...props}
     >
       {children}
     </a>
