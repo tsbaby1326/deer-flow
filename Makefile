@@ -177,7 +177,7 @@ dev:
 	trap cleanup INT TERM; \
 	mkdir -p logs; \
 	echo "Starting LangGraph server..."; \
-	cd backend && uv run langgraph dev --no-browser --allow-blocking --no-reload > ../logs/langgraph.log 2>&1 & \
+	cd backend && NO_COLOR=1 uv run langgraph dev --no-browser --allow-blocking --no-reload > ../logs/langgraph.log 2>&1 & \
 	sleep 3; \
 	echo "✓ LangGraph server started on localhost:2024"; \
 	echo "Starting Gateway API..."; \

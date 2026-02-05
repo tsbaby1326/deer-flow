@@ -103,6 +103,67 @@ You have access to skills that provide optimized workflows for specific tasks. E
 
 </skill_system>
 
+<subagent_system>
+You can delegate tasks to specialized subagents using the `task` tool. Subagents run in isolated context and return concise results.
+
+**Available Subagents:**
+- **general-purpose**: For complex, multi-step tasks requiring exploration and action
+- **bash**: For command execution (git, build, test, deploy operations)
+
+**When to Use task:**
+✅ USE task when:
+- Output would be verbose (tests, builds, large file searches)
+- Multiple independent tasks can run in parallel (use `run_in_background=True`)
+- Exploring/researching codebase extensively with many file reads
+
+❌ DON'T use task when:
+- Task is straightforward → execute directly for better user visibility
+- Need user clarification → subagents cannot ask questions
+- Need real-time feedback → main agent has streaming, subagents don't
+- Task depends on conversation context → subagents have isolated context
+
+**Background Task Protocol (CRITICAL):**
+When you use `run_in_background=True`:
+1. **You MUST wait for completion** - Background tasks run asynchronously, but you are responsible for getting results
+2. **Poll task status** - Call `task_status(task_id)` to check progress
+3. **Check status field** - Status can be: `pending`, `running`, `completed`, `failed`
+4. **Retry if still running** - If status is `pending` or `running`, wait a moment and call `task_status` again
+5. **Report results to user** - Only respond to user AFTER getting the final result
+
+**STRICT RULE: Never end the conversation with background tasks still running. You MUST retrieve all results first.**
+
+**Usage:**
+```python
+# Synchronous - wait for result (preferred for most cases)
+task(
+    subagent_type="general-purpose",
+    prompt="Search all Python files for deprecated API usage and list them",
+    description="Find deprecated APIs"
+)
+
+# Background - run in parallel (MUST poll for results)
+task_id = task(
+    subagent_type="bash",
+    prompt="Run npm install && npm run build && npm test",
+    description="Build and test frontend",
+    run_in_background=True
+)
+# Extract task_id from the response
+# Then IMMEDIATELY start polling:
+while True:
+    status_result = task_status(task_id)
+    if "Status: completed" in status_result or "Status: failed" in status_result:
+        # Task finished, use the result
+        break
+    # Task still running, continue polling
+
+# Multiple parallel tasks
+task_id_1 = task(..., run_in_background=True)
+task_id_2 = task(..., run_in_background=True)
+# Poll BOTH tasks until complete before responding to user
+```
+</subagent_system>
+
 <working_directory existed="true">
 - User uploads: `/mnt/user-data/uploads` - Files uploaded by the user (automatically listed in context)
 - User workspace: `/mnt/user-data/workspace` - Working directory for temporary files
@@ -181,9 +242,7 @@ def _get_memory_context() -> str:
             return ""
 
         memory_data = get_memory_data()
-        memory_content = format_memory_for_injection(
-            memory_data, max_tokens=config.max_injection_tokens
-        )
+        memory_content = format_memory_for_injection(memory_data, max_tokens=config.max_injection_tokens)
 
         if not memory_content.strip():
             return ""
@@ -214,12 +273,7 @@ def apply_prompt_template() -> str:
     # Generate skills list XML with paths (path points to SKILL.md file)
     if skills:
         skill_items = "\n".join(
-            f"    <skill>\n"
-            f"        <name>{skill.name}</name>\n"
-            f"        <description>{skill.description}</description>\n"
-            f"        <location>{skill.get_container_file_path(container_base_path)}</location>\n"
-            f"    </skill>"
-            for skill in skills
+            f"    <skill>\n        <name>{skill.name}</name>\n        <description>{skill.description}</description>\n        <location>{skill.get_container_file_path(container_base_path)}</location>\n    </skill>" for skill in skills
         )
         skills_list = f"<available_skills>\n{skill_items}\n</available_skills>"
     else:

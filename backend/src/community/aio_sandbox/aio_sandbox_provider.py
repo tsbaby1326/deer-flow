@@ -311,14 +311,16 @@ class AioSandboxProvider(SandboxProvider):
         if self._container_runtime == "docker":
             cmd.extend(["--security-opt", "seccomp=unconfined"])
 
-        cmd.extend([
-            "--rm",
-            "-d",
-            "-p",
-            f"{port}:8080",
-            "--name",
-            container_name,
-        ])
+        cmd.extend(
+            [
+                "--rm",
+                "-d",
+                "-p",
+                f"{port}:8080",
+                "--name",
+                container_name,
+            ]
+        )
 
         # Add configured environment variables
         for key, value in self._config["environment"].items():
