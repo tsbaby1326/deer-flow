@@ -313,7 +313,7 @@ export function ArtifactFilePreview({
                 return <span>{children}</span>;
               }
 
-              // Check if it's a citation link
+              // Only render as CitationLink badge if it's a citation (in citationMap)
               const citation = citationMap.get(href);
               if (citation) {
                 return (
@@ -323,19 +323,14 @@ export function ArtifactFilePreview({
                 );
               }
 
-              // Check if it's an external link (http/https)
-              const isExternalLink =
-                href.startsWith("http://") || href.startsWith("https://");
-
-              if (isExternalLink) {
-                return (
-                  <CitationLink href={href}>{children}</CitationLink>
-                );
-              }
-
-              // Internal/anchor link
+              // All other links (including project URLs) render as plain links
               return (
-                <a href={href} className="text-primary hover:underline">
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline underline-offset-2 hover:no-underline"
+                >
                   {children}
                 </a>
               );
