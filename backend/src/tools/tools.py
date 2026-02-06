@@ -19,7 +19,12 @@ SUBAGENT_TOOLS = [
 ]
 
 
-def get_available_tools(groups: list[str] | None = None, include_mcp: bool = True, model_name: str | None = None) -> list[BaseTool]:
+def get_available_tools(
+    groups: list[str] | None = None,
+    include_mcp: bool = True,
+    model_name: str | None = None,
+    subagent_enabled: bool = False,
+) -> list[BaseTool]:
     """Get all available tools from config.
 
     Note: MCP tools should be initialized at application startup using
@@ -29,6 +34,7 @@ def get_available_tools(groups: list[str] | None = None, include_mcp: bool = Tru
         groups: Optional list of tool groups to filter by.
         include_mcp: Whether to include tools from MCP servers (default: True).
         model_name: Optional model name to determine if vision tools should be included.
+        subagent_enabled: Whether to include subagent tools (task, task_status).
 
     Returns:
         List of available tools.
@@ -60,8 +66,8 @@ def get_available_tools(groups: list[str] | None = None, include_mcp: bool = Tru
     # Conditionally add tools based on config
     builtin_tools = BUILTIN_TOOLS.copy()
 
-    # Add subagent tools only if enabled
-    if config.subagents.enabled:
+    # Add subagent tools only if enabled via runtime parameter
+    if subagent_enabled:
         builtin_tools.extend(SUBAGENT_TOOLS)
         logger.info("Including subagent tools (task, task_status)")
 

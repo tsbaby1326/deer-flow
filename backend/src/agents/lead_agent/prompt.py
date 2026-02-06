@@ -3,6 +3,8 @@ from datetime import datetime
 from src.skills import load_skills
 
 SUBAGENT_SECTION = """<subagent_system>
+**SUBAGENT MODE ENABLED**: You are running in subagent mode. Use the `task` tool proactively to delegate complex, multi-step tasks to specialized subagents.
+
 You can delegate tasks to specialized subagents using the `task` tool. Subagents run in isolated context and return concise results.
 
 **Available Subagents:**
@@ -258,7 +260,7 @@ def _get_memory_context() -> str:
         return ""
 
 
-def apply_prompt_template() -> str:
+def apply_prompt_template(subagent_enabled: bool = False) -> str:
     # Load only enabled skills
     skills = load_skills(enabled_only=True)
 
@@ -268,11 +270,9 @@ def apply_prompt_template() -> str:
 
         config = get_app_config()
         container_base_path = config.skills.container_path
-        subagents_enabled = config.subagents.enabled
     except Exception:
         # Fallback to defaults if config fails
         container_base_path = "/mnt/skills"
-        subagents_enabled = True
 
     # Generate skills list XML with paths (path points to SKILL.md file)
     if skills:
@@ -286,8 +286,8 @@ def apply_prompt_template() -> str:
     # Get memory context
     memory_context = _get_memory_context()
 
-    # Include subagent section only if enabled
-    subagent_section = SUBAGENT_SECTION if subagents_enabled else ""
+    # Include subagent section only if enabled (from runtime parameter)
+    subagent_section = SUBAGENT_SECTION if subagent_enabled else ""
 
     # Format the prompt with dynamic skills and memory
     prompt = SYSTEM_PROMPT_TEMPLATE.format(

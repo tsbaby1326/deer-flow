@@ -86,7 +86,8 @@ def task_tool(
     # Lazy import to avoid circular dependency
     from src.tools import get_available_tools
 
-    tools = get_available_tools(model_name=parent_model)
+    # Subagents should not have subagent tools enabled (prevent recursive nesting)
+    tools = get_available_tools(model_name=parent_model, subagent_enabled=False)
 
     # Create executor
     executor = SubagentExecutor(
