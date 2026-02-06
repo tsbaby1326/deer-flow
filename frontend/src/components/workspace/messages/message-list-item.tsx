@@ -30,7 +30,7 @@ import {
   type UploadedFile,
 } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
-import { streamdownPlugins } from "@/core/streamdown";
+import { humanMessagePlugins, streamdownPlugins } from "@/core/streamdown";
 import { cn } from "@/lib/utils";
 
 import { CopyButton } from "../copy-button";
@@ -222,10 +222,11 @@ function MessageContent_({
   }), [citationMap, thread_id, isHuman]);
 
   // Render message response
+  // Human messages use humanMessagePlugins (no autolink) to prevent URL bleeding into adjacent text
   const messageResponse = cleanContent ? (
     <AIElementMessageResponse
-      remarkPlugins={streamdownPlugins.remarkPlugins}
-      rehypePlugins={isHuman ? streamdownPlugins.rehypePlugins : [...rehypePlugins, [rehypeKatex, { output: "html" }]]}
+      remarkPlugins={isHuman ? humanMessagePlugins.remarkPlugins : streamdownPlugins.remarkPlugins}
+      rehypePlugins={isHuman ? humanMessagePlugins.rehypePlugins : [...rehypePlugins, [rehypeKatex, { output: "html" }]]}
       components={markdownComponents}
     >
       {cleanContent}
