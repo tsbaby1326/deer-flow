@@ -7,6 +7,7 @@ import {
   LightbulbIcon,
   PaperclipIcon,
   PlusIcon,
+  SparklesIcon,
   ZapIcon,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -30,6 +31,7 @@ import {
   usePromptInputController,
   type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
+import { ConfettiButton } from "@/components/ui/confetti-button";
 import {
   DropdownMenuGroup,
   DropdownMenuLabel,
@@ -386,6 +388,14 @@ function SuggestionList() {
   );
   return (
     <Suggestions className="w-fit">
+      <ConfettiButton
+        className="text-muted-foreground cursor-pointer rounded-full px-4 text-xs font-normal"
+        variant="outline"
+        size="sm"
+        onClick={() => handleSuggestionClick("Surprise me")}
+      >
+        <SparklesIcon className="size-4" /> Surprise
+      </ConfettiButton>
       {t.inputBox.suggestions.map((suggestion) => (
         <Suggestion
           key={suggestion.suggestion}
