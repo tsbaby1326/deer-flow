@@ -77,8 +77,8 @@ export function MessageListItem({
 
 /**
  * Custom link component that handles citations and external links
- * For AI messages: external links (http/https) are rendered as CitationLink badges
- * For human messages: links are rendered as plain text/links
+ * Only links that are in citationMap are rendered as CitationLink badges
+ * Other links (project URLs, regular links) are rendered as plain links
  */
 function MessageLink({
   href,
@@ -91,27 +91,11 @@ function MessageLink({
 }) {
   if (!href) return <span>{children}</span>;
 
-  // Human messages: render links as plain underlined text
-  if (isHuman) {
-    return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary underline underline-offset-2 hover:no-underline"
-      >
-        {children}
-      </a>
-    );
-  }
-
   const citation = citationMap.get(href);
   
-  // Check if it's an external link (http/https)
-  const isExternalLink = href.startsWith("http://") || href.startsWith("https://");
-  
-  // AI messages: external links use CitationLink for consistent styling during streaming
-  if (isExternalLink) {
+  // Only render as CitationLink badge if it's a citation (in citationMap)
+  // This ensures project URLs and regular links are not rendered as badges
+  if (citation && !isHuman) {
     return (
       <CitationLink citation={citation} href={href}>
         {children}
@@ -119,10 +103,12 @@ function MessageLink({
     );
   }
 
-  // Internal/anchor links use simple anchor tag
+  // All other links (including project URLs) render as plain links
   return (
     <a
       href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       className="text-primary underline underline-offset-2 hover:no-underline"
     >
       {children}
