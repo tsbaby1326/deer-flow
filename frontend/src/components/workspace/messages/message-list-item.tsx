@@ -165,10 +165,12 @@ function MessageContent_({
       const reasoningContent = extractReasoningContentFromMessage(message);
       const rawContent = extractContentFromMessage(message);
 
+      // When only reasoning content exists (no main content), also parse citations
       if (!isLoading && reasoningContent && !rawContent) {
+        const { citations, cleanContent } = parseCitations(reasoningContent);
         return {
-          citations: [],
-          cleanContent: reasoningContent,
+          citations,
+          cleanContent,
           uploadedFiles: [],
           isLoadingCitations: false,
         };
