@@ -57,9 +57,9 @@ try:
     if isinstance(containers, list):
         for c in containers:
             if isinstance(c, dict):
-                name = c.get('name', '')
-                cid = c.get('id', '')
-                if '${PREFIX}' in name and cid:
+                # Apple Container uses 'id' field which contains the container name
+                cid = c.get('configuration').get('id', '')
+                if '${PREFIX}' in cid:
                     print(cid)
 except:
     pass
@@ -75,7 +75,6 @@ except:
                 echo "Stopping Apple Container containers..."
                 echo "$CONTAINER_IDS" | while read -r cid; do
                     container stop "$cid" 2>/dev/null || true
-                    container delete "$cid" 2>/dev/null || true
                 done
                 echo -e "${GREEN}✓ Apple Container containers stopped${NC}"
             else

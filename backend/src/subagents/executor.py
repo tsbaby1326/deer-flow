@@ -157,11 +157,20 @@ class SubagentExecutor:
         model_name = _get_model_name(self.config, self.parent_model)
         model = create_chat_model(name=model_name, thinking_enabled=False)
 
-        # Create a simple agent without middlewares
-        # Subagents don't need the full middleware chain
+        # Subagents need minimal middlewares to ensure tools can access sandbox and thread_data
+        # These middlewares will reuse the sandbox/thread_data from parent agent
+        from src.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
+        from src.sandbox.middleware import SandboxMiddleware
+
+        middlewares = [
+            ThreadDataMiddleware(lazy_init=True),  # Compute thread paths
+            SandboxMiddleware(lazy_init=True),  # Reuse parent's sandbox (no re-acquisition)
+        ]
+
         return create_agent(
             model=model,
             tools=self.tools,
+            middleware=middlewares,
             system_prompt=self.config.system_prompt,
             state_schema=ThreadState,
         )
@@ -212,15 +221,17 @@ class SubagentExecutor:
             run_config: RunnableConfig = {
                 "recursion_limit": self.config.max_turns,
             }
+            context = {}
             if self.thread_id:
                 run_config["configurable"] = {"thread_id": self.thread_id}
+                context["thread_id"] = self.thread_id
 
             logger.info(f"[trace={self.trace_id}] Subagent {self.config.name} starting execution with max_turns={self.config.max_turns}")
 
             # Run the agent using invoke for complete result
             # Note: invoke() runs until completion or interruption
             # Timeout is handled at the execute_async level, not here
-            final_state = agent.invoke(state, config=run_config)  # type: ignore[arg-type]
+            final_state = agent.invoke(state, config=run_config, context=context)  # type: ignore[arg-type]
 
             logger.info(f"[trace={self.trace_id}] Subagent {self.config.name} completed execution")
 
