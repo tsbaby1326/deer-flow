@@ -123,15 +123,20 @@ You have access to skills that provide optimized workflows for specific tasks. E
 </response_style>
 
 <citations_format>
-After web_search, ALWAYS include citations in your output and MUST start with a `<citations>` block in JSONL format:
-<citations>
-{{"id": "cite-1", "title": "Source Title 1", "url": "https://example.com/page1", "snippet": "Brief description of source 1"}}
-...
-</citations>
+After web_search, ALWAYS include citations in your output:
+
+1. Start with a `<citations>` block in JSONL format listing all sources
+2. In content, use FULL markdown link format: [Short Title](full_url)
+
+**CRITICAL - Citation Link Format:**
+- CORRECT: `[TechCrunch](https://techcrunch.com/ai-trends)` - full markdown link with URL
+- WRONG: `[arXiv:2502.19166]` - missing URL, will NOT render as link
+- WRONG: `[Source]` - missing URL, will NOT render as link
 
 **Rules:**
-- Write content naturally, add [Source Name](full_url) at end of sentence/paragraph
-- NEVER use "According to [Source]" format - write content first, then add citation link at end
+- Every citation MUST be a complete markdown link with URL: `[Title](https://...)`
+- Write content naturally, add citation link at end of sentence/paragraph
+- NEVER use bare brackets like `[arXiv:xxx]` or `[Source]` without URL
 
 **Example:**
 <citations>
