@@ -77,24 +77,40 @@ export function MessageListItem({
 
 /**
  * Custom link component that handles citations and external links
- * All external links (http/https) are rendered as CitationLink badges
- * to ensure consistent styling during streaming
+ * For AI messages: external links (http/https) are rendered as CitationLink badges
+ * For human messages: links are rendered as plain text/links
  */
 function MessageLink({
   href,
   children,
   citationMap,
+  isHuman,
 }: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   citationMap: Map<string, Citation>;
+  isHuman: boolean;
 }) {
   if (!href) return <span>{children}</span>;
+
+  // Human messages: render links as plain underlined text
+  if (isHuman) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary underline underline-offset-2 hover:no-underline"
+      >
+        {children}
+      </a>
+    );
+  }
 
   const citation = citationMap.get(href);
   
   // Check if it's an external link (http/https)
   const isExternalLink = href.startsWith("http://") || href.startsWith("https://");
   
-  // All external links use CitationLink for consistent styling during streaming
+  // AI messages: external links use CitationLink for consistent styling during streaming
   if (isExternalLink) {
     return (
       <CitationLink citation={citation} href={href}>
@@ -198,7 +214,7 @@ function MessageContent_({
   // Shared markdown components
   const markdownComponents = useMemo(() => ({
     a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-      <MessageLink {...props} citationMap={citationMap} />
+      <MessageLink {...props} citationMap={citationMap} isHuman={isHuman} />
     ),
     img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
       <MessageImage {...props} threadId={thread_id} maxWidth={isHuman ? "full" : "90%"} />
