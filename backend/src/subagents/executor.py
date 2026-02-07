@@ -284,16 +284,19 @@ class SubagentExecutor:
 
         return result
 
-    def execute_async(self, task: str) -> str:
+    def execute_async(self, task: str, task_id: str | None = None) -> str:
         """Start a task execution in the background.
 
         Args:
             task: The task description for the subagent.
+            task_id: Optional task ID to use. If not provided, a random UUID will be generated.
 
         Returns:
             Task ID that can be used to check status later.
         """
-        task_id = str(uuid.uuid4())[:8]
+        # Use provided task_id or generate a new one
+        if task_id is None:
+            task_id = str(uuid.uuid4())[:8]
 
         # Create initial pending result
         result = SubagentResult(

@@ -80,30 +80,31 @@ For complex queries, break them down into multiple focused sub-tasks and execute
 
 # Subagent 1: Financial data
 task(
-    subagent_type="general-purpose",
+    description="Tencent financial data",
     prompt="Search for Tencent's latest financial reports, quarterly earnings, and revenue trends in 2025-2026. Focus on numbers and official data.",
-    description="Tencent financial data"
+    subagent_type="general-purpose"
+    
 )
 
 # Subagent 2: Negative news
 task(
-    subagent_type="general-purpose",
+    description="Tencent negative news",
     prompt="Search for recent negative news, controversies, or regulatory issues affecting Tencent in 2025-2026.",
-    description="Tencent negative news"
+    subagent_type="general-purpose"
 )
 
 # Subagent 3: Industry/competitors
 task(
-    subagent_type="general-purpose",
+    description="Industry comparison",
     prompt="Search for Chinese tech industry trends and how Tencent's competitors (Alibaba, ByteDance) are performing in 2025-2026.",
-    description="Industry comparison"
+    subagent_type="general-purpose"
 )
 
 # Subagent 4: Market factors
 task(
-    subagent_type="general-purpose",
+    description="Market sentiment",
     prompt="Search for macro-economic factors affecting Chinese tech stocks and overall market sentiment toward Tencent in 2025-2026.",
-    description="Market sentiment"
+    subagent_type="general-purpose"
 )
 
 # All 4 subagents run in parallel, results return simultaneously
