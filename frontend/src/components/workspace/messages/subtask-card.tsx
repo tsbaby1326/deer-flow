@@ -17,7 +17,10 @@ import { Shimmer } from "@/components/ai-elements/shimmer";
 import { Button } from "@/components/ui/button";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { useI18n } from "@/core/i18n/hooks";
-import { streamdownPlugins } from "@/core/streamdown";
+import {
+  streamdownPlugins,
+  streamdownPluginsWithWordAnimation,
+} from "@/core/streamdown";
 import { useSubtask } from "@/core/tasks/context";
 import { cn } from "@/lib/utils";
 
@@ -98,7 +101,9 @@ export function SubtaskCard({
         {task.prompt && (
           <ChainOfThoughtStep
             label={
-              <Streamdown {...streamdownPlugins}>{task.prompt}</Streamdown>
+              <Streamdown {...streamdownPluginsWithWordAnimation}>
+                {task.prompt}
+              </Streamdown>
             }
           ></ChainOfThoughtStep>
         )}
