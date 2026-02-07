@@ -124,6 +124,12 @@ export function MessageList({
                       status: "failed",
                       error: result.split("Task failed.")[1]?.trim(),
                     });
+                  } else if (result.startsWith("Task timed out")) {
+                    updateSubtask({
+                      id: taskId,
+                      status: "failed",
+                      error: result,
+                    });
                   } else {
                     updateSubtask({
                       id: taskId,
