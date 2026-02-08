@@ -53,103 +53,113 @@ export function SubtaskCard({
       className={cn("relative w-full gap-2 rounded-lg border py-0", className)}
       open={!collapsed}
     >
+      <div
+        className={cn(
+          "ambilight z-[-1]",
+          task.status === "in_progress" ? "enabled" : "",
+        )}
+      ></div>
       {task.status === "in_progress" && (
-        <ShineBorder
-          borderWidth={1.5}
-          shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
-        />
+        <>
+          <ShineBorder
+            borderWidth={1.5}
+            shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
+          />
+        </>
       )}
-      <div className="flex w-full items-center justify-between p-0.5">
-        <Button
-          className="w-full items-start justify-start text-left"
-          variant="ghost"
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          <div className="flex w-full items-center justify-between">
-            <ChainOfThoughtStep
-              className="font-normal"
-              label={
-                task.status === "in_progress" ? (
-                  <Shimmer duration={3} spread={3}>
-                    {task.description}
-                  </Shimmer>
-                ) : (
-                  task.description
-                )
-              }
-              icon={<ClipboardListIcon />}
-            ></ChainOfThoughtStep>
-            <div className="flex items-center gap-1">
-              {collapsed && (
-                <div
-                  className={cn(
-                    "text-muted-foreground flex items-center gap-1 text-xs font-normal",
-                    task.status === "failed" ? "text-red-500 opacity-67" : "",
-                  )}
-                >
-                  {icon}
-                  <FlipDisplay
-                    className="pb-1"
-                    uniqueKey={task.latestMessage?.id ?? ""}
+      <div className="bg-background/95 flex w-full flex-col rounded-lg">
+        <div className="flex w-full items-center justify-between p-0.5">
+          <Button
+            className="w-full items-start justify-start text-left"
+            variant="ghost"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            <div className="flex w-full items-center justify-between">
+              <ChainOfThoughtStep
+                className="font-normal"
+                label={
+                  task.status === "in_progress" ? (
+                    <Shimmer duration={3} spread={3}>
+                      {task.description}
+                    </Shimmer>
+                  ) : (
+                    task.description
+                  )
+                }
+                icon={<ClipboardListIcon />}
+              ></ChainOfThoughtStep>
+              <div className="flex items-center gap-1">
+                {collapsed && (
+                  <div
+                    className={cn(
+                      "text-muted-foreground flex items-center gap-1 text-xs font-normal",
+                      task.status === "failed" ? "text-red-500 opacity-67" : "",
+                    )}
                   >
-                    {task.status === "in_progress" &&
-                    task.latestMessage &&
-                    hasToolCalls(task.latestMessage)
-                      ? explainLastToolCall(task.latestMessage, t)
-                      : t.subtasks[task.status]}
-                  </FlipDisplay>
-                </div>
-              )}
-              <ChevronUp
-                className={cn(
-                  "text-muted-foreground size-4",
-                  !collapsed ? "" : "rotate-180",
+                    {icon}
+                    <FlipDisplay
+                      className="pb-1"
+                      uniqueKey={task.latestMessage?.id ?? ""}
+                    >
+                      {task.status === "in_progress" &&
+                      task.latestMessage &&
+                      hasToolCalls(task.latestMessage)
+                        ? explainLastToolCall(task.latestMessage, t)
+                        : t.subtasks[task.status]}
+                    </FlipDisplay>
+                  </div>
                 )}
-              />
+                <ChevronUp
+                  className={cn(
+                    "text-muted-foreground size-4",
+                    !collapsed ? "" : "rotate-180",
+                  )}
+                />
+              </div>
             </div>
-          </div>
-        </Button>
-      </div>
-      <ChainOfThoughtContent className="px-4 pb-4">
-        {task.prompt && (
-          <ChainOfThoughtStep
-            label={
-              <Streamdown {...streamdownPluginsWithWordAnimation}>
-                {task.prompt}
-              </Streamdown>
-            }
-          ></ChainOfThoughtStep>
-        )}
-        {task.status === "in_progress" &&
-          task.latestMessage &&
-          hasToolCalls(task.latestMessage) && (
-            <ChainOfThoughtStep
-              label={t.subtasks.in_progress}
-              icon={<Loader2Icon className="size-4 animate-spin" />}
-            >
-              {explainLastToolCall(task.latestMessage, t)}
-            </ChainOfThoughtStep>
-          )}
-        {task.status === "completed" && (
-          <>
-            <ChainOfThoughtStep
-              label={t.subtasks.completed}
-              icon={<CheckCircleIcon className="size-4" />}
-            ></ChainOfThoughtStep>
+          </Button>
+        </div>
+        <ChainOfThoughtContent className="px-4 pb-4">
+          {task.prompt && (
             <ChainOfThoughtStep
               label={
-                <Streamdown {...streamdownPlugins}>{task.result}</Streamdown>
+                <Streamdown {...streamdownPluginsWithWordAnimation}>
+                  {task.prompt}
+                </Streamdown>
               }
             ></ChainOfThoughtStep>
-          </>
-        )}
-        {task.status === "failed" && (
-          <ChainOfThoughtStep
-            label={<div className="text-red-500">{task.error}</div>}
-            icon={<XCircleIcon className="size-4 text-red-500" />}
-          ></ChainOfThoughtStep>
-        )}
-      </ChainOfThoughtContent>
+          )}
+          {task.status === "in_progress" &&
+            task.latestMessage &&
+            hasToolCalls(task.latestMessage) && (
+              <ChainOfThoughtStep
+                label={t.subtasks.in_progress}
+                icon={<Loader2Icon className="size-4 animate-spin" />}
+              >
+                {explainLastToolCall(task.latestMessage, t)}
+              </ChainOfThoughtStep>
+            )}
+          {task.status === "completed" && (
+            <>
+              <ChainOfThoughtStep
+                label={t.subtasks.completed}
+                icon={<CheckCircleIcon className="size-4" />}
+              ></ChainOfThoughtStep>
+              <ChainOfThoughtStep
+                label={
+                  <Streamdown {...streamdownPlugins}>{task.result}</Streamdown>
+                }
+              ></ChainOfThoughtStep>
+            </>
+          )}
+          {task.status === "failed" && (
+            <ChainOfThoughtStep
+              label={<div className="text-red-500">{task.error}</div>}
+              icon={<XCircleIcon className="size-4 text-red-500" />}
+            ></ChainOfThoughtStep>
+          )}
+        </ChainOfThoughtContent>
+      </div>
     </ChainOfThought>
   );
 }
