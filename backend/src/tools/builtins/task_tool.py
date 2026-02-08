@@ -11,7 +11,7 @@ from langgraph.typing import ContextT
 
 from src.agents.thread_state import ThreadState
 from src.subagents import SubagentExecutor, get_subagent_config
-from src.subagents.executor import SubagentStatus, get_background_task_result
+from src.subagents.executor import MAX_CONCURRENT_SUBAGENTS, SubagentStatus, count_active_tasks_by_trace, get_background_task_result
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +85,11 @@ def task_tool(
 
         # Get or generate trace_id for distributed tracing
         trace_id = metadata.get("trace_id") or str(uuid.uuid4())[:8]
+
+    # Check sub-agent limit before creating a new one
+    if trace_id and count_active_tasks_by_trace(trace_id) >= MAX_CONCURRENT_SUBAGENTS:
+        logger.warning(f"[trace={trace_id}] Sub-agent limit reached ({MAX_CONCURRENT_SUBAGENTS}). Rejecting new task: {description}")
+        return f"Error: Maximum number of concurrent sub-agents ({MAX_CONCURRENT_SUBAGENTS}) reached. Please wait for existing tasks to complete before launching new ones."
 
     # Get available tools (excluding task tool to prevent nesting)
     # Lazy import to avoid circular dependency

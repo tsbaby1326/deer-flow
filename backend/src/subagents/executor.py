@@ -67,11 +67,11 @@ _background_tasks: dict[str, SubagentResult] = {}
 _background_tasks_lock = threading.Lock()
 
 # Thread pool for background task scheduling and orchestration
-_scheduler_pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="subagent-scheduler-")
+_scheduler_pool = ThreadPoolExecutor(max_workers=3, thread_name_prefix="subagent-scheduler-")
 
 # Thread pool for actual subagent execution (with timeout support)
 # Larger pool to avoid blocking when scheduler submits execution tasks
-_execution_pool = ThreadPoolExecutor(max_workers=8, thread_name_prefix="subagent-exec-")
+_execution_pool = ThreadPoolExecutor(max_workers=3, thread_name_prefix="subagent-exec-")
 
 
 def _filter_tools(
@@ -387,6 +387,26 @@ class SubagentExecutor:
 
         _scheduler_pool.submit(run_task)
         return task_id
+
+
+MAX_CONCURRENT_SUBAGENTS = 3
+
+
+def count_active_tasks_by_trace(trace_id: str) -> int:
+    """Count active (PENDING or RUNNING) background tasks for a given trace_id.
+
+    Args:
+        trace_id: The trace ID linking tasks to a parent invocation.
+
+    Returns:
+        Number of active tasks with the given trace_id.
+    """
+    with _background_tasks_lock:
+        return sum(
+            1
+            for task in _background_tasks.values()
+            if task.trace_id == trace_id and task.status in (SubagentStatus.PENDING, SubagentStatus.RUNNING)
+        )
 
 
 def get_background_task_result(task_id: str) -> SubagentResult | None:
