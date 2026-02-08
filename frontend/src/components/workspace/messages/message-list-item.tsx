@@ -31,7 +31,11 @@ import {
 } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import { humanMessagePlugins, streamdownPlugins } from "@/core/streamdown";
-import { cn } from "@/lib/utils";
+import {
+  cn,
+  externalLinkClass,
+  externalLinkClassNoUnderline,
+} from "@/lib/utils";
 
 import { CopyButton } from "../copy-button";
 
@@ -79,20 +83,23 @@ export function MessageListItem({
  * Custom link component that handles citations and external links
  * Only links in citationMap are rendered as CitationLink badges
  * Other links (project URLs, regular links) are rendered as plain links
+ * During citation loading (streaming), non-citation links are rendered without underline so they match final citation style (p3)
  */
 function MessageLink({
   href,
   children,
   citationMap,
   isHuman,
+  isLoadingCitations,
 }: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   citationMap: Map<string, Citation>;
   isHuman: boolean;
+  isLoadingCitations?: boolean;
 }) {
   if (!href) return <span>{children}</span>;
 
   const citation = citationMap.get(href);
-  
+
   // Only render as CitationLink badge if it's a citation (in citationMap) and not human message
   if (citation && !isHuman) {
     return (
@@ -102,13 +109,13 @@ function MessageLink({
     );
   }
 
-  // All other links render as plain links
+  const noUnderline = !isHuman && isLoadingCitations;
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-primary underline underline-offset-2 hover:no-underline"
+      className={noUnderline ? externalLinkClassNoUnderline : externalLinkClass}
     >
       {children}
     </a>
@@ -201,12 +208,17 @@ function MessageContent_({
   // Shared markdown components
   const markdownComponents = useMemo(() => ({
     a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-      <MessageLink {...props} citationMap={citationMap} isHuman={isHuman} />
+      <MessageLink
+        {...props}
+        citationMap={citationMap}
+        isHuman={isHuman}
+        isLoadingCitations={isLoadingCitations}
+      />
     ),
     img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
       <MessageImage {...props} threadId={thread_id} maxWidth={isHuman ? "full" : "90%"} />
     ),
-  }), [citationMap, thread_id, isHuman]);
+  }), [citationMap, thread_id, isHuman, isLoadingCitations]);
 
   // Render message response
   // Human messages use humanMessagePlugins (no autolink) to prevent URL bleeding into adjacent text

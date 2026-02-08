@@ -35,15 +35,17 @@ import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
 import {
   buildCitationMap,
+  isExternalUrl,
   parseCitations,
   removeAllCitations,
+  syntheticCitationFromLink,
 } from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
 import { installSkill } from "@/core/skills/api";
 import { streamdownPlugins } from "@/core/streamdown";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { env } from "@/env";
-import { cn } from "@/lib/utils";
+import { cn, externalLinkClass } from "@/lib/utils";
 
 import { Tooltip } from "../tooltip";
 
@@ -309,11 +311,7 @@ export function ArtifactFilePreview({
               href,
               children,
             }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
-              if (!href) {
-                return <span>{children}</span>;
-              }
-
-              // Only render as CitationLink badge if it's a citation (in citationMap)
+              if (!href) return <span>{children}</span>;
               const citation = citationMap.get(href);
               if (citation) {
                 return (
@@ -322,14 +320,27 @@ export function ArtifactFilePreview({
                   </CitationLink>
                 );
               }
-
-              // All other links (including project URLs) render as plain links
+              if (isExternalUrl(href)) {
+                const linkText =
+                  typeof children === "string"
+                    ? children
+                    : String(React.Children.toArray(children).join("")).trim() ||
+                      href;
+                return (
+                  <CitationLink
+                    citation={syntheticCitationFromLink(href, linkText)}
+                    href={href}
+                  >
+                    {children}
+                  </CitationLink>
+                );
+              }
               return (
                 <a
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary underline underline-offset-2 hover:no-underline"
+                  className={externalLinkClass}
                 >
                   {children}
                 </a>
