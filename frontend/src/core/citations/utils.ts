@@ -119,6 +119,25 @@ export function buildCitationMap(
 }
 
 /**
+ * Whether the URL is external (http/https).
+ */
+export function isExternalUrl(url: string): boolean {
+  return url.startsWith("http://") || url.startsWith("https://");
+}
+
+/**
+ * Build a synthetic Citation from a link (e.g. in artifact markdown without <citations> block).
+ */
+export function syntheticCitationFromLink(href: string, title: string): Citation {
+  return {
+    id: `artifact-cite-${href}`,
+    title: title || href,
+    url: href,
+    snippet: "",
+  };
+}
+
+/**
  * Extract the domain name from a URL for display
  *
  * @param url - Full URL string
