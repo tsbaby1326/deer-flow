@@ -3,17 +3,21 @@ import { createContext, useCallback, useContext, useState } from "react";
 import type { Subtask } from "./types";
 
 export interface SubtaskContextValue {
-  tasks: Map<string, Subtask>;
+  tasks: Record<string, Subtask>;
+  setTasks: (tasks: Record<string, Subtask>) => void;
 }
 
 export const SubtaskContext = createContext<SubtaskContextValue>({
-  tasks: new Map(),
+  tasks: {},
+  setTasks: () => {
+    /* noop */
+  },
 });
 
 export function SubtasksProvider({ children }: { children: React.ReactNode }) {
-  const [tasks] = useState<Map<string, Subtask>>(new Map());
+  const [tasks, setTasks] = useState<Record<string, Subtask>>({});
   return (
-    <SubtaskContext.Provider value={{ tasks }}>
+    <SubtaskContext.Provider value={{ tasks, setTasks }}>
       {children}
     </SubtaskContext.Provider>
   );
@@ -31,16 +35,19 @@ export function useSubtaskContext() {
 
 export function useSubtask(id: string) {
   const { tasks } = useSubtaskContext();
-  return tasks.get(id);
+  return tasks[id];
 }
 
 export function useUpdateSubtask() {
-  const { tasks } = useSubtaskContext();
+  const { tasks, setTasks } = useSubtaskContext();
   const updateSubtask = useCallback(
     (task: Partial<Subtask> & { id: string }) => {
-      tasks.set(task.id, { ...tasks.get(task.id), ...task } as Subtask);
+      tasks[task.id] = { ...tasks[task.id], ...task } as Subtask;
+      if (task.latestMessage) {
+        setTasks({ ...tasks });
+      }
     },
-    [tasks],
+    [tasks, setTasks],
   );
   return updateSubtask;
 }

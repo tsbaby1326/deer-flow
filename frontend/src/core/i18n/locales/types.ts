@@ -144,6 +144,7 @@ export interface Translations {
     useTool: (toolName: string) => string;
     searchForRelatedInfo: string;
     searchForRelatedImages: string;
+    searchFor: (query: string) => string;
     searchForRelatedImagesFor: (query: string) => string;
     searchOnWebFor: (query: string) => string;
     viewWebPage: string;
