@@ -320,21 +320,43 @@ export const CitationLink = ({
   const displayText = citation?.title || (!isGenericText && childrenText) || domain;
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <Badge
-        variant="secondary"
-        className="hover:bg-secondary/80 mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal"
-      >
-        {displayText}
-        <ExternalLinkIcon className="size-3" />
-      </Badge>
-    </a>
+    <InlineCitationCard>
+      <HoverCardTrigger asChild>
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Badge
+            variant="secondary"
+            className="hover:bg-secondary/80 mx-0.5 cursor-pointer gap-1 rounded-full px-2 py-0.5 text-xs font-normal"
+          >
+            {displayText}
+            <ExternalLinkIcon className="size-3" />
+          </Badge>
+        </a>
+      </HoverCardTrigger>
+      <InlineCitationCardBody>
+        <div className="p-3">
+          <InlineCitationSource
+            title={citation?.title || domain}
+            url={href}
+            description={citation?.snippet}
+          />
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary mt-2 inline-flex items-center gap-1 text-xs hover:underline"
+          >
+            Visit source
+            <ExternalLinkIcon className="size-3" />
+          </a>
+        </div>
+      </InlineCitationCardBody>
+    </InlineCitationCard>
   );
 };
 
