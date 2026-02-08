@@ -47,7 +47,7 @@ export const enUS: Translations = {
 
   // Welcome
   welcome: {
-    greeting: "👋 Hello, again!",
+    greeting: "Hello, again!",
     description:
       "Welcome to 🦌 DeerFlow, an open source super agent. With built-in and custom skills, DeerFlow helps you search on the web, analyze data, and generate artifacts like slides, web pages and do almost anything.",
 
@@ -214,7 +214,7 @@ export const enUS: Translations = {
     subtask: "Subtask",
     executing: (count: number) =>
       `Executing ${count} subtask${count === 1 ? "" : "s"} in parallel`,
-    running: "Running subtask",
+    in_progress: "Running subtask",
     completed: "Subtask completed",
     failed: "Subtask failed",
   },

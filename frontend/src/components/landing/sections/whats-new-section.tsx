@@ -16,8 +16,9 @@ const features: BentoCardProps[] = [
   {
     color: COLOR,
     label: "Long Task Running",
-    title: "Planning and Reasoning",
-    description: "Plans ahead, reasons through complexity, then acts",
+    title: "Planning and Sub-tasking",
+    description:
+      "Plans ahead, reasons through complexity, then executes sequentially or in parallel",
   },
   {
     color: COLOR,

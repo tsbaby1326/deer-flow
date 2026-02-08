@@ -1,13 +1,19 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 import { useI18n } from "@/core/i18n/hooks";
 import { cn } from "@/lib/utils";
 
+let waved = false;
+
 export function Welcome({ className }: { className?: string }) {
   const { t } = useI18n();
   const searchParams = useSearchParams();
+  useEffect(() => {
+    waved = true;
+  }, []);
   return (
     <div
       className={cn(
@@ -16,9 +22,16 @@ export function Welcome({ className }: { className?: string }) {
       )}
     >
       <div className="text-2xl font-bold">
-        {searchParams.get("mode") === "skill"
-          ? `✨ ${t.welcome.createYourOwnSkill} ✨`
-          : t.welcome.greeting}
+        {searchParams.get("mode") === "skill" ? (
+          `✨ ${t.welcome.createYourOwnSkill} ✨`
+        ) : (
+          <div className="flex items-center gap-2">
+            <div className={cn("inline-block", !waved ? "animate-wave" : "")}>
+              👋
+            </div>
+            <div>{t.welcome.greeting}</div>
+          </div>
+        )}
       </div>
       {searchParams.get("mode") === "skill" ? (
         <div className="text-muted-foreground text-sm">
