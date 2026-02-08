@@ -6,8 +6,8 @@ import uuid
 from typing import Annotated, Literal
 
 from langchain.tools import InjectedToolCallId, ToolRuntime, tool
-from langgraph.typing import ContextT
 from langgraph.config import get_stream_writer
+from langgraph.typing import ContextT
 
 from src.agents.thread_state import ThreadState
 from src.subagents import SubagentExecutor, get_subagent_config
@@ -112,6 +112,7 @@ def task_tool(
     # Poll for task completion in backend (removes need for LLM to poll)
     poll_count = 0
     last_status = None
+    last_message_count = 0  # Track how many AI messages we've already sent
 
     writer = get_stream_writer()
     # Send Task Started message'
@@ -131,6 +132,22 @@ def task_tool(
             logger.info(f"[trace={trace_id}] Task {task_id} status: {result.status.value}")
             last_status = result.status
 
+        # Check for new AI messages and send task_running events
+        current_message_count = len(result.ai_messages)
+        if current_message_count > last_message_count:
+            # Send task_running event for each new message
+            for i in range(last_message_count, current_message_count):
+                message = result.ai_messages[i]
+                writer({
+                    "type": "task_running",
+                    "task_id": task_id,
+                    "message": message,
+                    "message_index": i + 1,  # 1-based index for display
+                    "total_messages": current_message_count
+                })
+                logger.info(f"[trace={trace_id}] Task {task_id} sent message #{i + 1}/{current_message_count}")
+            last_message_count = current_message_count
+
         # Check if task completed, failed, or timed out
         if result.status == SubagentStatus.COMPLETED:
             writer({"type": "task_completed", "task_id": task_id, "result": result.result})
@@ -146,7 +163,6 @@ def task_tool(
             return f"Task timed out. Error: {result.error}"
 
         # Still running, wait before next poll
-        writer({"type": "task_running", "task_id": task_id, "poll_count": poll_count})
         time.sleep(5)  # Poll every 5 seconds
         poll_count += 1
 
