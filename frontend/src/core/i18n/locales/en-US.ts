@@ -195,6 +195,7 @@ export const enUS: Translations = {
     presentFiles: "Present files",
     needYourHelp: "Need your help",
     useTool: (toolName: string) => `Use "${toolName}" tool`,
+    searchFor: (query: string) => `Search for "${query}"`,
     searchForRelatedInfo: "Search for related information",
     searchForRelatedImages: "Search for related images",
     searchForRelatedImagesFor: (query: string) =>

@@ -17,12 +17,16 @@ import { Shimmer } from "@/components/ai-elements/shimmer";
 import { Button } from "@/components/ui/button";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { useI18n } from "@/core/i18n/hooks";
+import { hasToolCalls } from "@/core/messages/utils";
 import {
   streamdownPlugins,
   streamdownPluginsWithWordAnimation,
 } from "@/core/streamdown";
 import { useSubtask } from "@/core/tasks/context";
+import { explainLastToolCall } from "@/core/tools/utils";
 import { cn } from "@/lib/utils";
+
+import { FlipDisplay } from "../flip-display";
 
 export function SubtaskCard({
   className,
@@ -84,7 +88,16 @@ export function SubtaskCard({
                   )}
                 >
                   {icon}
-                  {t.subtasks[task.status]}
+                  <FlipDisplay
+                    className="pb-1"
+                    uniqueKey={task.latestMessage?.id ?? ""}
+                  >
+                    {task.status === "in_progress" &&
+                    task.latestMessage &&
+                    hasToolCalls(task.latestMessage)
+                      ? explainLastToolCall(task.latestMessage, t)
+                      : t.subtasks[task.status]}
+                  </FlipDisplay>
                 </div>
               )}
               <ChevronUp
@@ -107,6 +120,16 @@ export function SubtaskCard({
             }
           ></ChainOfThoughtStep>
         )}
+        {task.status === "in_progress" &&
+          task.latestMessage &&
+          hasToolCalls(task.latestMessage) && (
+            <ChainOfThoughtStep
+              label={t.subtasks.in_progress}
+              icon={<Loader2Icon className="size-4 animate-spin" />}
+            >
+              {explainLastToolCall(task.latestMessage, t)}
+            </ChainOfThoughtStep>
+          )}
         {task.status === "completed" && (
           <>
             <ChainOfThoughtStep
