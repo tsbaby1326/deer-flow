@@ -47,7 +47,7 @@ export const zhCN: Translations = {
 
   // Welcome
   welcome: {
-    greeting: "👋 你好，欢迎回来！",
+    greeting: "你好，欢迎回来！",
     description:
       "欢迎使用 🦌 DeerFlow，一个完全开源的超级智能体。通过内置和\n自定义的 Skills，DeerFlow 可以帮你搜索网络、分析数据，\n还能为你生成幻灯片、网页等作品，几乎可以做任何事情。",
 
@@ -207,7 +207,7 @@ export const zhCN: Translations = {
   subtasks: {
     subtask: "子任务",
     executing: (count: number) => `并行执行 ${count} 个子任务`,
-    running: "子任务运行中",
+    in_progress: "子任务运行中",
     completed: "子任务已完成",
     failed: "子任务失败",
   },

@@ -159,7 +159,7 @@ export interface Translations {
   subtasks: {
     subtask: string;
     executing: (count: number) => string;
-    running: string;
+    in_progress: string;
     completed: string;
     failed: string;
   };
