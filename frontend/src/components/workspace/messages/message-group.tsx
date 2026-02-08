@@ -232,13 +232,11 @@ function ToolCall({
         {Array.isArray(result) && (
           <ChainOfThoughtSearchResults>
             {result.map((item) => (
-              <Tooltip key={item.url} content={item.snippet}>
-                <ChainOfThoughtSearchResult key={item.url}>
-                  <a href={item.url} target="_blank" rel="noreferrer">
-                    {item.title}
-                  </a>
-                </ChainOfThoughtSearchResult>
-              </Tooltip>
+              <ChainOfThoughtSearchResult key={item.url}>
+                <a href={item.url} target="_blank" rel="noreferrer">
+                  {item.title}
+                </a>
+              </ChainOfThoughtSearchResult>
             ))}
           </ChainOfThoughtSearchResults>
         )}
@@ -309,11 +307,9 @@ function ToolCall({
       >
         <ChainOfThoughtSearchResult>
           {url && (
-            <Tooltip content={<pre>{result as string}</pre>}>
-              <a href={url} target="_blank" rel="noreferrer">
-                {title}
-              </a>
-            </Tooltip>
+            <a href={url} target="_blank" rel="noreferrer">
+              {title}
+            </a>
           )}
         </ChainOfThoughtSearchResult>
       </ChainOfThoughtStep>
