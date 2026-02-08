@@ -72,7 +72,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed local development guide.
 - [Contributing Guide](CONTRIBUTING.md) - Development environment setup and workflow
 - [Configuration Guide](backend/docs/CONFIGURATION.md) - Setup and configuration instructions
 - [Architecture Overview](backend/CLAUDE.md) - Technical architecture details
-- [MCP Setup Guide](MCP_SETUP.md) - Configure Model Context Protocol servers for additional tools
+- [Backend Architecture](backend/README.md) - Backend architecture and API reference
 
 ## Contributing
 
