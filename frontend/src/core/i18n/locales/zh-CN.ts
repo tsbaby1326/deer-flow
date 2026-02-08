@@ -207,7 +207,8 @@ export const zhCN: Translations = {
 
   subtasks: {
     subtask: "子任务",
-    executing: (count: number) => `并行执行 ${count} 个子任务`,
+    executing: (count: number) =>
+      `${count > 1 ? "并行" : ""}执行 ${count} 个子任务`,
     in_progress: "子任务运行中",
     completed: "子任务已完成",
     failed: "子任务失败",

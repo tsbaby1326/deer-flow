@@ -154,16 +154,14 @@ export function MessageList({
                   />,
                 );
               }
-              if (tasks.size > 1) {
-                results.push(
-                  <div
-                    key="subtask-count"
-                    className="text-muted-foreground font-norma pt-2 text-sm"
-                  >
-                    {t.subtasks.executing(tasks.size)}
-                  </div>,
-                );
-              }
+              results.push(
+                <div
+                  key="subtask-count"
+                  className="text-muted-foreground font-norma pt-2 text-sm"
+                >
+                  {t.subtasks.executing(tasks.size)}
+                </div>,
+              );
               const taskIds = message.tool_calls?.map(
                 (toolCall) => toolCall.id,
               );
