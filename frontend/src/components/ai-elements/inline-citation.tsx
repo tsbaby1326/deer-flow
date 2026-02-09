@@ -29,35 +29,31 @@ import {
 import { Shimmer } from "./shimmer";
 import { useI18n } from "@/core/i18n/hooks";
 
-export type InlineCitationCardProps = ComponentProps<typeof HoverCard>;
+type InlineCitationCardProps = ComponentProps<typeof HoverCard>;
 
-export const InlineCitationCard = (props: InlineCitationCardProps) => (
+const InlineCitationCard = (props: InlineCitationCardProps) => (
   <HoverCard closeDelay={0} openDelay={0} {...props} />
 );
 
-export type InlineCitationCardBodyProps = ComponentProps<"div">;
-
-export const InlineCitationCardBody = ({
+const InlineCitationCardBody = ({
   className,
   ...props
-}: InlineCitationCardBodyProps) => (
+}: ComponentProps<"div">) => (
   <HoverCardContent className={cn("relative w-80 p-0", className)} {...props} />
 );
 
-export type InlineCitationSourceProps = ComponentProps<"div"> & {
-  title?: string;
-  url?: string;
-  description?: string;
-};
-
-export const InlineCitationSource = ({
+const InlineCitationSource = ({
   title,
   url,
   description,
   className,
   children,
   ...props
-}: InlineCitationSourceProps) => (
+}: ComponentProps<"div"> & {
+  title?: string;
+  url?: string;
+  description?: string;
+}) => (
   <div className={cn("space-y-1", className)} {...props}>
     {title && (
       <h4 className="truncate font-medium text-sm leading-tight">{title}</h4>

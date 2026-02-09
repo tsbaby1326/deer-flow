@@ -22,10 +22,8 @@ import {
   ChainOfThoughtStep,
 } from "@/components/ai-elements/chain-of-thought";
 import { CodeBlock } from "@/components/ai-elements/code-block";
-import { CitationsLoadingIndicator } from "@/components/ai-elements/inline-citation";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
-import { shouldShowCitationLoading, useParsedCitations } from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
 import {
   extractReasoningContentFromMessage,
@@ -130,7 +128,12 @@ export function MessageGroup({
                   }
                 ></ChainOfThoughtStep>
               ) : (
-                <ToolCall key={step.id} {...step} isLoading={isLoading} />
+                <ToolCall
+                  key={step.id}
+                  {...step}
+                  isLoading={isLoading}
+                  rehypePlugins={rehypePlugins}
+                />
               ),
             )}
           {lastToolCallStep && (
@@ -140,6 +143,7 @@ export function MessageGroup({
                 {...lastToolCallStep}
                 isLast={true}
                 isLoading={isLoading}
+                rehypePlugins={rehypePlugins}
               />
             </FlipDisplay>
           )}
@@ -197,6 +201,7 @@ function ToolCall({
   result,
   isLast = false,
   isLoading = false,
+  rehypePlugins,
 }: {
   id?: string;
   messageId?: string;
@@ -205,6 +210,7 @@ function ToolCall({
   result?: string | Record<string, unknown>;
   isLast?: boolean;
   isLoading?: boolean;
+  rehypePlugins: ReturnType<typeof useRehypeSplitWordsIntoSpans>;
 }) {
   const { t } = useI18n();
   const { setOpen, autoOpen, autoSelect, selectedArtifact, select } =
@@ -213,7 +219,6 @@ function ToolCall({
   const threadIsLoading = thread.isLoading;
 
   const fileContent = typeof args.content === "string" ? args.content : "";
-  const { citations, cleanContent } = useParsedCitations(fileContent);
 
   if (name === "web_search") {
     let label: React.ReactNode = t.toolCalls.searchForRelatedInfo;
@@ -362,13 +367,6 @@ function ToolCall({
     const isMarkdown =
       path?.toLowerCase().endsWith(".md") ||
       path?.toLowerCase().endsWith(".markdown");
-    const showCitationsLoading =
-      isMarkdown &&
-      shouldShowCitationLoading(
-        fileContent,
-        cleanContent,
-        threadIsLoading && isLast,
-      );
 
     return (
       <>
@@ -392,10 +390,14 @@ function ToolCall({
             </ChainOfThoughtSearchResult>
           )}
         </ChainOfThoughtStep>
-        {showCitationsLoading && (
-          <div className="mt-2 ml-8">
-            <CitationsLoadingIndicator citations={citations} />
-          </div>
+        {isMarkdown && (
+          <SafeCitationContent
+            content={fileContent}
+            isLoading={threadIsLoading && isLast}
+            rehypePlugins={rehypePlugins}
+            loadingOnly
+            className="mt-2 ml-8"
+          />
         )}
       </>
     );
