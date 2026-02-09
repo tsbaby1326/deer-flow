@@ -1,7 +1,6 @@
 export {
   contentWithoutCitationsFromParsed,
   extractDomainFromUrl,
-  hasCitationsBlock,
   isExternalUrl,
   parseCitations,
   removeAllCitations,

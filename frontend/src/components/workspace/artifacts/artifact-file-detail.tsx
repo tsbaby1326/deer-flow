@@ -32,13 +32,11 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CodeEditor } from "@/components/workspace/code-editor";
 import { useArtifactContent } from "@/core/artifacts/hooks";
-import { CitationsLoadingIndicator } from "@/components/ai-elements/inline-citation";
 import { urlOfArtifact } from "@/core/artifacts/utils";
 import type { Citation } from "@/core/citations";
 import {
   contentWithoutCitationsFromParsed,
   removeAllCitations,
-  shouldShowCitationLoading,
   useParsedCitations,
 } from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
@@ -50,6 +48,7 @@ import { cn } from "@/lib/utils";
 
 import { Tooltip } from "../tooltip";
 
+import { SafeCitationContent } from "../messages/safe-citation-content";
 import { useThread } from "../messages/context";
 
 import { useArtifacts } from "./context";
@@ -252,31 +251,27 @@ export function ArtifactFileDetail({
         </div>
       </ArtifactHeader>
       <ArtifactContent className="p-0">
-        {previewable && viewMode === "preview" && (
+        {previewable &&
+          viewMode === "preview" &&
           language === "markdown" &&
-          content &&
-          shouldShowCitationLoading(
-            content,
-            parsed.cleanContent,
-            thread.isLoading,
-          ) ? (
-            <div className="flex size-full items-center justify-center p-4">
-              <CitationsLoadingIndicator
-                citations={parsed.citations}
-                className="my-0"
-              />
-            </div>
-          ) : (
-            <ArtifactFilePreview
-              filepath={filepath}
-              threadId={threadId}
+          content && (
+            <SafeCitationContent
               content={content}
-              language={language ?? "text"}
-              cleanContent={parsed.cleanContent}
-              citationMap={parsed.citationMap}
+              isLoading={thread.isLoading}
+              rehypePlugins={streamdownPlugins.rehypePlugins}
+              className="flex size-full items-center justify-center p-4 my-0"
+              renderBody={(p) => (
+                <ArtifactFilePreview
+                  filepath={filepath}
+                  threadId={threadId}
+                  content={content}
+                  language={language ?? "text"}
+                  cleanContent={p.cleanContent}
+                  citationMap={p.citationMap}
+                />
+              )}
             />
-          )
-        )}
+          )}
         {isCodeFile && viewMode === "code" && (
           <CodeEditor
             className="size-full resize-none rounded-none border-none"

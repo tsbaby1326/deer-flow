@@ -121,22 +121,6 @@ export function parseCitations(content: string): ParseCitationsResult {
 }
 
 /**
- * Build a map from URL to Citation for quick lookup
- *
- * @param citations - Array of citations
- * @returns Map with URL as key and Citation as value
- */
-export function buildCitationMap(
-  citations: Citation[],
-): Map<string, Citation> {
-  const map = new Map<string, Citation>();
-  for (const citation of citations) {
-    map.set(citation.url, citation);
-  }
-  return map;
-}
-
-/**
  * Whether the URL is external (http/https).
  */
 export function isExternalUrl(url: string): boolean {
