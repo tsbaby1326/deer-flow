@@ -1,7 +1,7 @@
 "use client";
 
-import type { ImgHTMLAttributes } from "react";
-import type { ReactNode } from "react";
+import { useMemo } from "react";
+import type { HTMLAttributes } from "react";
 
 import {
   MessageResponse,
@@ -9,14 +9,15 @@ import {
 } from "@/components/ai-elements/message";
 import { streamdownPlugins } from "@/core/streamdown";
 
+import { CitationLink } from "../citations/citation-link";
+
 export type MarkdownContentProps = {
   content: string;
   isLoading: boolean;
   rehypePlugins: MessageResponseProps["rehypePlugins"];
   className?: string;
   remarkPlugins?: MessageResponseProps["remarkPlugins"];
-  isHuman?: boolean;
-  img?: (props: ImgHTMLAttributes<HTMLImageElement> & { threadId?: string; maxWidth?: string }) => ReactNode;
+  components?: MessageResponseProps["components"];
 };
 
 /** Renders markdown content. */
@@ -25,10 +26,26 @@ export function MarkdownContent({
   rehypePlugins,
   className,
   remarkPlugins = streamdownPlugins.remarkPlugins,
-  img,
+  components: componentsFromProps,
 }: MarkdownContentProps) {
+  const components = useMemo(() => {
+    return {
+      a: (props: HTMLAttributes<HTMLAnchorElement>) => {
+        if (typeof props.children === "string") {
+          const match = /^citation:(.+)$/.exec(props.children);
+          if (match) {
+            const [, text] = match;
+            return <CitationLink {...props}>{text}</CitationLink>;
+          }
+        }
+        return <a {...props} />;
+      },
+      ...componentsFromProps,
+    };
+  }, [componentsFromProps]);
+
   if (!content) return null;
-  const components = img ? { img } : undefined;
+
   return (
     <MessageResponse
       className={className}

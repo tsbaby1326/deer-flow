@@ -23,6 +23,7 @@ import { humanMessagePlugins } from "@/core/streamdown";
 import { cn } from "@/lib/utils";
 
 import { CopyButton } from "../copy-button";
+
 import { MarkdownContent } from "./markdown-content";
 
 export function MessageListItem({
@@ -158,14 +159,15 @@ function MessageContent_({
         isLoading={isLoading}
         rehypePlugins={[...rehypePlugins, [rehypeKatex, { output: "html" }]]}
         className="my-3"
-        isHuman={false}
-        img={(props) => (
-          <MessageImage
-            {...props}
-            threadId={thread_id}
-            maxWidth="90%"
-          />
-        )}
+        components={{
+          img: (props) => (
+            <MessageImage
+              {...props}
+              threadId={thread_id}
+              maxWidth="90%"
+            />
+          ),
+        }}
       />
     </AIElementMessageContent>
   );

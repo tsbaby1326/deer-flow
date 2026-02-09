@@ -19,14 +19,12 @@ import { ShineBorder } from "@/components/ui/shine-border";
 import { useI18n } from "@/core/i18n/hooks";
 import { hasToolCalls } from "@/core/messages/utils";
 import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
-import {
-  streamdownPlugins,
-  streamdownPluginsWithWordAnimation,
-} from "@/core/streamdown";
+import { streamdownPluginsWithWordAnimation } from "@/core/streamdown";
 import { useSubtask } from "@/core/tasks/context";
 import { explainLastToolCall } from "@/core/tools/utils";
 import { cn } from "@/lib/utils";
 
+import { CitationLink } from "../citations/citation-link";
 import { FlipDisplay } from "../flip-display";
 
 import { MarkdownContent } from "./markdown-content";
@@ -128,7 +126,10 @@ export function SubtaskCard({
           {task.prompt && (
             <ChainOfThoughtStep
               label={
-                <Streamdown {...streamdownPluginsWithWordAnimation}>
+                <Streamdown 
+                  {...streamdownPluginsWithWordAnimation}
+                  components={{ a: CitationLink }}
+                >
                   {task.prompt}
                 </Streamdown>
               }

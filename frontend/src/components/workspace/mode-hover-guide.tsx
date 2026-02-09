@@ -1,6 +1,8 @@
 "use client";
 
 import { useI18n } from "@/core/i18n/hooks";
+import type { Translations } from "@/core/i18n/locales/types";
+
 import { Tooltip } from "./tooltip";
 
 export type AgentMode = "flash" | "thinking" | "pro" | "ultra";
@@ -8,7 +10,7 @@ export type AgentMode = "flash" | "thinking" | "pro" | "ultra";
 function getModeLabelKey(
   mode: AgentMode,
 ): keyof Pick<
-  import("@/core/i18n/locales/types").Translations["inputBox"],
+  Translations["inputBox"],
   "flashMode" | "reasoningMode" | "proMode" | "ultraMode"
 > {
   switch (mode) {
@@ -26,7 +28,7 @@ function getModeLabelKey(
 function getModeDescriptionKey(
   mode: AgentMode,
 ): keyof Pick<
-  import("@/core/i18n/locales/types").Translations["inputBox"],
+  Translations["inputBox"],
   "flashModeDescription" | "reasoningModeDescription" | "proModeDescription" | "ultraModeDescription"
 > {
   switch (mode) {

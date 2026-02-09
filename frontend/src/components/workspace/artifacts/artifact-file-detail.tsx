@@ -38,6 +38,7 @@ import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { env } from "@/env";
 import { cn } from "@/lib/utils";
 
+import { CitationLink } from "../citations/citation-link";
 import { Tooltip } from "../tooltip";
 
 import { useArtifacts } from "./context";
@@ -274,7 +275,11 @@ export function ArtifactFilePreview({
   if (language === "markdown") {
     return (
       <div className="size-full px-4">
-        <Streamdown className="size-full" {...streamdownPlugins}>
+        <Streamdown 
+          className="size-full" 
+          {...streamdownPlugins}
+          components={{ a: CitationLink }}
+        >
           {content ?? ""}
         </Streamdown>
       </div>

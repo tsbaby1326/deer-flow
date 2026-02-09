@@ -1,5 +1,6 @@
 "use client";
 
+import type { Message } from "@langchain/langgraph-sdk";
 import { FilesIcon, XIcon } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -30,7 +31,6 @@ import { useNotification } from "@/core/notification/hooks";
 import { useLocalSettings } from "@/core/settings";
 import { type AgentThread, type AgentThreadState } from "@/core/threads";
 import { useSubmitThread, useThreadStream } from "@/core/threads/hooks";
-import type { Message } from "@langchain/langgraph-sdk";
 import {
   pathOfThread,
   textOfMessage,

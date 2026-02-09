@@ -30,6 +30,7 @@ When you complete the task, provide:
 2. Key findings or results
 3. Any relevant file paths, data, or artifacts created
 4. Issues encountered (if any)
+5. Citations: Use `[citation:Title](URL)` format for external sources
 </output_format>
 
 <working_directory>
