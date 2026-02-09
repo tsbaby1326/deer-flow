@@ -34,7 +34,11 @@ import { CodeEditor } from "@/components/workspace/code-editor";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
 import type { Citation } from "@/core/citations";
-import { removeAllCitations, useParsedCitations } from "@/core/citations";
+import {
+  contentWithoutCitationsFromParsed,
+  removeAllCitations,
+  useParsedCitations,
+} from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
 import { installSkill } from "@/core/skills/api";
 import { streamdownPlugins } from "@/core/streamdown";
@@ -96,12 +100,10 @@ export function ArtifactFileDetail({
   );
   const cleanContent =
     language === "markdown" && content ? parsed.cleanContent : (content ?? "");
-  const contentWithoutCitations = useMemo(() => {
-    if (language === "markdown" && content) {
-      return removeAllCitations(content);
-    }
-    return content;
-  }, [content, language]);
+  const contentWithoutCitations =
+    language === "markdown" && content
+      ? contentWithoutCitationsFromParsed(parsed)
+      : (content ?? "");
 
   const [viewMode, setViewMode] = useState<"code" | "preview">("code");
   const [isInstalling, setIsInstalling] = useState(false);

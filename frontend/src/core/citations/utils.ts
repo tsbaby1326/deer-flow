@@ -185,27 +185,25 @@ export function isCitationsBlockIncomplete(content: string): boolean {
 }
 
 /**
- * Remove ALL citations from content, including:
- * - <citations> blocks
- * - [cite-N] references (and their converted markdown links)
- *
- * Uses parseCitations once, then strips citation links from cleanContent.
- * Used for copy/download to produce content without any citation references.
- *
- * @param content - The raw content that may contain citations
- * @returns Content with all citations completely removed
+ * Strip citation markdown links from already-cleaned content (from parseCitations).
+ * Use when you already have ParseCitationsResult to avoid parsing twice.
  */
-export function removeAllCitations(content: string): string {
-  if (!content) return content;
-
-  const parsed = parseCitations(content);
+export function contentWithoutCitationsFromParsed(
+  parsed: ParseCitationsResult,
+): string {
   const citationUrls = new Set(parsed.citations.map((c) => c.url));
-
-  // Remove markdown links that point to citation URLs; keep non-citation links
   const withoutLinks = parsed.cleanContent.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
     (fullMatch, _text, url) => (citationUrls.has(url) ? "" : fullMatch),
   );
-
   return withoutLinks.replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/**
+ * Remove ALL citations from content (blocks, [cite-N], and citation links).
+ * Used for copy/download. For display you typically use parseCitations/useParsedCitations.
+ */
+export function removeAllCitations(content: string): string {
+  if (!content) return content;
+  return contentWithoutCitationsFromParsed(parseCitations(content));
 }
