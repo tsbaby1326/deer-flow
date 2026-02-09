@@ -25,7 +25,11 @@ import { CodeBlock } from "@/components/ai-elements/code-block";
 import { CitationsLoadingIndicator } from "@/components/ai-elements/inline-citation";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
-import { parseCitations } from "@/core/citations";
+import {
+  getCleanContent,
+  hasCitationsBlock,
+  useParsedCitations,
+} from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
 import {
   extractReasoningContentFromMessage,
@@ -124,7 +128,7 @@ export function MessageGroup({
                       remarkPlugins={streamdownPlugins.remarkPlugins}
                       rehypePlugins={rehypePlugins}
                     >
-                      {parseCitations(step.reasoning ?? "").cleanContent}
+                      {getCleanContent(step.reasoning ?? "")}
                     </MessageResponse>
                   }
                 ></ChainOfThoughtStep>
@@ -177,10 +181,7 @@ export function MessageGroup({
                     remarkPlugins={streamdownPlugins.remarkPlugins}
                     rehypePlugins={rehypePlugins}
                   >
-                    {
-                      parseCitations(lastReasoningStep.reasoning ?? "")
-                        .cleanContent
-                    }
+                    {getCleanContent(lastReasoningStep.reasoning ?? "")}
                   </MessageResponse>
                 }
               ></ChainOfThoughtStep>
@@ -215,12 +216,8 @@ function ToolCall({
   const { thread } = useThread();
   const threadIsLoading = thread.isLoading;
 
-  // Move useMemo to top level to comply with React Hooks rules
   const fileContent = typeof args.content === "string" ? args.content : "";
-  const { citations } = useMemo(
-    () => parseCitations(fileContent),
-    [fileContent],
-  );
+  const { citations } = useParsedCitations(fileContent);
 
   if (name === "web_search") {
     let label: React.ReactNode = t.toolCalls.searchForRelatedInfo;
@@ -370,9 +367,8 @@ function ToolCall({
     const isMarkdown =
       path?.toLowerCase().endsWith(".md") ||
       path?.toLowerCase().endsWith(".markdown");
-    const hasCitationsBlock = fileContent.includes("<citations>");
     const showCitationsLoading =
-      isMarkdown && threadIsLoading && hasCitationsBlock && isLast;
+      isMarkdown && threadIsLoading && hasCitationsBlock(fileContent) && isLast;
 
     return (
       <>

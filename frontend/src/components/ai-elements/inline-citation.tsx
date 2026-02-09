@@ -12,10 +12,15 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { cn } from "@/lib/utils";
+import {
+  cn,
+  externalLinkClass,
+  externalLinkClassNoUnderline,
+} from "@/lib/utils";
 import { ExternalLinkIcon, ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import {
   type ComponentProps,
+  Children,
   createContext,
   useCallback,
   useContext,
@@ -23,7 +28,11 @@ import {
   useState,
 } from "react";
 import type { Citation } from "@/core/citations";
-import { extractDomainFromUrl } from "@/core/citations";
+import {
+  extractDomainFromUrl,
+  isExternalUrl,
+  syntheticCitationFromLink,
+} from "@/core/citations";
 import { Shimmer } from "./shimmer";
 import { useI18n } from "@/core/i18n/hooks";
 
@@ -357,6 +366,71 @@ export const CitationLink = ({
         </div>
       </InlineCitationCardBody>
     </InlineCitationCard>
+  );
+};
+
+/**
+ * Renders a link with optional citation badge. Use in markdown components (message + artifact).
+ * - citationMap: URL -> Citation; links in map render as CitationLink.
+ * - isHuman: when true, never render as CitationLink (plain link).
+ * - isLoadingCitations: when true and not human, non-citation links use no-underline style.
+ * - syntheticExternal: when true, external URLs not in citationMap render as CitationLink with synthetic citation.
+ */
+export type CitationAwareLinkProps = ComponentProps<"a"> & {
+  citationMap: Map<string, Citation>;
+  isHuman?: boolean;
+  isLoadingCitations?: boolean;
+  syntheticExternal?: boolean;
+};
+
+export const CitationAwareLink = ({
+  href,
+  children,
+  citationMap,
+  isHuman = false,
+  isLoadingCitations = false,
+  syntheticExternal = false,
+  className,
+  ...rest
+}: CitationAwareLinkProps) => {
+  if (!href) return <span>{children}</span>;
+
+  const citation = citationMap.get(href);
+
+  if (citation && !isHuman) {
+    return (
+      <CitationLink citation={citation} href={href}>
+        {children}
+      </CitationLink>
+    );
+  }
+
+  if (syntheticExternal && isExternalUrl(href)) {
+    const linkText =
+      typeof children === "string"
+        ? children
+        : String(Children.toArray(children).join("")).trim() || href;
+    return (
+      <CitationLink
+        citation={syntheticCitationFromLink(href, linkText)}
+        href={href}
+      >
+        {children}
+      </CitationLink>
+    );
+  }
+
+  const noUnderline = !isHuman && isLoadingCitations;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(noUnderline ? externalLinkClassNoUnderline : externalLinkClass, className)}
+      {...rest}
+    >
+      {children}
+    </a>
   );
 };
 
