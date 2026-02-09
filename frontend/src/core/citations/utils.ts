@@ -67,14 +67,7 @@ export function parseCitations(content: string): ParseCitationsResult {
     }
   }
 
-  // Remove ALL citations blocks from content (both complete and incomplete)
-  cleanContent = content.replace(/<citations>[\s\S]*?<\/citations>/g, "").trim();
-  
-  // Also remove incomplete citations blocks (during streaming)
-  // Match <citations> without closing tag or <citations> followed by anything until end of string
-  if (cleanContent.includes("<citations>")) {
-    cleanContent = cleanContent.replace(/<citations>[\s\S]*$/g, "").trim();
-  }
+  cleanContent = removeCitationsBlocks(content);
 
   // Convert [cite-N] references to markdown links
   // Example: [cite-1] -> [Title](url)
@@ -100,6 +93,13 @@ export function parseCitations(content: string): ParseCitationsResult {
   }
 
   return { citations, cleanContent };
+}
+
+/**
+ * Return content with citations block removed and [cite-N] replaced by markdown links.
+ */
+export function getCleanContent(content: string): string {
+  return parseCitations(content ?? "").cleanContent;
 }
 
 /**
@@ -154,6 +154,26 @@ export function extractDomainFromUrl(url: string): string {
 }
 
 /**
+ * Remove all <citations> blocks from content (complete and incomplete).
+ * Does not remove [cite-N] or markdown links; use removeAllCitations for that.
+ */
+export function removeCitationsBlocks(content: string): string {
+  if (!content) return content;
+  let result = content.replace(/<citations>[\s\S]*?<\/citations>/g, "").trim();
+  if (result.includes("<citations>")) {
+    result = result.replace(/<citations>[\s\S]*$/g, "").trim();
+  }
+  return result;
+}
+
+/**
+ * Whether content contains a <citations> block (open tag).
+ */
+export function hasCitationsBlock(content: string): boolean {
+  return Boolean(content?.includes("<citations>"));
+}
+
+/**
  * Check if content is still receiving the citations block (streaming)
  * This helps determine if we should wait before parsing
  *
@@ -161,15 +181,7 @@ export function extractDomainFromUrl(url: string): string {
  * @returns true if citations block appears to be incomplete
  */
 export function isCitationsBlockIncomplete(content: string): boolean {
-  if (!content) {
-    return false;
-  }
-
-  // Check if we have an opening tag but no closing tag
-  const hasOpenTag = content.includes("<citations>");
-  const hasCloseTag = content.includes("</citations>");
-
-  return hasOpenTag && !hasCloseTag;
+  return hasCitationsBlock(content) && !content.includes("</citations>");
 }
 
 /**
@@ -188,11 +200,8 @@ export function removeAllCitations(content: string): string {
     return content;
   }
 
-  let result = content;
-
   // Step 1: Remove all <citations> blocks (complete and incomplete)
-  result = result.replace(/<citations>[\s\S]*?<\/citations>/g, "");
-  result = result.replace(/<citations>[\s\S]*$/g, "");
+  let result = removeCitationsBlocks(content);
 
   // Step 2: Remove all [cite-N] references
   result = result.replace(/\[cite-\d+\]/g, "");

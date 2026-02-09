@@ -21,7 +21,7 @@ import {
   ArtifactHeader,
   ArtifactTitle,
 } from "@/components/ai-elements/artifact";
-import { CitationLink } from "@/components/ai-elements/inline-citation";
+import { CitationAwareLink } from "@/components/ai-elements/inline-citation";
 import { Select, SelectItem } from "@/components/ui/select";
 import {
   SelectContent,
@@ -33,19 +33,14 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { CodeEditor } from "@/components/workspace/code-editor";
 import { useArtifactContent } from "@/core/artifacts/hooks";
 import { urlOfArtifact } from "@/core/artifacts/utils";
-import {
-  buildCitationMap,
-  isExternalUrl,
-  parseCitations,
-  removeAllCitations,
-  syntheticCitationFromLink,
-} from "@/core/citations";
+import type { Citation } from "@/core/citations";
+import { removeAllCitations, useParsedCitations } from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
 import { installSkill } from "@/core/skills/api";
 import { streamdownPlugins } from "@/core/streamdown";
 import { checkCodeFile, getFileName } from "@/core/utils/files";
 import { env } from "@/env";
-import { cn, externalLinkClass } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 import { Tooltip } from "../tooltip";
 
@@ -96,15 +91,11 @@ export function ArtifactFileDetail({
     enabled: isCodeFile && !isWriteFile,
   });
 
-  // Parse citations and get clean content for code editor
-  const cleanContent = useMemo(() => {
-    if (language === "markdown" && content) {
-      return parseCitations(content).cleanContent;
-    }
-    return content;
-  }, [content, language]);
-
-  // Get content without ANY citations for copy/download
+  const parsed = useParsedCitations(
+    language === "markdown" ? (content ?? "") : "",
+  );
+  const cleanContent =
+    language === "markdown" && content ? parsed.cleanContent : (content ?? "");
   const contentWithoutCitations = useMemo(() => {
     if (language === "markdown" && content) {
       return removeAllCitations(content);
@@ -260,6 +251,8 @@ export function ArtifactFileDetail({
             threadId={threadId}
             content={content}
             language={language ?? "text"}
+            cleanContent={parsed.cleanContent}
+            citationMap={parsed.citationMap}
           />
         )}
         {isCodeFile && viewMode === "code" && (
@@ -285,21 +278,16 @@ export function ArtifactFilePreview({
   threadId,
   content,
   language,
+  cleanContent,
+  citationMap,
 }: {
   filepath: string;
   threadId: string;
   content: string;
   language: string;
+  cleanContent: string;
+  citationMap: Map<string, Citation>;
 }) {
-  const { cleanContent, citationMap } = React.useMemo(() => {
-    const parsed = parseCitations(content ?? "");
-    const map = buildCitationMap(parsed.citations);
-    return {
-      cleanContent: parsed.cleanContent,
-      citationMap: map,
-    };
-  }, [content]);
-
   if (language === "markdown") {
     return (
       <div className="size-full px-4">
@@ -307,45 +295,13 @@ export function ArtifactFilePreview({
           className="size-full"
           {...streamdownPlugins}
           components={{
-            a: ({
-              href,
-              children,
-            }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
-              if (!href) return <span>{children}</span>;
-              const citation = citationMap.get(href);
-              if (citation) {
-                return (
-                  <CitationLink citation={citation} href={href}>
-                    {children}
-                  </CitationLink>
-                );
-              }
-              if (isExternalUrl(href)) {
-                const linkText =
-                  typeof children === "string"
-                    ? children
-                    : String(React.Children.toArray(children).join("")).trim() ||
-                      href;
-                return (
-                  <CitationLink
-                    citation={syntheticCitationFromLink(href, linkText)}
-                    href={href}
-                  >
-                    {children}
-                  </CitationLink>
-                );
-              }
-              return (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={externalLinkClass}
-                >
-                  {children}
-                </a>
-              );
-            },
+            a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+              <CitationAwareLink
+                {...props}
+                citationMap={citationMap}
+                syntheticExternal
+              />
+            ),
           }}
         >
           {cleanContent ?? ""}
