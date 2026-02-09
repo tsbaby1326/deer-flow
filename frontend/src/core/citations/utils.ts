@@ -187,44 +187,25 @@ export function isCitationsBlockIncomplete(content: string): boolean {
 /**
  * Remove ALL citations from content, including:
  * - <citations> blocks
- * - [cite-N] references
- * - Citation markdown links that were converted from [cite-N]
- * 
- * This is used for copy/download operations where we want clean content without any references.
+ * - [cite-N] references (and their converted markdown links)
+ *
+ * Uses parseCitations once, then strips citation links from cleanContent.
+ * Used for copy/download to produce content without any citation references.
  *
  * @param content - The raw content that may contain citations
  * @returns Content with all citations completely removed
  */
 export function removeAllCitations(content: string): string {
-  if (!content) {
-    return content;
-  }
+  if (!content) return content;
 
-  // Step 1: Remove all <citations> blocks (complete and incomplete)
-  let result = removeCitationsBlocks(content);
-
-  // Step 2: Remove all [cite-N] references
-  result = result.replace(/\[cite-\d+\]/g, "");
-
-  // Step 3: Parse to find citation URLs and remove those specific links
   const parsed = parseCitations(content);
-  const citationUrls = new Set(parsed.citations.map(c => c.url));
-  
-  // Remove markdown links that point to citation URLs
-  // Pattern: [text](url)
-  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
-    // If this URL is a citation, remove the entire link
-    if (citationUrls.has(url)) {
-      return "";
-    }
-    // Keep non-citation links
-    return match;
-  });
+  const citationUrls = new Set(parsed.citations.map((c) => c.url));
 
-  // Step 4: Clean up extra whitespace and newlines
-  result = result
-    .replace(/\n{3,}/g, "\n\n") // Replace 3+ newlines with 2
-    .trim();
+  // Remove markdown links that point to citation URLs; keep non-citation links
+  const withoutLinks = parsed.cleanContent.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    (fullMatch, _text, url) => (citationUrls.has(url) ? "" : fullMatch),
+  );
 
-  return result;
+  return withoutLinks.replace(/\n{3,}/g, "\n\n").trim();
 }
