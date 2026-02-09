@@ -21,7 +21,7 @@ import {
   ArtifactHeader,
   ArtifactTitle,
 } from "@/components/ai-elements/artifact";
-import { CitationAwareLink } from "@/components/ai-elements/inline-citation";
+import { createCitationMarkdownComponents } from "@/components/ai-elements/inline-citation";
 import { Select, SelectItem } from "@/components/ui/select";
 import {
   SelectContent,
@@ -47,6 +47,9 @@ import { env } from "@/env";
 import { cn } from "@/lib/utils";
 
 import { Tooltip } from "../tooltip";
+
+import { SafeCitationContent } from "../messages/safe-citation-content";
+import { useThread } from "../messages/context";
 
 import { useArtifacts } from "./context";
 
@@ -89,6 +92,7 @@ export function ArtifactFileDetail({
   const previewable = useMemo(() => {
     return (language === "html" && !isWriteFile) || language === "markdown";
   }, [isWriteFile, language]);
+  const { thread } = useThread();
   const { content } = useArtifactContent({
     threadId,
     filepath: filepathFromProps,
@@ -247,16 +251,27 @@ export function ArtifactFileDetail({
         </div>
       </ArtifactHeader>
       <ArtifactContent className="p-0">
-        {previewable && viewMode === "preview" && (
-          <ArtifactFilePreview
-            filepath={filepath}
-            threadId={threadId}
-            content={content}
-            language={language ?? "text"}
-            cleanContent={parsed.cleanContent}
-            citationMap={parsed.citationMap}
-          />
-        )}
+        {previewable &&
+          viewMode === "preview" &&
+          language === "markdown" &&
+          content && (
+            <SafeCitationContent
+              content={content}
+              isLoading={thread.isLoading}
+              rehypePlugins={streamdownPlugins.rehypePlugins}
+              className="flex size-full items-center justify-center p-4 my-0"
+              renderBody={(p) => (
+                <ArtifactFilePreview
+                  filepath={filepath}
+                  threadId={threadId}
+                  content={content}
+                  language={language ?? "text"}
+                  cleanContent={p.cleanContent}
+                  citationMap={p.citationMap}
+                />
+              )}
+            />
+          )}
         {isCodeFile && viewMode === "code" && (
           <CodeEditor
             className="size-full resize-none rounded-none border-none"
@@ -291,20 +306,16 @@ export function ArtifactFilePreview({
   citationMap: Map<string, Citation>;
 }) {
   if (language === "markdown") {
+    const components = createCitationMarkdownComponents({
+      citationMap,
+      syntheticExternal: true,
+    });
     return (
       <div className="size-full px-4">
         <Streamdown
           className="size-full"
           {...streamdownPlugins}
-          components={{
-            a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-              <CitationAwareLink
-                {...props}
-                citationMap={citationMap}
-                syntheticExternal
-              />
-            ),
-          }}
+          components={components}
         >
           {cleanContent ?? ""}
         </Streamdown>

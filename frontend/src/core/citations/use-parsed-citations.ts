@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { buildCitationMap, parseCitations } from "./utils";
+import { parseCitations } from "./utils";
 import type { Citation } from "./utils";
 
 export interface UseParsedCitationsResult {
@@ -13,12 +13,12 @@ export interface UseParsedCitationsResult {
 
 /**
  * Parse content for citations and build citation map. Memoized by content.
- * Use in message and artifact components to avoid repeating parseCitations + buildCitationMap.
  */
 export function useParsedCitations(content: string): UseParsedCitationsResult {
   return useMemo(() => {
     const parsed = parseCitations(content ?? "");
-    const citationMap = buildCitationMap(parsed.citations);
+    const citationMap = new Map<string, Citation>();
+    for (const c of parsed.citations) citationMap.set(c.url, c);
     return {
       citations: parsed.citations,
       cleanContent: parsed.cleanContent,
