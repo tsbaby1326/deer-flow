@@ -275,8 +275,8 @@ export function ArtifactFilePreview({
   if (language === "markdown") {
     return (
       <div className="size-full px-4">
-        <Streamdown 
-          className="size-full" 
+        <Streamdown
+          className="size-full"
           {...streamdownPlugins}
           components={{ a: CitationLink }}
         >
