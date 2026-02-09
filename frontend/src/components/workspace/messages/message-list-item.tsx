@@ -1,7 +1,12 @@
 import type { Message } from "@langchain/langgraph-sdk";
 import { FileIcon } from "lucide-react";
 import { useParams } from "next/navigation";
-import { memo, useMemo } from "react";
+import {
+  memo,
+  useMemo,
+  type HTMLAttributes,
+  type ImgHTMLAttributes,
+} from "react";
 import rehypeKatex from "rehype-katex";
 
 import {
@@ -23,6 +28,7 @@ import { humanMessagePlugins } from "@/core/streamdown";
 import { cn } from "@/lib/utils";
 
 import { CopyButton } from "../copy-button";
+
 import { MarkdownContent } from "./markdown-content";
 
 export function MessageListItem({
@@ -47,7 +53,7 @@ export function MessageListItem({
       />
       <MessageToolbar
         className={cn(
-          isHuman ? "justify-end -bottom-9" : "-bottom-8",
+          isHuman ? "-bottom-9 justify-end" : "-bottom-8",
           "absolute right-0 left-0 z-20 opacity-0 transition-opacity delay-200 duration-300 group-hover/conversation-message:opacity-100",
         )}
       >
@@ -81,13 +87,13 @@ function MessageImage({
   if (!src) return null;
 
   const imgClassName = cn("overflow-hidden rounded-lg", `max-w-[${maxWidth}]`);
-  
+
   if (typeof src !== "string") {
     return <img className={imgClassName} src={src} alt={alt} {...props} />;
   }
-  
+
   const url = src.startsWith("/mnt/") ? resolveArtifactURL(src, threadId) : src;
-  
+
   return (
     <a href={url} target="_blank" rel="noopener noreferrer">
       <img className={imgClassName} src={url} alt={alt} {...props} />
@@ -107,12 +113,42 @@ function MessageContent_({
   const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
   const isHuman = message.type === "human";
   const { thread_id } = useParams<{ thread_id: string }>();
+  const components = useMemo(() => {
+    return {
+      a: (props: HTMLAttributes<HTMLAnchorElement>) => {
+        if (typeof props.children === "string") {
+          // const match = /^\$(\d+):(.+)$/.exec(props.children);
+          const match = /^citation:(.+)$/.exec(props.children);
+          if (match) {
+            const [, text] = match;
+            return (
+              <a
+                {...props}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "red" }}
+              >
+                Citation - {text}
+              </a>
+            );
+          }
+        }
+        return <a {...props} />;
+      },
+      img: (props: ImgHTMLAttributes<HTMLImageElement>) => {
+        return <MessageImage {...props} threadId={thread_id} maxWidth="90%" />;
+      },
+    };
+  }, [thread_id]);
 
   const rawContent = extractContentFromMessage(message);
   const reasoningContent = extractReasoningContentFromMessage(message);
   const { contentToParse, uploadedFiles } = useMemo(() => {
     if (!isLoading && reasoningContent && !rawContent) {
-      return { contentToParse: reasoningContent, uploadedFiles: [] as UploadedFile[] };
+      return {
+        contentToParse: reasoningContent,
+        uploadedFiles: [] as UploadedFile[],
+      };
     }
     if (isHuman && rawContent) {
       const { files, cleanContent: contentWithoutFiles } =
@@ -125,15 +161,17 @@ function MessageContent_({
     };
   }, [isLoading, rawContent, reasoningContent, isHuman]);
 
-  const filesList = uploadedFiles.length > 0 && thread_id ? (
-    <UploadedFilesList files={uploadedFiles} threadId={thread_id} />
-  ) : null;
+  const filesList =
+    uploadedFiles.length > 0 && thread_id ? (
+      <UploadedFilesList files={uploadedFiles} threadId={thread_id} />
+    ) : null;
 
   if (isHuman) {
     const messageResponse = contentToParse ? (
       <AIElementMessageResponse
         remarkPlugins={humanMessagePlugins.remarkPlugins}
         rehypePlugins={humanMessagePlugins.rehypePlugins}
+        components={components}
       >
         {contentToParse}
       </AIElementMessageResponse>
@@ -159,13 +197,7 @@ function MessageContent_({
         rehypePlugins={[...rehypePlugins, [rehypeKatex, { output: "html" }]]}
         className="my-3"
         isHuman={false}
-        img={(props) => (
-          <MessageImage
-            {...props}
-            threadId={thread_id}
-            maxWidth="90%"
-          />
-        )}
+        components={components}
       />
     </AIElementMessageContent>
   );
@@ -174,14 +206,33 @@ function MessageContent_({
 /**
  * Get file extension and check helpers
  */
-const getFileExt = (filename: string) => filename.split(".").pop()?.toLowerCase() ?? "";
+const getFileExt = (filename: string) =>
+  filename.split(".").pop()?.toLowerCase() ?? "";
 
 const FILE_TYPE_MAP: Record<string, string> = {
-  json: "JSON", csv: "CSV", txt: "TXT", md: "Markdown",
-  py: "Python", js: "JavaScript", ts: "TypeScript", tsx: "TSX", jsx: "JSX",
-  html: "HTML", css: "CSS", xml: "XML", yaml: "YAML", yml: "YAML",
-  pdf: "PDF", png: "PNG", jpg: "JPG", jpeg: "JPEG", gif: "GIF",
-  svg: "SVG", zip: "ZIP", tar: "TAR", gz: "GZ",
+  json: "JSON",
+  csv: "CSV",
+  txt: "TXT",
+  md: "Markdown",
+  py: "Python",
+  js: "JavaScript",
+  ts: "TypeScript",
+  tsx: "TSX",
+  jsx: "JSX",
+  html: "HTML",
+  css: "CSS",
+  xml: "XML",
+  yaml: "YAML",
+  yml: "YAML",
+  pdf: "PDF",
+  png: "PNG",
+  jpg: "JPG",
+  jpeg: "JPEG",
+  gif: "GIF",
+  svg: "SVG",
+  zip: "ZIP",
+  tar: "TAR",
+  gz: "GZ",
 };
 
 const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"];
@@ -198,13 +249,23 @@ function isImageFile(filename: string): boolean {
 /**
  * Uploaded files list component
  */
-function UploadedFilesList({ files, threadId }: { files: UploadedFile[]; threadId: string }) {
+function UploadedFilesList({
+  files,
+  threadId,
+}: {
+  files: UploadedFile[];
+  threadId: string;
+}) {
   if (files.length === 0) return null;
 
   return (
     <div className="mb-2 flex flex-wrap justify-end gap-2">
       {files.map((file, index) => (
-        <UploadedFileCard key={`${file.path}-${index}`} file={file} threadId={threadId} />
+        <UploadedFileCard
+          key={`${file.path}-${index}`}
+          file={file}
+          threadId={threadId}
+        />
       ))}
     </div>
   );
@@ -213,7 +274,13 @@ function UploadedFilesList({ files, threadId }: { files: UploadedFile[]; threadI
 /**
  * Single uploaded file card component
  */
-function UploadedFileCard({ file, threadId }: { file: UploadedFile; threadId: string }) {
+function UploadedFileCard({
+  file,
+  threadId,
+}: {
+  file: UploadedFile;
+  threadId: string;
+}) {
   if (!threadId) return null;
 
   const isImage = isImageFile(file.filename);
@@ -240,12 +307,18 @@ function UploadedFileCard({ file, threadId }: { file: UploadedFile; threadId: st
     <div className="bg-background border-border/40 flex max-w-[200px] min-w-[120px] flex-col gap-1 rounded-lg border p-3 shadow-sm">
       <div className="flex items-start gap-2">
         <FileIcon className="text-muted-foreground mt-0.5 size-4 shrink-0" />
-        <span className="text-foreground truncate text-sm font-medium" title={file.filename}>
+        <span
+          className="text-foreground truncate text-sm font-medium"
+          title={file.filename}
+        >
           {file.filename}
         </span>
       </div>
       <div className="flex items-center justify-between gap-2">
-        <Badge variant="secondary" className="rounded px-1.5 py-0.5 text-[10px] font-normal">
+        <Badge
+          variant="secondary"
+          className="rounded px-1.5 py-0.5 text-[10px] font-normal"
+        >
           {getFileTypeLabel(file.filename)}
         </Badge>
         <span className="text-muted-foreground text-[10px]">{file.size}</span>

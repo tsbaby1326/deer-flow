@@ -1,7 +1,6 @@
 "use client";
 
-import type { ImgHTMLAttributes } from "react";
-import type { ReactNode } from "react";
+import { useMemo } from "react";
 
 import {
   MessageResponse,
@@ -16,7 +15,7 @@ export type MarkdownContentProps = {
   className?: string;
   remarkPlugins?: MessageResponseProps["remarkPlugins"];
   isHuman?: boolean;
-  img?: (props: ImgHTMLAttributes<HTMLImageElement> & { threadId?: string; maxWidth?: string }) => ReactNode;
+  components?: MessageResponseProps["components"];
 };
 
 /** Renders markdown content. */
@@ -25,10 +24,14 @@ export function MarkdownContent({
   rehypePlugins,
   className,
   remarkPlugins = streamdownPlugins.remarkPlugins,
-  img,
+  components: componentsFromProps,
 }: MarkdownContentProps) {
+  const components = useMemo(() => {
+    return {
+      ...componentsFromProps,
+    };
+  }, [componentsFromProps]);
   if (!content) return null;
-  const components = img ? { img } : undefined;
   return (
     <MessageResponse
       className={className}
