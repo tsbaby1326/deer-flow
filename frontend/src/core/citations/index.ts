@@ -1,4 +1,5 @@
 export {
+  contentWithoutCitationsFromParsed,
   extractDomainFromUrl,
   getCleanContent,
   hasCitationsBlock,
