@@ -1,4 +1,11 @@
 /**
+ * Citation parsing and display helpers.
+ * Display rule: never show half-finished citations. Use shouldShowCitationLoading
+ * and show only the loading indicator until the block is complete and all
+ * [cite-N] refs are replaced.
+ */
+
+/**
  * Citation data structure representing a source reference
  */
 export interface Citation {
@@ -17,7 +24,41 @@ export interface ParseCitationsResult {
 }
 
 /**
+ * Parse citation lines (one JSON object per line) into Citation array.
+ * Deduplicates by URL. Used for both complete and incomplete (streaming) blocks.
+ */
+function parseCitationLines(
+  blockContent: string,
+  seenUrls: Set<string>,
+): Citation[] {
+  const out: Citation[] = [];
+  const lines = blockContent.split("\n");
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed?.startsWith("{")) continue;
+    try {
+      const citation = JSON.parse(trimmed) as Citation;
+      if (citation.id && citation.url && !seenUrls.has(citation.url)) {
+        seenUrls.add(citation.url);
+        out.push({
+          id: citation.id,
+          title: citation.title || "",
+          url: citation.url,
+          snippet: citation.snippet || "",
+        });
+      }
+    } catch {
+      // Skip invalid JSON lines - can happen during streaming
+    }
+  }
+  return out;
+}
+
+/**
  * Parse citations block from message content.
+ * Shared by all modes (Flash / Thinking / Pro / Ultra); supports incomplete
+ * <citations> blocks during SSE streaming (parses whatever complete JSON lines
+ * have arrived so far so [cite-N] can be linked progressively).
  *
  * The citations block format:
  * <citations>
@@ -33,41 +74,25 @@ export function parseCitations(content: string): ParseCitationsResult {
     return { citations: [], cleanContent: content };
   }
 
-  // Match ALL citations blocks anywhere in content (not just at the start)
-  const citationsRegex = /<citations>([\s\S]*?)<\/citations>/g;
   const citations: Citation[] = [];
-  const seenUrls = new Set<string>(); // Deduplicate by URL
-  let cleanContent = content;
+  const seenUrls = new Set<string>();
 
+  // 1) Complete blocks: <citations>...</citations>
+  const citationsRegex = /<citations>([\s\S]*?)<\/citations>/g;
   let match;
   while ((match = citationsRegex.exec(content)) !== null) {
-    const citationsBlock = match[1] ?? "";
+    citations.push(...parseCitationLines(match[1] ?? "", seenUrls));
+  }
 
-    // Parse each line as JSON
-    const lines = citationsBlock.split("\n");
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed?.startsWith("{")) {
-        try {
-          const citation = JSON.parse(trimmed) as Citation;
-          // Validate required fields and deduplicate
-          if (citation.id && citation.url && !seenUrls.has(citation.url)) {
-            seenUrls.add(citation.url);
-            citations.push({
-              id: citation.id,
-              title: citation.title || "",
-              url: citation.url,
-              snippet: citation.snippet || "",
-            });
-          }
-        } catch {
-          // Skip invalid JSON lines - this can happen during streaming
-        }
-      }
+  // 2) Incomplete block during streaming: <citations>... (no closing tag yet)
+  if (content.includes("<citations>") && !content.includes("</citations>")) {
+    const openMatch = content.match(/<citations>([\s\S]*)$/);
+    if (openMatch?.[1] != null) {
+      citations.push(...parseCitationLines(openMatch[1], seenUrls));
     }
   }
 
-  cleanContent = removeCitationsBlocks(content);
+  let cleanContent = removeCitationsBlocks(content);
 
   // Convert [cite-N] references to markdown links
   // Example: [cite-1] -> [Title](url)
@@ -93,13 +118,6 @@ export function parseCitations(content: string): ParseCitationsResult {
   }
 
   return { citations, cleanContent };
-}
-
-/**
- * Return content with citations block removed and [cite-N] replaced by markdown links.
- */
-export function getCleanContent(content: string): string {
-  return parseCitations(content ?? "").cleanContent;
 }
 
 /**
@@ -173,15 +191,32 @@ export function hasCitationsBlock(content: string): boolean {
   return Boolean(content?.includes("<citations>"));
 }
 
+/** Pattern for [cite-1], [cite-2], ... that should be replaced by parseCitations. */
+const UNREPLACED_CITE_REF = /\[cite-\d+\]/;
+
 /**
- * Check if content is still receiving the citations block (streaming)
- * This helps determine if we should wait before parsing
- *
- * @param content - The current content being streamed
- * @returns true if citations block appears to be incomplete
+ * Whether cleanContent still contains unreplaced [cite-N] refs (half-finished citations).
+ * When true, callers must not render this content and should show loading instead.
  */
-export function isCitationsBlockIncomplete(content: string): boolean {
-  return hasCitationsBlock(content) && !content.includes("</citations>");
+export function hasUnreplacedCitationRefs(cleanContent: string): boolean {
+  return Boolean(cleanContent && UNREPLACED_CITE_REF.test(cleanContent));
+}
+
+/**
+ * Single source of truth: true when body must not be rendered (show loading instead).
+ * Use after parseCitations: pass raw content, parsed cleanContent, and isLoading.
+ * When streaming and any citation block is present, show loading so the indicator
+ * is visible in all modes (Pro/Ultra often receive complete blocks in one chunk).
+ */
+export function shouldShowCitationLoading(
+  rawContent: string,
+  cleanContent: string,
+  isLoading: boolean,
+): boolean {
+  return (
+    (isLoading && hasCitationsBlock(rawContent)) ||
+    (hasCitationsBlock(rawContent) && hasUnreplacedCitationRefs(cleanContent))
+  );
 }
 
 /**
