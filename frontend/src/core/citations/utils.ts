@@ -205,18 +205,16 @@ export function hasUnreplacedCitationRefs(cleanContent: string): boolean {
 /**
  * Single source of truth: true when body must not be rendered (show loading instead).
  * Use after parseCitations: pass raw content, parsed cleanContent, and isLoading.
- * When streaming and any citation block is present, show loading so the indicator
- * is visible in all modes (Pro/Ultra often receive complete blocks in one chunk).
+ * Never show body when cleanContent still has [cite-N] (e.g. refs arrived before
+ * <citations> block in stream); also show loading while streaming with citation block.
  */
 export function shouldShowCitationLoading(
   rawContent: string,
   cleanContent: string,
   isLoading: boolean,
 ): boolean {
-  return (
-    (isLoading && hasCitationsBlock(rawContent)) ||
-    (hasCitationsBlock(rawContent) && hasUnreplacedCitationRefs(cleanContent))
-  );
+  if (hasUnreplacedCitationRefs(cleanContent)) return true;
+  return isLoading && hasCitationsBlock(rawContent);
 }
 
 /**

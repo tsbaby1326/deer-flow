@@ -28,8 +28,9 @@ import { Welcome } from "@/components/workspace/welcome";
 import { useI18n } from "@/core/i18n/hooks";
 import { useNotification } from "@/core/notification/hooks";
 import { useLocalSettings } from "@/core/settings";
-import { type AgentThread } from "@/core/threads";
+import { type AgentThread, type AgentThreadState } from "@/core/threads";
 import { useSubmitThread, useThreadStream } from "@/core/threads/hooks";
+import type { Message } from "@langchain/langgraph-sdk";
 import {
   pathOfThread,
   textOfMessage,
@@ -88,10 +89,12 @@ export default function ChatPage() {
   }, [threadIdFromPath]);
 
   const { showNotification } = useNotification();
+  const [finalState, setFinalState] = useState<AgentThreadState | null>(null);
   const thread = useThreadStream({
     isNewThread,
     threadId,
     onFinish: (state) => {
+      setFinalState(state);
       if (document.hidden || !document.hasFocus()) {
         let body = "Conversation finished";
         const lastMessage = state.messages[state.messages.length - 1];
@@ -111,6 +114,9 @@ export default function ChatPage() {
       }
     },
   });
+  useEffect(() => {
+    if (thread.isLoading) setFinalState(null);
+  }, [thread.isLoading]);
 
   const title = useMemo(() => {
     let result = isNewThread
@@ -239,6 +245,11 @@ export default function ChatPage() {
                   className={cn("size-full", !isNewThread && "pt-10")}
                   threadId={threadId}
                   thread={thread}
+                  messagesOverride={
+                    !thread.isLoading && finalState?.messages
+                      ? (finalState.messages as Message[])
+                      : undefined
+                  }
                   paddingBottom={todoListCollapsed ? 160 : 280}
                 />
               </div>
