@@ -1,12 +1,10 @@
 export {
   contentWithoutCitationsFromParsed,
   extractDomainFromUrl,
-  getCleanContent,
-  hasCitationsBlock,
-  isCitationsBlockIncomplete,
   isExternalUrl,
   parseCitations,
   removeAllCitations,
+  shouldShowCitationLoading,
   syntheticCitationFromLink,
 } from "./utils";
 

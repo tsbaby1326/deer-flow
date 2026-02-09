@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ShineBorder } from "@/components/ui/shine-border";
 import { useI18n } from "@/core/i18n/hooks";
 import { hasToolCalls } from "@/core/messages/utils";
+import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import {
   streamdownPlugins,
   streamdownPluginsWithWordAnimation,
@@ -28,9 +29,12 @@ import { cn } from "@/lib/utils";
 
 import { FlipDisplay } from "../flip-display";
 
+import { SafeCitationContent } from "./safe-citation-content";
+
 export function SubtaskCard({
   className,
   taskId,
+  isLoading,
 }: {
   className?: string;
   taskId: string;
@@ -38,6 +42,7 @@ export function SubtaskCard({
 }) {
   const { t } = useI18n();
   const [collapsed, setCollapsed] = useState(true);
+  const rehypePlugins = useRehypeSplitWordsIntoSpans(isLoading);
   const task = useSubtask(taskId)!;
   const icon = useMemo(() => {
     if (task.status === "completed") {
@@ -147,7 +152,13 @@ export function SubtaskCard({
               ></ChainOfThoughtStep>
               <ChainOfThoughtStep
                 label={
-                  <Streamdown {...streamdownPlugins}>{task.result}</Streamdown>
+                  task.result ? (
+                    <SafeCitationContent
+                      content={task.result}
+                      isLoading={false}
+                      rehypePlugins={rehypePlugins}
+                    />
+                  ) : null
                 }
               ></ChainOfThoughtStep>
             </>

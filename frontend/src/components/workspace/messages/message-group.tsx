@@ -22,14 +22,8 @@ import {
   ChainOfThoughtStep,
 } from "@/components/ai-elements/chain-of-thought";
 import { CodeBlock } from "@/components/ai-elements/code-block";
-import { CitationsLoadingIndicator } from "@/components/ai-elements/inline-citation";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
-import {
-  getCleanContent,
-  hasCitationsBlock,
-  useParsedCitations,
-} from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
 import {
   extractReasoningContentFromMessage,
@@ -46,6 +40,8 @@ import { FlipDisplay } from "../flip-display";
 import { Tooltip } from "../tooltip";
 
 import { useThread } from "./context";
+
+import { SafeCitationContent } from "./safe-citation-content";
 
 export function MessageGroup({
   className,
@@ -124,16 +120,20 @@ export function MessageGroup({
                 <ChainOfThoughtStep
                   key={step.id}
                   label={
-                    <MessageResponse
-                      remarkPlugins={streamdownPlugins.remarkPlugins}
+                    <SafeCitationContent
+                      content={step.reasoning ?? ""}
+                      isLoading={isLoading}
                       rehypePlugins={rehypePlugins}
-                    >
-                      {getCleanContent(step.reasoning ?? "")}
-                    </MessageResponse>
+                    />
                   }
                 ></ChainOfThoughtStep>
               ) : (
-                <ToolCall key={step.id} {...step} isLoading={isLoading} />
+                <ToolCall
+                  key={step.id}
+                  {...step}
+                  isLoading={isLoading}
+                  rehypePlugins={rehypePlugins}
+                />
               ),
             )}
           {lastToolCallStep && (
@@ -143,6 +143,7 @@ export function MessageGroup({
                 {...lastToolCallStep}
                 isLast={true}
                 isLoading={isLoading}
+                rehypePlugins={rehypePlugins}
               />
             </FlipDisplay>
           )}
@@ -177,12 +178,11 @@ export function MessageGroup({
               <ChainOfThoughtStep
                 key={lastReasoningStep.id}
                 label={
-                  <MessageResponse
-                    remarkPlugins={streamdownPlugins.remarkPlugins}
+                  <SafeCitationContent
+                    content={lastReasoningStep.reasoning ?? ""}
+                    isLoading={isLoading}
                     rehypePlugins={rehypePlugins}
-                  >
-                    {getCleanContent(lastReasoningStep.reasoning ?? "")}
-                  </MessageResponse>
+                  />
                 }
               ></ChainOfThoughtStep>
             </ChainOfThoughtContent>
@@ -201,6 +201,7 @@ function ToolCall({
   result,
   isLast = false,
   isLoading = false,
+  rehypePlugins,
 }: {
   id?: string;
   messageId?: string;
@@ -209,6 +210,7 @@ function ToolCall({
   result?: string | Record<string, unknown>;
   isLast?: boolean;
   isLoading?: boolean;
+  rehypePlugins: ReturnType<typeof useRehypeSplitWordsIntoSpans>;
 }) {
   const { t } = useI18n();
   const { setOpen, autoOpen, autoSelect, selectedArtifact, select } =
@@ -217,7 +219,6 @@ function ToolCall({
   const threadIsLoading = thread.isLoading;
 
   const fileContent = typeof args.content === "string" ? args.content : "";
-  const { citations } = useParsedCitations(fileContent);
 
   if (name === "web_search") {
     let label: React.ReactNode = t.toolCalls.searchForRelatedInfo;
@@ -363,12 +364,9 @@ function ToolCall({
       }, 100);
     }
 
-    // Check if this is a markdown file with citations
     const isMarkdown =
       path?.toLowerCase().endsWith(".md") ||
       path?.toLowerCase().endsWith(".markdown");
-    const showCitationsLoading =
-      isMarkdown && threadIsLoading && hasCitationsBlock(fileContent) && isLast;
 
     return (
       <>
@@ -392,10 +390,14 @@ function ToolCall({
             </ChainOfThoughtSearchResult>
           )}
         </ChainOfThoughtStep>
-        {showCitationsLoading && (
-          <div className="mt-2 ml-8">
-            <CitationsLoadingIndicator citations={citations} />
-          </div>
+        {isMarkdown && (
+          <SafeCitationContent
+            content={fileContent}
+            isLoading={threadIsLoading && isLast}
+            rehypePlugins={rehypePlugins}
+            loadingOnly
+            className="mt-2 ml-8"
+          />
         )}
       </>
     );

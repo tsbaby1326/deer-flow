@@ -4,7 +4,6 @@ import {
   Conversation,
   ConversationContent,
 } from "@/components/ai-elements/conversation";
-import { MessageResponse } from "@/components/ai-elements/message";
 import { useI18n } from "@/core/i18n/hooks";
 import {
   extractContentFromMessage,
@@ -19,6 +18,7 @@ import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import type { Subtask } from "@/core/tasks";
 import { useUpdateSubtask } from "@/core/tasks/context";
 import type { AgentThreadState } from "@/core/threads";
+import type { Message } from "@langchain/langgraph-sdk";
 import { cn } from "@/lib/utils";
 
 import { ArtifactFileList } from "../artifacts/artifact-file-list";
@@ -26,6 +26,7 @@ import { StreamingIndicator } from "../streaming-indicator";
 
 import { MessageGroup } from "./message-group";
 import { MessageListItem } from "./message-list-item";
+import { SafeCitationContent } from "./safe-citation-content";
 import { MessageListSkeleton } from "./skeleton";
 import { SubtaskCard } from "./subtask-card";
 
@@ -33,16 +34,20 @@ export function MessageList({
   className,
   threadId,
   thread,
+  messagesOverride,
   paddingBottom = 160,
 }: {
   className?: string;
   threadId: string;
   thread: UseStream<AgentThreadState>;
+  /** When set (e.g. from onFinish), use instead of thread.messages so SSE end shows complete state. */
+  messagesOverride?: Message[];
   paddingBottom?: number;
 }) {
   const { t } = useI18n();
   const rehypePlugins = useRehypeSplitWordsIntoSpans(thread.isLoading);
   const updateSubtask = useUpdateSubtask();
+  const messages = messagesOverride ?? thread.messages;
   if (thread.isThreadLoading) {
     return <MessageListSkeleton />;
   }
@@ -51,7 +56,7 @@ export function MessageList({
       className={cn("flex size-full flex-col justify-center", className)}
     >
       <ConversationContent className="mx-auto w-full max-w-(--container-width-md) gap-8 pt-12">
-        {groupMessages(thread.messages, (group) => {
+        {groupMessages(messages, (group) => {
           if (group.type === "human" || group.type === "assistant") {
             return (
               <MessageListItem
@@ -64,9 +69,12 @@ export function MessageList({
             const message = group.messages[0];
             if (message && hasContent(message)) {
               return (
-                <MessageResponse key={group.id} rehypePlugins={rehypePlugins}>
-                  {extractContentFromMessage(message)}
-                </MessageResponse>
+                <SafeCitationContent
+                  key={group.id}
+                  content={extractContentFromMessage(message)}
+                  isLoading={thread.isLoading}
+                  rehypePlugins={rehypePlugins}
+                />
               );
             }
             return null;
@@ -81,12 +89,12 @@ export function MessageList({
             return (
               <div className="w-full" key={group.id}>
                 {group.messages[0] && hasContent(group.messages[0]) && (
-                  <MessageResponse
-                    className="mb-4"
+                  <SafeCitationContent
+                    content={extractContentFromMessage(group.messages[0])}
+                    isLoading={thread.isLoading}
                     rehypePlugins={rehypePlugins}
-                  >
-                    {extractContentFromMessage(group.messages[0])}
-                  </MessageResponse>
+                    className="mb-4"
+                  />
                 )}
                 <ArtifactFileList files={files} threadId={threadId} />
               </div>
