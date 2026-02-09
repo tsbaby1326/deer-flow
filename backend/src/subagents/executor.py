@@ -392,23 +392,6 @@ class SubagentExecutor:
 MAX_CONCURRENT_SUBAGENTS = 3
 
 
-def count_active_tasks_by_trace(trace_id: str) -> int:
-    """Count active (PENDING or RUNNING) background tasks for a given trace_id.
-
-    Args:
-        trace_id: The trace ID linking tasks to a parent invocation.
-
-    Returns:
-        Number of active tasks with the given trace_id.
-    """
-    with _background_tasks_lock:
-        return sum(
-            1
-            for task in _background_tasks.values()
-            if task.trace_id == trace_id and task.status in (SubagentStatus.PENDING, SubagentStatus.RUNNING)
-        )
-
-
 def get_background_task_result(task_id: str) -> SubagentResult | None:
     """Get the result of a background task.
 
