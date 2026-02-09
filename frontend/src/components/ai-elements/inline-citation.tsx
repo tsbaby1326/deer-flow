@@ -12,7 +12,14 @@ import {
   externalLinkClassNoUnderline,
 } from "@/lib/utils";
 import { ExternalLinkIcon } from "lucide-react";
-import { type ComponentProps, Children } from "react";
+import {
+  type AnchorHTMLAttributes,
+  type ComponentProps,
+  type ImgHTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+  Children,
+} from "react";
 import type { Citation } from "@/core/citations";
 import {
   extractDomainFromUrl,
@@ -201,6 +208,48 @@ export const CitationAwareLink = ({
     </a>
   );
 };
+
+/**
+ * Options for creating markdown components that render links as citations.
+ * Used by message list (all modes: Flash/Thinking/Pro/Ultra), artifact preview, and CoT.
+ */
+export type CreateCitationMarkdownComponentsOptions = {
+  citationMap: Map<string, Citation>;
+  isHuman?: boolean;
+  isLoadingCitations?: boolean;
+  syntheticExternal?: boolean;
+  /** Optional custom img component (e.g. MessageImage with threadId). Omit for artifact. */
+  img?: (props: ImgHTMLAttributes<HTMLImageElement> & { threadId?: string; maxWidth?: string }) => ReactNode;
+};
+
+/**
+ * Create markdown `components` (a, optional img) that use CitationAwareLink.
+ * Reused across message-list-item (all modes), artifact-file-detail, and any CoT markdown.
+ */
+export function createCitationMarkdownComponents(
+  options: CreateCitationMarkdownComponentsOptions,
+): {
+  a: (props: AnchorHTMLAttributes<HTMLAnchorElement>) => ReactElement;
+  img?: (props: ImgHTMLAttributes<HTMLImageElement> & { threadId?: string; maxWidth?: string }) => ReactNode;
+} {
+  const {
+    citationMap,
+    isHuman = false,
+    isLoadingCitations = false,
+    syntheticExternal = false,
+    img,
+  } = options;
+  const a = (props: AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <CitationAwareLink
+      {...props}
+      citationMap={citationMap}
+      isHuman={isHuman}
+      isLoadingCitations={isLoadingCitations}
+      syntheticExternal={syntheticExternal}
+    />
+  );
+  return img ? { a, img } : { a };
+}
 
 /**
  * Shared CitationsLoadingIndicator component

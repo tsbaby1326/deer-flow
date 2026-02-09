@@ -25,11 +25,7 @@ import { CodeBlock } from "@/components/ai-elements/code-block";
 import { CitationsLoadingIndicator } from "@/components/ai-elements/inline-citation";
 import { MessageResponse } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
-import {
-  getCleanContent,
-  hasCitationsBlock,
-  useParsedCitations,
-} from "@/core/citations";
+import { shouldShowCitationLoading, useParsedCitations } from "@/core/citations";
 import { useI18n } from "@/core/i18n/hooks";
 import {
   extractReasoningContentFromMessage,
@@ -46,6 +42,8 @@ import { FlipDisplay } from "../flip-display";
 import { Tooltip } from "../tooltip";
 
 import { useThread } from "./context";
+
+import { SafeCitationContent } from "./safe-citation-content";
 
 export function MessageGroup({
   className,
@@ -124,12 +122,11 @@ export function MessageGroup({
                 <ChainOfThoughtStep
                   key={step.id}
                   label={
-                    <MessageResponse
-                      remarkPlugins={streamdownPlugins.remarkPlugins}
+                    <SafeCitationContent
+                      content={step.reasoning ?? ""}
+                      isLoading={isLoading}
                       rehypePlugins={rehypePlugins}
-                    >
-                      {getCleanContent(step.reasoning ?? "")}
-                    </MessageResponse>
+                    />
                   }
                 ></ChainOfThoughtStep>
               ) : (
@@ -177,12 +174,11 @@ export function MessageGroup({
               <ChainOfThoughtStep
                 key={lastReasoningStep.id}
                 label={
-                  <MessageResponse
-                    remarkPlugins={streamdownPlugins.remarkPlugins}
+                  <SafeCitationContent
+                    content={lastReasoningStep.reasoning ?? ""}
+                    isLoading={isLoading}
                     rehypePlugins={rehypePlugins}
-                  >
-                    {getCleanContent(lastReasoningStep.reasoning ?? "")}
-                  </MessageResponse>
+                  />
                 }
               ></ChainOfThoughtStep>
             </ChainOfThoughtContent>
@@ -217,7 +213,7 @@ function ToolCall({
   const threadIsLoading = thread.isLoading;
 
   const fileContent = typeof args.content === "string" ? args.content : "";
-  const { citations } = useParsedCitations(fileContent);
+  const { citations, cleanContent } = useParsedCitations(fileContent);
 
   if (name === "web_search") {
     let label: React.ReactNode = t.toolCalls.searchForRelatedInfo;
@@ -363,12 +359,16 @@ function ToolCall({
       }, 100);
     }
 
-    // Check if this is a markdown file with citations
     const isMarkdown =
       path?.toLowerCase().endsWith(".md") ||
       path?.toLowerCase().endsWith(".markdown");
     const showCitationsLoading =
-      isMarkdown && threadIsLoading && hasCitationsBlock(fileContent) && isLast;
+      isMarkdown &&
+      shouldShowCitationLoading(
+        fileContent,
+        cleanContent,
+        threadIsLoading && isLast,
+      );
 
     return (
       <>
