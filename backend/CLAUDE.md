@@ -24,7 +24,7 @@ deer-flow/
 │   ├── src/
 │   │   ├── agents/            # LangGraph agent system
 │   │   │   ├── lead_agent/    # Main agent (factory + system prompt)
-│   │   │   ├── middlewares/   # 9 middleware components
+│   │   │   ├── middlewares/   # 10 middleware components
 │   │   │   ├── memory/        # Memory extraction, queue, prompts
 │   │   │   └── thread_state.py # ThreadState schema
 │   │   ├── gateway/           # FastAPI Gateway API
@@ -112,12 +112,14 @@ Middlewares execute in strict order in `src/agents/lead_agent/agent.py`:
 1. **ThreadDataMiddleware** - Creates per-thread directories (`backend/.deer-flow/threads/{thread_id}/user-data/{workspace,uploads,outputs}`)
 2. **UploadsMiddleware** - Tracks and injects newly uploaded files into conversation
 3. **SandboxMiddleware** - Acquires sandbox, stores `sandbox_id` in state
-4. **SummarizationMiddleware** - Context reduction when approaching token limits (optional, if enabled)
-5. **TodoListMiddleware** - Task tracking with `write_todos` tool (optional, if plan_mode)
-6. **TitleMiddleware** - Auto-generates thread title after first complete exchange
-7. **MemoryMiddleware** - Queues conversations for async memory update (filters to user + final AI responses)
-8. **ViewImageMiddleware** - Injects base64 image data before LLM call (conditional on vision support)
-9. **ClarificationMiddleware** - Intercepts `ask_clarification` tool calls, interrupts via `Command(goto=END)` (must be last)
+4. **DanglingToolCallMiddleware** - Injects placeholder ToolMessages for AIMessage tool_calls that lack responses (e.g., due to user interruption)
+5. **SummarizationMiddleware** - Context reduction when approaching token limits (optional, if enabled)
+6. **TodoListMiddleware** - Task tracking with `write_todos` tool (optional, if plan_mode)
+7. **TitleMiddleware** - Auto-generates thread title after first complete exchange
+8. **MemoryMiddleware** - Queues conversations for async memory update (filters to user + final AI responses)
+9. **ViewImageMiddleware** - Injects base64 image data before LLM call (conditional on vision support)
+10. **SubagentLimitMiddleware** - Truncates excess `task` tool calls from model response to enforce `MAX_CONCURRENT_SUBAGENTS` limit (optional, if subagent_enabled)
+11. **ClarificationMiddleware** - Intercepts `ask_clarification` tool calls, interrupts via `Command(goto=END)` (must be last)
 
 ### Configuration System
 
@@ -185,7 +187,7 @@ Proxied through nginx: `/api/langgraph/*` → LangGraph, all other `/api/*` → 
 
 **Built-in Agents**: `general-purpose` (all tools except `task`) and `bash` (command specialist)
 **Execution**: Dual thread pool - `_scheduler_pool` (3 workers) + `_execution_pool` (3 workers)
-**Concurrency**: `MAX_CONCURRENT_SUBAGENTS = 3` per trace, 15-minute timeout
+**Concurrency**: `MAX_CONCURRENT_SUBAGENTS = 3` enforced by `SubagentLimitMiddleware` (truncates excess tool calls in `after_model`), 15-minute timeout
 **Flow**: `task()` tool → `SubagentExecutor` → background thread → poll 5s → SSE events → result
 **Events**: `task_started`, `task_running`, `task_completed`/`task_failed`/`task_timed_out`
 
