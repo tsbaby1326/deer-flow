@@ -18,6 +18,7 @@ import { useRehypeSplitWordsIntoSpans } from "@/core/rehype";
 import type { Subtask } from "@/core/tasks";
 import { useUpdateSubtask } from "@/core/tasks/context";
 import type { AgentThreadState } from "@/core/threads";
+import type { Message } from "@langchain/langgraph-sdk";
 import { cn } from "@/lib/utils";
 
 import { ArtifactFileList } from "../artifacts/artifact-file-list";
@@ -33,16 +34,20 @@ export function MessageList({
   className,
   threadId,
   thread,
+  messagesOverride,
   paddingBottom = 160,
 }: {
   className?: string;
   threadId: string;
   thread: UseStream<AgentThreadState>;
+  /** When set (e.g. from onFinish), use instead of thread.messages so SSE end shows complete state. */
+  messagesOverride?: Message[];
   paddingBottom?: number;
 }) {
   const { t } = useI18n();
   const rehypePlugins = useRehypeSplitWordsIntoSpans(thread.isLoading);
   const updateSubtask = useUpdateSubtask();
+  const messages = messagesOverride ?? thread.messages;
   if (thread.isThreadLoading) {
     return <MessageListSkeleton />;
   }
@@ -51,7 +56,7 @@ export function MessageList({
       className={cn("flex size-full flex-col justify-center", className)}
     >
       <ConversationContent className="mx-auto w-full max-w-(--container-width-md) gap-8 pt-12">
-        {groupMessages(thread.messages, (group) => {
+        {groupMessages(messages, (group) => {
           if (group.type === "human" || group.type === "assistant") {
             return (
               <MessageListItem
