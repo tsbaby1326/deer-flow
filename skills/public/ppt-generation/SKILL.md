@@ -81,7 +81,7 @@ Create a JSON file in `/mnt/user-data/workspace/` with the presentation structur
 
 ### Step 3: Generate Slide Images Sequentially
 
-**IMPORTANT**: Generate slides one by one, using the previous slide as a reference image to maintain visual consistency.
+**IMPORTANT**: Generate slides **strictly one by one, in order**. Do NOT parallelize or batch image generation. Each slide depends on the previous slide's output as a reference image. Generating slides in parallel will break visual consistency and is not allowed.
 
 1. Read the image-generation skill: `/mnt/skills/public/image-generation/SKILL.md`
 
@@ -452,6 +452,7 @@ After generation:
 - ❌ Inconsistent colors between slides - always reference previous slide
 - ❌ Skipping the reference image parameter - this breaks visual consistency
 - ❌ Using different design styles within one presentation
+- ❌ Generating slides in parallel - slides MUST be generated one at a time in order (slide 1 → 2 → 3 ...), never concurrently
 
 **Recommended Styles for Different Contexts:**
 - Tech product launch → `glassmorphism` or `gradient-modern`
