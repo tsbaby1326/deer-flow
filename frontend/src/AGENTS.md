@@ -35,6 +35,19 @@
    bounded error and attempt count; retryable failures use backend backoff,
    while a permanent rejection or exhausted five-attempt budget is shown as
    stopped rather than implying that retries will continue.
+   Explicit durable native-subagent batches use `core/subagent-batches` and
+   `ThreadSubagentBatches`. `/api/features` reports SQL-repository availability
+   separately from the startup worker. A running worker exposes the trigger on
+   both default and Custom Agent chat pages; a stopped worker keeps threads with
+   durable history visible in read-only mode for inspection and JSONL export,
+   while deployments with neither a worker nor history keep the trigger hidden.
+   The panel renders bounded progress and incrementally paged item previews, controls pause/resume/cancel,
+   retries failed items, and exports JSONL. Worker-dependent mutations stay
+   disabled in read-only history mode, and persisted progress is normalized to
+   a bounded percentage before reaching the UI primitive. Item pagination uses a
+   fixed page size and an explicit load-more control; full results remain available
+   only through JSONL export. The panel must not infer batch mode from prompt text
+   or inject the complete result set into chat state.
    Settings > Integrations uses a local generation only to suppress stale React
    callbacks; server-issued Lark flow generations must be passed through every
    config/auth completion and across switch-or-register to authorization chains
