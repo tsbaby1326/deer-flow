@@ -102,6 +102,7 @@ def _checkpoint_mode_http_error(exc: Exception, thread_id: str) -> HTTPException
 _SERVER_RESERVED_METADATA_KEYS: frozenset[str] = frozenset({"owner_id", "user_id"})
 _SIDECAR_METADATA_KEY = "deerflow_sidecar"
 _BRANCH_METADATA_KEY = "deerflow_branch"
+_BRANCH_TITLE_SEQUENCE_METADATA_KEY = "branch_title_sequence"
 # Thread-scoped runtime channels a branch must NOT inherit from its parent:
 # ``sandbox.sandbox_id`` binds path mappings and the release lifecycle to the
 # *parent* thread, so copying it would make the branch read/write the parent's
@@ -112,6 +113,9 @@ _BRANCH_METADATA_KEY = "deerflow_branch"
 _BRANCH_EXCLUDED_CHANNELS = frozenset({"sandbox", "thread_data"})
 _BRANCH_HISTORY_SCAN_LIMIT = 200
 _BRANCH_HISTORY_RAW_SCAN_LIMIT = _BRANCH_HISTORY_SCAN_LIMIT * 2
+_BRANCH_TITLE_MAX_LENGTH = 256
+_BRANCH_TITLE_SEQUENCE_MAX = 9_007_199_254_740_991
+_BRANCH_SIBLING_PAGE_SIZE = 100
 
 
 def _strip_reserved_metadata(metadata: dict[str, Any] | None) -> dict[str, Any]:
@@ -329,16 +333,66 @@ async def _copy_branch_user_data(source_thread_id: str, target_thread_id: str) -
         return "failed"
 
 
-def _default_branch_display_name(source_title: Any, *, source_is_branch: bool = False) -> str | None:
+def _next_branch_title_sequence(source_sequence: Any, *, source_is_branch: bool) -> int:
+    if source_is_branch and isinstance(source_sequence, int) and not isinstance(source_sequence, bool) and 2 <= source_sequence < _BRANCH_TITLE_SEQUENCE_MAX:
+        return source_sequence + 1
+    return 2
+
+
+def _format_branch_display_name(base: str, sequence: int) -> str | None:
+    suffix = f" ({sequence})"
+    truncated_base = base[: _BRANCH_TITLE_MAX_LENGTH - len(suffix)].rstrip()
+    return f"{truncated_base}{suffix}" if truncated_base else None
+
+
+def _default_branch_title(
+    source_title: Any,
+    *,
+    source_is_branch: bool = False,
+    source_sequence: Any = None,
+    sibling_records: list[dict[str, Any]] | None = None,
+) -> tuple[str | None, int | None]:
     if not isinstance(source_title, str):
-        return None
+        return None, None
 
     display_name = source_title.strip()
     if source_is_branch:
         while display_name.lower().startswith("branch:"):
             display_name = display_name[len("branch:") :].strip()
 
-    return display_name or None
+    if not display_name:
+        return None, None
+
+    sequence = _next_branch_title_sequence(source_sequence, source_is_branch=source_is_branch)
+    base = display_name
+    if sequence > 2:
+        source_suffix = f" ({sequence - 1})"
+        if display_name.endswith(source_suffix):
+            base = display_name[: -len(source_suffix)].rstrip()
+
+    occupied_titles = {sibling.get("display_name") for sibling in sibling_records or [] if isinstance(sibling.get("display_name"), str)}
+    display_name = _format_branch_display_name(base, sequence)
+    while display_name in occupied_titles:
+        if sequence >= _BRANCH_TITLE_SEQUENCE_MAX:
+            return None, None
+        sequence += 1
+        display_name = _format_branch_display_name(base, sequence)
+    return display_name, sequence if display_name is not None else None
+
+
+async def _branch_sibling_records(thread_store: Any, parent_thread_id: str) -> list[dict[str, Any]]:
+    siblings: list[dict[str, Any]] = []
+    offset = 0
+    while True:
+        page = await thread_store.search(
+            metadata={"branch_parent_thread_id": parent_thread_id},
+            limit=_BRANCH_SIBLING_PAGE_SIZE,
+            offset=offset,
+        )
+        siblings.extend(page)
+        if len(page) < _BRANCH_SIBLING_PAGE_SIZE:
+            return siblings
+        offset += len(page)
 
 
 # ---------------------------------------------------------------------------
@@ -807,6 +861,27 @@ async def create_thread(body: ThreadCreateRequest, request: Request) -> ThreadRe
 @require_permission("threads", "write", owner_check=True, require_existing=True)
 async def branch_thread(thread_id: ThreadId, body: ThreadBranchRequest, request: Request) -> ThreadBranchResponse:
     """Create a new main-thread branch from a completed assistant turn."""
+    try:
+        async with goal_thread_lock(thread_id):
+            async with get_run_manager(request).reserve_thread_operation(
+                thread_id,
+                kind=ThreadOperationKind.branch,
+                user_id=get_effective_user_id(),
+            ):
+                return await _branch_thread_with_reservation(thread_id, body, request)
+    except ConflictError:
+        raise HTTPException(
+            status_code=409,
+            detail="Thread has work in flight. Branch it after the work finishes.",
+        ) from None
+
+
+async def _branch_thread_with_reservation(
+    thread_id: ThreadId,
+    body: ThreadBranchRequest,
+    request: Request,
+) -> ThreadBranchResponse:
+    """Create a branch while holding the source thread's exclusive reservation."""
     from app.gateway.deps import get_thread_store
 
     thread_store = get_thread_store(request)
@@ -857,10 +932,18 @@ async def branch_thread(thread_id: ThreadId, body: ThreadBranchRequest, request:
         "branch_created_at": now,
     }
 
-    display_name = body.title or _default_branch_display_name(
-        source_record.get("display_name"),
-        source_is_branch=source_metadata.get(_BRANCH_METADATA_KEY) is True,
-    )
+    if body.title:
+        display_name = body.title
+    else:
+        sibling_records = await _branch_sibling_records(thread_store, thread_id)
+        display_name, title_sequence = _default_branch_title(
+            source_record.get("display_name"),
+            source_is_branch=source_metadata.get(_BRANCH_METADATA_KEY) is True,
+            source_sequence=source_metadata.get(_BRANCH_TITLE_SEQUENCE_METADATA_KEY),
+            sibling_records=sibling_records,
+        )
+        if title_sequence is not None:
+            branch_metadata[_BRANCH_TITLE_SEQUENCE_METADATA_KEY] = title_sequence
     thread_owner_user_id = get_trusted_internal_owner_user_id(request)
     thread_owner_kwargs = {"user_id": thread_owner_user_id} if thread_owner_user_id else {}
 
@@ -889,6 +972,8 @@ async def branch_thread(thread_id: ThreadId, body: ThreadBranchRequest, request:
                 values[key] = Overwrite(list(value) if key == "messages" and isinstance(value, list) else value)
             else:
                 values[key] = value
+        if display_name is not None:
+            values["title"] = display_name
         return values
 
     # Stamp both synthetic checkpoints with the branch-creation time because
@@ -1323,7 +1408,11 @@ async def update_thread_state(thread_id: ThreadId, body: ThreadStateUpdateReques
         new_title = body.values["title"]
         if new_title:
             try:
-                await thread_store.update_display_name(thread_id, new_title)
+                await thread_store.update_display_name(
+                    thread_id,
+                    new_title,
+                    remove_metadata_keys=(_BRANCH_TITLE_SEQUENCE_METADATA_KEY,),
+                )
             except Exception:
                 logger.debug("Failed to sync title to thread_meta for %s (non-fatal)", sanitize_log_param(thread_id))
 
